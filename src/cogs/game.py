@@ -3,17 +3,23 @@ from discord.ext import commands
 import asyncio
 import random
 import time
+import datetime
 
 
 class Game(commands.Cog):
     checkmark = "✅"
-    green_light = "🟢"
-    red_light = "🔴"
+    green_light_emote = "🟢"
+    red_light_emote = "🔴"
     reaction_timeout = 5
     rlgl_timeout = 30
+    rlgl_min_score = 20
     players = {}
+    red_lights = {}
+    scores = {}
     eliminated: discord.User = None
-    last = "rl"
+    is_red_light = False
+    last = {}
+    rlts = datetime.datetime.now()
 
     def __init__(self, client):
         self.client: commands.Bot = client
@@ -21,6 +27,24 @@ class Game(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print("Bot online.")
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if str(message.guild.id) in self.red_lights:
+            if self.red_lights[str(message.guild.id)]:
+                if str(message.guild.id) in self.players:
+                    if message.author in self.players[str(message.guild.id)]:
+                        if message.created_at < self.rlts:
+                            self.players[str(message.guild.id)].remove(message.author)
+                            await message.channel.send(f"{message.author.mention} Eliminated.")
+                        else:
+                            scores = self.scores[str(message.guild.id)]
+                            if str(message.author.id) in scores:
+                                self.scores[str(message.guild.id)][str(message.author.id)] += 1
+            else:
+                scores = self.scores[str(message.guild.id)]
+                if str(message.author.id) in scores:
+                    self.scores[str(message.guild.id)][str(message.author.id)] += 1
 
     @commands.command(name="start")
     async def start_game(self, ctx, max_users: int = -1):
@@ -39,54 +63,54 @@ class Game(commands.Cog):
                     if _ != ctx.guild.me:
                         users.append(_)
 
-        print(users)s
-        msgs = {str(usr.id): 0 for usr in users}
-        red_light = False
+        scores = {str(usr.id): 0 for usr in users}
+        self.scores[str(ctx.guild.id)] = scores
 
-        async def snd_ann_msg(rlgl: bool):
-            if rlgl:
-                if self.last != "rl":
-                    await ctx.send(f"{self.red_light} Red Light")
-            else:
-                if self.last != "gl":
-                    await ctx.send(f"{self.green_light} Green Light")
-
-        def check(message):
-            if not red_light:
-                if message.author in users:
-                    msgs[str(message.author.id)] += 1
-                return False
-
-            if message.author in users:
-                users.remove(message.author)
-                self.eliminated = message.author
-
+        await ctx.send("All Participants, get ready. The first game is `Red Light, Green Light`\n"
+                       f"Each participant has to send {self.rlgl_min_score} messages in the next `{self.rlgl_timeout}s`"
+                       f"\nYou can send the message when the I say **__Green Light__**. If you send a message after I"
+                       f" say **__Red Light__** you are eliminated.\nThe participants who are not able to send"
+                       f"the {self.rlgl_min_score} messages in the given time are eliminated too. Good luck!")
+        await asyncio.sleep(2)
+        self.last[str(ctx.guild.id)] = "gl"
+        self.players[str(ctx.guild.id)] = users
         start_time = time.time()
-        while time.time() - start_time < 30:
-            if self.eliminated:
-                await ctx.send(f"{self.eliminated.mention} Eliminated")
-                self.eliminated = None
-
-            await snd_ann_msg(red_light)
-            try:
-                msg = await self.client.wait_for('message', check=check, timeout=0.1)
-            except asyncio.TimeoutError:
-                pass
-
-            if self.last == "rl" and not red_light:
-                self.last = "gl"
-            elif self.last == "gl" and red_light:
-                self.last = "rl"
-
-            if random.randint(5, 20) < 10:
-                red_light = True
-                print("red light")
+        await ctx.send(f"{self.green_light_emote} Green Light")
+        while time.time() - start_time < self.rlgl_timeout:
+            await asyncio.sleep(random.randint(3, 6))
+            last = self.last[str(ctx.guild.id)]
+            if last == "gl":
+                await ctx.send(f"{self.red_light_emote} Red Light")
+                self.rlts = datetime.datetime.now()
+                self.last[str(ctx.guild.id)] = "rl"
+                self.red_lights[str(ctx.guild.id)] = True
             else:
-                red_light = False
-                print("green light")
+                await ctx.send(f"{self.green_light_emote} Green Light")
+                self.last[str(ctx.guild.id)] = "gl"
+                self.red_lights[str(ctx.guild.id)] = False
 
-        await ctx.send(msgs)
+        self.red_lights[str(ctx.guild.id)] = False
+        scores = self.scores[str(ctx.guild.id)]
+        print(scores)
+        users = self.players[str(ctx.guild.id)]
         print(users)
+        for usr_id, score in scores.items():
+            if score < self.rlgl_min_score:
+                usr = await ctx.guild.fetch_member(int(usr_id))
+                try:
+                    users.remove(usr)
+                    await ctx.send(f"{usr.mention} Eliminated(Insufficient score).")
+                except ValueError:
+                    print(usr.id, " not found")
+
+        if not users:
+            return await ctx.send("None made it to the next round. Sed :(")
+
+        congts_str = "Congratulations "
+        for usr in users:
+            congts_str += f"{usr.mention} "
+
+        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
 
 def setup(client):
