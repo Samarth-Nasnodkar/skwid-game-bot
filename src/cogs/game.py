@@ -47,8 +47,11 @@ class Game(commands.Cog):
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.DMChannel):
             if str(message.author.id) in self.honeycomb_words:
-                if message.content.lower() == self.honeycomb_words[str(message.author.id)]:
-                    self.honeycomb_replied[str(message.author.id)] = True
+                if message.content.lower() == self.honeycomb_words[str(message.author.id)]["word"]:
+                    time_delta = message.created_at - self.honeycomb_words[str(message.author.id)]["ts"]
+                    if time_delta.seconds < self.honeycomb_reply_timeout:
+                        self.honeycomb_replied[str(message.author.id)] = True
+                        print(f"{message.author.id} Took {time_delta.seconds}s")
 
         if str(message.guild.id) in self.red_lights:
             if self.red_lights[str(message.guild.id)]:
@@ -154,7 +157,10 @@ class Game(commands.Cog):
             word = random.choice(words)
             await player.create_dm()
             await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{self.honeycomb_reply_timeout}s`")
-            self.honeycomb_words[str(player.id)] = word
+            self.honeycomb_words[str(player.id)] = {
+                "word": word,
+                "ts": datetime.datetime.now()
+            }
 
         await asyncio.sleep(10)
         final_players = []
