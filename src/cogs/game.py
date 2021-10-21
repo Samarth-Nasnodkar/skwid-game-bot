@@ -4,7 +4,18 @@ import asyncio
 import random
 import time
 import datetime
-from src.cogs.honeycomb import honeycomb
+from src.constants.scramble_words import words
+
+
+def scramble(word: str) -> str:
+    scrambled_word = ""
+    word = list(word)
+    while word:
+        random_index = random.randint(0, len(word) - 1)
+        scrambled_word += word[random_index]
+        word.pop(random_index)
+
+    return scrambled_word
 
 
 class Game(commands.Cog):
@@ -14,12 +25,15 @@ class Game(commands.Cog):
     reaction_timeout = 10
     rlgl_timeout = 30
     rlgl_min_score = 20
+    honeycomb_reply_timeout = 10
     players = {}
     red_lights = {}
     scores = {}
     eliminated: discord.User = None
     is_red_light = False
     last = {}
+    honeycomb_words = {}
+    honeycomb_replied = {}
     rlts = datetime.datetime.now()
 
     def __init__(self, client):
@@ -32,7 +46,9 @@ class Game(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.DMChannel):
-            return
+            if str(message.author.id) in self.honeycomb_words:
+                if message.content.lower() == self.honeycomb_words[str(message.author.id)]:
+                    self.honeycomb_replied[str(message.author.id)] = True
 
         if str(message.guild.id) in self.red_lights:
             if self.red_lights[str(message.guild.id)]:
@@ -117,7 +133,7 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        users = await honeycomb(self.client, ctx, users)
+        users = await self.honeycomb(ctx, users)
         if not users:
             return await ctx.send("None made it to the next round. Sed :(")
 
@@ -126,6 +142,33 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
+
+    async def honeycomb(self, ctx, players: list) -> list:
+        await ctx.send(f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled"
+                       f" word. You have to un-scramble it and send it within `{self.honeycomb_reply_timeout}s`.\n"
+                       f"The participants who fail to send the correct answer within the given time will be eliminated."
+                       f" Good Luck!")
+        await asyncio.sleep(3)
+        self.players[str(ctx.guild.id)] = players
+        for player in players:
+            word = random.choice(words)
+            await player.create_dm()
+            await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{self.honeycomb_reply_timeout}s`")
+            self.honeycomb_words[str(player.id)] = word
+
+        await asyncio.sleep(10)
+        final_players = []
+        for player in players:
+            if str(player.id) in self.honeycomb_replied:
+                if self.honeycomb_replied[str(player.id)]:
+                    final_players.append(player)
+                    self.honeycomb_replied[str(player.id)] = False
+                else:
+                    await ctx.send(f"{player.mention} Eliminated.")
+            else:
+                await ctx.send(f"{player.mention} Eliminated.")
+
+        return final_players
 
 
 def setup(client):
