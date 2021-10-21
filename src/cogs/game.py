@@ -53,6 +53,8 @@ class Game(commands.Cog):
                         self.honeycomb_replied[str(message.author.id)] = True
                         print(f"{message.author.id} Took {time_delta.seconds}s")
 
+            return
+
         if str(message.guild.id) in self.red_lights:
             if self.red_lights[str(message.guild.id)]:
                 if str(message.guild.id) in self.players:
