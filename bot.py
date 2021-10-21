@@ -1,6 +1,6 @@
-import discord
-from discord.ext import commands
 import os
+
+from discord.ext import commands
 
 client = commands.Bot(command_prefix="s!", case_insensitive=True)
 TOKEN = os.environ.get("discord_bot_token")
