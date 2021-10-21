@@ -51,6 +51,7 @@ class Game(commands.Cog):
                     time_delta = message.created_at - self.honeycomb_words[str(message.author.id)]["ts"]
                     if time_delta.seconds < self.honeycomb_reply_timeout:
                         self.honeycomb_replied[str(message.author.id)] = True
+                        await message.author.dm_channel.send(f"That is correct! You made it to the next round.")
                         print(f"{message.author.id} Took {time_delta.seconds}s")
 
         try:
