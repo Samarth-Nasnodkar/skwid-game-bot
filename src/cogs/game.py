@@ -68,7 +68,7 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def start_game(self, ctx, max_users: int = -1):
-        bypass = True
+        bypass = False
         if max_users != -1 and max_users < 3:
             return ctx.send("There should be at least 3 users")
 
