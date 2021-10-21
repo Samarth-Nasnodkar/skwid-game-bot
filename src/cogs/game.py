@@ -45,14 +45,15 @@ class Game(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if not message.guild:
+        if isinstance(message.channel, discord.DMChannel):
             if str(message.author.id) in self.honeycomb_words:
                 if message.content.lower() == self.honeycomb_words[str(message.author.id)]["word"]:
                     time_delta = message.created_at - self.honeycomb_words[str(message.author.id)]["ts"]
                     if time_delta.seconds < self.honeycomb_reply_timeout:
                         self.honeycomb_replied[str(message.author.id)] = True
                         print(f"{message.author.id} Took {time_delta.seconds}s")
-        else:
+
+        try:
             if str(message.guild.id) in self.red_lights:
                 if self.red_lights[str(message.guild.id)]:
                     if str(message.guild.id) in self.players:
@@ -68,6 +69,8 @@ class Game(commands.Cog):
                     scores = self.scores[str(message.guild.id)]
                     if str(message.author.id) in scores:
                         self.scores[str(message.guild.id)][str(message.author.id)] += 1
+        except Exception as e:
+            print(e)
 
     @commands.command(name="start")
     async def start_game(self, ctx, max_users: int = -1):
