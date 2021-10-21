@@ -27,4 +27,6 @@ words = [
     "disney",
     "consanguineous",
     "Omphaloskepsis"
+    "Migration",
+    "Temprature"
 ]
