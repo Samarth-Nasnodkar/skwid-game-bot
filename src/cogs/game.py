@@ -58,7 +58,7 @@ class Game(commands.Cog):
                 if self.red_lights[str(message.guild.id)]:
                     if str(message.guild.id) in self.players:
                         if message.author in self.players[str(message.guild.id)]:
-                            if message.created_at < self.rlts:
+                            if message.created_at > self.rlts:
                                 self.players[str(message.guild.id)].remove(message.author)
                                 await message.channel.send(f"{message.author.mention} Eliminated.")
                             else:
