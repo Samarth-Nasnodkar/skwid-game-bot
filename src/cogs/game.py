@@ -85,6 +85,7 @@ class Game(commands.Cog):
                                                  style=ButtonStyle.blue,
                                                  emoji="🎫")
                                       ])
+
         # await announce_msg.add_reaction(self.checkmark)
         users = []
 
@@ -335,6 +336,10 @@ class Game(commands.Cog):
                 del self.honeycomb_ts[str(player.id)]
 
         return final_players
+
+    @commands.command(name="clear")
+    async def clear(self, ctx, amount=5):
+        await ctx.channel.purge(limit=amount)
 
 
 def setup(client):
