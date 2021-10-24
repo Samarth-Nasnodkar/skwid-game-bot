@@ -73,7 +73,7 @@ class Game(commands.Cog):
         except Exception as e:
             pass
 
-    @commands.command(name="t_start")
+    @commands.command(name="start")
     async def start_game(self, ctx):
         bypass = False
         '''await ctx.send(f"Those who want to join the game click the Join button below"
