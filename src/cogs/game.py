@@ -6,6 +6,8 @@ import time
 import datetime
 from src.constants.scramble_words import words
 from discord_components import *
+from src.constants.timeouts import *
+from src.cogs.marbles import marbles_collected
 
 
 def scramble(word: str) -> str:
@@ -23,10 +25,6 @@ class Game(commands.Cog):
     checkmark = "✅"
     green_light_emote = "🟢"
     red_light_emote = "🔴"
-    reaction_timeout = 10  # timeout for the reaction message at the start
-    rlgl_timeout = 30
-    rlgl_min_score = 20
-    honeycomb_reply_timeout = 20
     players = {}
     red_lights = {}
     scores = {}
@@ -51,7 +49,7 @@ class Game(commands.Cog):
                     time_delta = message.created_at - self.honeycomb_ts[str(message.author.id)]
                     print(time_delta)
                     print(time_delta.total_seconds())
-                    if time_delta.seconds < self.honeycomb_reply_timeout:
+                    if time_delta.seconds < honeycomb_reply_timeout:
                         self.honeycomb_replied[str(message.author.id)] = True
                         await message.author.dm_channel.send(f"That is correct! You made it to the next round.")
                         print(f"{message.author.id} Took {time_delta.seconds}s")
@@ -73,9 +71,9 @@ class Game(commands.Cog):
                     if str(message.author.id) in scores:
                         self.scores[str(message.guild.id)][str(message.author.id)] += 1
         except Exception as e:
-            print(e)
+            pass
 
-    @commands.command(name="start")
+    @commands.command(name="t_start")
     async def start_game(self, ctx):
         bypass = False
         '''await ctx.send(f"Those who want to join the game click the Join button below"
@@ -87,10 +85,17 @@ class Game(commands.Cog):
                                       ])'''
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
-        embed.add_field(name="Time Left", value=f"You have `{self.reaction_timeout}` s")
+        embed.add_field(name="Time Left", value=f"You have `{reaction_timeout}` s")
 
         await ctx.send(embed=embed, components = [Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
-
+        bypass = True
+        await ctx.send(f"Those who want to join the game click the Join button below"
+                       f"You have `{reaction_timeout}` s",
+                       components=[
+                           Button(label="Join",
+                                  style=ButtonStyle.blue,
+                                  emoji="🎫")
+                       ])
         # await announce_msg.add_reaction(self.checkmark)
         users = []
 
@@ -98,7 +103,7 @@ class Game(commands.Cog):
             return i.component.label == "Join"
 
         start = time.time()
-        while time.time() - start < self.reaction_timeout:
+        while time.time() - start < reaction_timeout:
             try:
                 interation = await self.client.wait_for('button_click', check=usr_check, timeout=1)
             except asyncio.TimeoutError:
@@ -121,16 +126,16 @@ class Game(commands.Cog):
             self.scores[str(ctx.guild.id)] = scores
 
             await ctx.send("All Participants, get ready. The first game is `Red Light, Green Light`\n"
-                           f"Each participant has to send {self.rlgl_min_score} messages in the next `{self.rlgl_timeout}s`"
+                           f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`"
                            f"\nYou can send the message when the I say **__Green Light__**. If you send a message after"
                            f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send"
-                           f"the {self.rlgl_min_score} messages in the given time are eliminated too. Good luck!")
+                           f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!")
             await asyncio.sleep(2)
             self.last[str(ctx.guild.id)] = "gl"
             self.players[str(ctx.guild.id)] = users
             start_time = time.time()
             await ctx.send(f"{self.green_light_emote} Green Light")
-            while time.time() - start_time < self.rlgl_timeout:
+            while time.time() - start_time < rlgl_timeout:
                 await asyncio.sleep(random.randint(3, 6))
                 last = self.last[str(ctx.guild.id)]
                 if last == "gl":
@@ -149,7 +154,7 @@ class Game(commands.Cog):
             users = self.players[str(ctx.guild.id)]
             print(users)
             for usr_id, score in scores.items():
-                if score < self.rlgl_min_score:
+                if score < rlgl_min_score:
                     usr = await ctx.guild.fetch_member(int(usr_id))
                     try:
                         users.remove(usr)
@@ -165,8 +170,8 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        # if not bypass:
-        users = await self.honeycomb(ctx, users)
+        if not bypass:
+            users = await self.honeycomb(ctx, users)
         if not users:
             return await ctx.send("None made it to the next round. Sed :(")
 
@@ -175,7 +180,14 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        users = await self.tugofword(ctx, users)
+        if not bypass:
+            users = await self.tugofword(ctx, users)
+
+        for usr in users:
+            congts_str += f"{usr.mention} "
+
+        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
+        users = await marbles_collected(self.client, ctx.channel, users)
         print(users)
 
     async def tugofword(self, ctx, players: list) -> list:
@@ -309,7 +321,7 @@ class Game(commands.Cog):
 
     async def honeycomb(self, ctx, players: list) -> list:
         await ctx.send(f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled"
-                       f" word. You have to un-scramble it and send it within `{self.honeycomb_reply_timeout}s`.\n"
+                       f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n"
                        f"The participants who fail to send the correct answer within the given time will be eliminated."
                        f" Good Luck!")
         await asyncio.sleep(3)
@@ -317,7 +329,7 @@ class Game(commands.Cog):
         for player in players:
             word = random.choice(words)
             await player.create_dm()
-            await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{self.honeycomb_reply_timeout}s`")
+            await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{honeycomb_reply_timeout}s`")
             self.honeycomb_words[str(player.id)] = word
             self.honeycomb_ts[str(player.id)] = datetime.datetime.utcnow()
 
