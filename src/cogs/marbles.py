@@ -117,6 +117,7 @@ async def game_of_marbles(
                 return wager["user"]
             else:
                 g = oe_guess_msg.content.lower()
+                got_right = True
                 if (wager_wage % 2 == 0 and g == "even") or (wager_wage % 2 == 1 and g == "odd"):
                     if wager["marbles"] > guesser_wage:
                         wager["marbles"] = wager["marbles"] - guesser_wage
