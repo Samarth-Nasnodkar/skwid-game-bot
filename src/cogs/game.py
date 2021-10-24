@@ -87,15 +87,15 @@ class Game(commands.Cog):
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="Time Left", value=f"You have `{reaction_timeout}` s")
 
-        await ctx.send(embed=embed, components = [Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
+        await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
         bypass = True
-        await ctx.send(f"Those who want to join the game click the Join button below"
-                       f"You have `{reaction_timeout}` s",
-                       components=[
-                           Button(label="Join",
-                                  style=ButtonStyle.blue,
-                                  emoji="🎫")
-                       ])
+        # await ctx.send(f"Those who want to join the game click the Join button below"
+        #                f"You have `{reaction_timeout}` s",
+        #                components=[
+        #                    Button(label="Join",
+        #                           style=ButtonStyle.blue,
+        #                           emoji="🎫")
+        #                ])
         # await announce_msg.add_reaction(self.checkmark)
         users = []
 
