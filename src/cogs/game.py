@@ -75,7 +75,7 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def start_game(self, ctx):
-        bypass = False
+        bypass = True
         '''await ctx.send(f"Those who want to join the game click the Join button below"
                                       f"You have `{self.reaction_timeout}` s",
                                       components=[
