@@ -10,4 +10,5 @@ async def on_ready():
     print("Bot online.")
 
 client.load_extension("src.cogs.game")
+client.load_extension("src.cogs.utilities")
 client.run(TOKEN)
