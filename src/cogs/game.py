@@ -361,5 +361,6 @@ class Game(commands.Cog):
         return final_players
 
 
+
 def setup(client):
     client.add_cog(Game(client))

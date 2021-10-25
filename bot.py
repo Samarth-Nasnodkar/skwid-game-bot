@@ -9,6 +9,11 @@ TOKEN = os.environ.get("discord_bot_token")
 async def on_ready():
     print("Bot online.")
 
+
+#@commands.command(name="ping", pass_context=True)
+#async def ping(ctx):
+#    await ctx.send(f"Pong! {client.latency}")
+
 client.load_extension("src.cogs.game")
 client.load_extension("src.cogs.utilities")
 client.run(TOKEN)
