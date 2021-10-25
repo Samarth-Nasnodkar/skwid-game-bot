@@ -26,6 +26,8 @@ waiting_msg = "Waiting for your opponent to wage his/her marbles."
 guess_msg = "**It is now your turn to guess** whether the number of marbles your opponent has waged is/are odd or " \
             "even. Send your guess. **(odd/even)**.\nYou have `20s`."
 
+guess_waiting_msg = "Waiting for your opponent to do the odd/even guess."
+
 
 async def game_of_marbles(
         client: commands.Bot,
@@ -46,7 +48,7 @@ async def game_of_marbles(
         await _u["user"].create_dm()
         await _u["user"].dm_channel.send(rules_msg)
 
-    await asyncio.sleep(20)
+    await asyncio.sleep(30)
     start = time.time()
     turn = 0
 
@@ -188,6 +190,8 @@ async def marbles_collected(
         pairings += f"{users[i].mention} Vs {users[i + 1].mention}\n"
 
     await txt_channel.send(f"The pairings for this round are :\n{pairings}\nThe game will start in `20s`, get ready.")
+
+    await asyncio.sleep(20)
 
     winners = await asyncio.gather(*[game_of_marbles(client, users[i], users[i + 1])
                                    for i in range(0, users_length - 1, 2)])

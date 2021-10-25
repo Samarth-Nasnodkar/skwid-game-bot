@@ -353,10 +353,6 @@ class Game(commands.Cog):
 
         return final_players
 
-    @commands.command(name="clear")
-    async def clear(self, ctx, amount=5):
-        await ctx.channel.purge(limit=amount)
-
 
 def setup(client):
     client.add_cog(Game(client))
