@@ -86,7 +86,6 @@ class Game(commands.Cog):
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="Time Left", value=f"You have `{reaction_timeout}` s")
-
         await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
         # await ctx.send(f"Those who want to join the game click the Join button below"
         #                f"You have `{reaction_timeout}` s",
@@ -133,17 +132,25 @@ class Game(commands.Cog):
             self.last[str(ctx.guild.id)] = "gl"
             self.players[str(ctx.guild.id)] = users
             start_time = time.time()
-            await ctx.send(f"{self.green_light_emote} Green Light")
+            #await ctx.send(f"{self.green_light_emote} Green Light")
+            embed= discord.Embed(description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
+            await ctx.send(embed=embed)
             while time.time() - start_time < rlgl_timeout:
                 await asyncio.sleep(random.randint(3, 6))
                 last = self.last[str(ctx.guild.id)]
                 if last == "gl":
-                    await ctx.send(f"{self.red_light_emote} Red Light")
+                    #await ctx.send(f"{self.red_light_emote} Red Light")
+                    embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
+                                          color=discord.Colour.red())
+                    await ctx.send(embed=embed)
                     self.rlts = datetime.datetime.now()  # Red Light Time stamp
                     self.last[str(ctx.guild.id)] = "rl"
                     self.red_lights[str(ctx.guild.id)] = True
                 else:
-                    await ctx.send(f"{self.green_light_emote} Green Light")
+                    #await ctx.send(f"{self.green_light_emote} Green Light")
+                    embed = discord.Embed(description=f"{self.green_light_emote} Green Light",
+                                          color=discord.Colour.green())
+                    await ctx.send(embed=embed)
                     self.last[str(ctx.guild.id)] = "gl"
                     self.red_lights[str(ctx.guild.id)] = False
 
