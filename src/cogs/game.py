@@ -8,6 +8,7 @@ from src.constants.scramble_words import words
 from discord_components import *
 from src.constants.timeouts import *
 from src.cogs.marbles import marbles_collected
+from src.cogs.glass import glass_game
 
 
 def scramble(word: str) -> str:
@@ -75,7 +76,7 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def start_game(self, ctx):
-        bypass = False
+        bypass = True
         '''await ctx.send(f"Those who want to join the game click the Join button below"
                                       f"You have `{self.reaction_timeout}` s",
                                       components=[
@@ -193,7 +194,11 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        users = await marbles_collected(self.client, ctx.channel, users)
+        if not bypass:
+            users = await marbles_collected(self.client, ctx.channel, users)
+            print(users)
+
+        users = await glass_game(self.client, ctx.channel, users)
         print(users)
 
     async def tugofword(self, ctx, players: list) -> list:
