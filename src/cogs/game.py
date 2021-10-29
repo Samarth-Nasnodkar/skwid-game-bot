@@ -76,7 +76,7 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def start_game(self, ctx):
-        bypass = True
+        bypass = False
         '''await ctx.send(f"Those who want to join the game click the Join button below"
                                       f"You have `{self.reaction_timeout}` s",
                                       components=[
@@ -187,19 +187,21 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        if not bypass:
-            users = await self.tugofword(ctx, users)
+        # if not bypass:
+        #     users = await self.tugofword(ctx, users)
 
-        for usr in users:
-            congts_str += f"{usr.mention} "
-
-        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
+        # for usr in users:
+        #     congts_str += f"{usr.mention} "
+        #
+        # await ctx.send(f"{congts_str}\nYou have made it to the next round.")
         if not bypass:
             users = await marbles_collected(self.client, ctx.channel, users)
             print(users)
 
         users = await glass_game(self.client, ctx.channel, users)
-        print(users)
+
+        if users:
+            await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
 
     async def tugofword(self, ctx, players: list) -> list:
         await ctx.send(f"All participants get ready. The third game is called Tug-Of-Word. You will be divided into"

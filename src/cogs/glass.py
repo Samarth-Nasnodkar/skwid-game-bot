@@ -72,4 +72,12 @@ async def glass_game(
 
         time_delta = time.time() - start
 
+    if not finishers:
+        await channel.send(f"{bold('All players have failed to cross the bridge')}")
+        return []
+
+    if time_delta >= game_time:
+        await channel.send(f"{bold('Time is up!')}")
+        return []
+
     return finishers
