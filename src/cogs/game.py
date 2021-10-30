@@ -11,7 +11,7 @@ from src.cogs.marbles import marbles_collected
 from src.cogs.glass import glass_game
 
 
-def scramble(word: str) -> str:
+def scramble(word) -> str:
     scrambled_word = ""
     word = list(word)
     while word:
@@ -47,7 +47,8 @@ class Game(commands.Cog):
             if str(message.author.id) in self.honeycomb_words:
                 print(list(message.content))
                 if message.content.lower() == self.honeycomb_words[str(message.author.id)].lower():
-                    time_delta = message.created_at - self.honeycomb_ts[str(message.author.id)]
+                    time_delta = message.created_at - \
+                        self.honeycomb_ts[str(message.author.id)]
                     print(time_delta)
                     print(time_delta.total_seconds())
                     if time_delta.seconds < honeycomb_reply_timeout:
@@ -61,16 +62,19 @@ class Game(commands.Cog):
                     if str(message.guild.id) in self.players:
                         if message.author in self.players[str(message.guild.id)]:
                             if message.created_at > self.rlts:
-                                self.players[str(message.guild.id)].remove(message.author)
+                                self.players[str(message.guild.id)].remove(
+                                    message.author)
                                 await message.channel.send(f"{message.author.mention} Eliminated.")
                             else:
                                 scores = self.scores[str(message.guild.id)]
                                 if str(message.author.id) in scores:
-                                    self.scores[str(message.guild.id)][str(message.author.id)] += 1
+                                    self.scores[str(message.guild.id)][str(
+                                        message.author.id)] += 1
                 else:
                     scores = self.scores[str(message.guild.id)]
                     if str(message.author.id) in scores:
-                        self.scores[str(message.guild.id)][str(message.author.id)] += 1
+                        self.scores[str(message.guild.id)][str(
+                            message.author.id)] += 1
         except Exception as e:
             pass
 
@@ -86,7 +90,8 @@ class Game(commands.Cog):
                                       ])'''
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
-        embed.add_field(name="Time Left", value=f"You have `{reaction_timeout}` s")
+        embed.add_field(name="Time Left",
+                        value=f"You have `{reaction_timeout}` s")
         await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
         # await ctx.send(f"Those who want to join the game click the Join button below"
         #                f"You have `{reaction_timeout}` s",
@@ -133,14 +138,15 @@ class Game(commands.Cog):
             self.last[str(ctx.guild.id)] = "gl"
             self.players[str(ctx.guild.id)] = users
             start_time = time.time()
-            #await ctx.send(f"{self.green_light_emote} Green Light")
-            embed= discord.Embed(description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
+            # await ctx.send(f"{self.green_light_emote} Green Light")
+            embed = discord.Embed(
+                description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
             await ctx.send(embed=embed)
             while time.time() - start_time < rlgl_timeout:
                 await asyncio.sleep(random.randint(3, 6))
                 last = self.last[str(ctx.guild.id)]
                 if last == "gl":
-                    #await ctx.send(f"{self.red_light_emote} Red Light")
+                    # await ctx.send(f"{self.red_light_emote} Red Light")
                     embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
                                           color=discord.Colour.red())
                     await ctx.send(embed=embed)
@@ -148,7 +154,7 @@ class Game(commands.Cog):
                     self.last[str(ctx.guild.id)] = "rl"
                     self.red_lights[str(ctx.guild.id)] = True
                 else:
-                    #await ctx.send(f"{self.green_light_emote} Green Light")
+                    # await ctx.send(f"{self.green_light_emote} Green Light")
                     embed = discord.Embed(description=f"{self.green_light_emote} Green Light",
                                           color=discord.Colour.green())
                     await ctx.send(embed=embed)
@@ -366,7 +372,6 @@ class Game(commands.Cog):
                 del self.honeycomb_ts[str(player.id)]
 
         return final_players
-
 
 
 def setup(client):
