@@ -12,6 +12,7 @@ from src.cogs.glass import glass_game
 
 
 def scramble(word) -> str:
+    """Scrambles a word"""
     scrambled_word = ""
     word = list(word)
     while word:
@@ -107,7 +108,6 @@ class Game(commands.Cog):
             color=discord.Colour.blue()
         ),
             components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫", disabled=True)])
-
         if not bypass:
             scores = {str(usr.id): 0 for usr in users}
             self.scores[str(ctx.guild.id)] = scores
@@ -121,7 +121,6 @@ class Game(commands.Cog):
             self.last[str(ctx.guild.id)] = "gl"
             self.players[str(ctx.guild.id)] = users
             start_time = time.time()
-            # await ctx.send(f"{self.green_light_emote} Green Light")
             embed = discord.Embed(
                 description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
             await ctx.send(embed=embed)
@@ -129,15 +128,13 @@ class Game(commands.Cog):
                 await asyncio.sleep(random.randint(3, 6))
                 last = self.last[str(ctx.guild.id)]
                 if last == "gl":
-                    # await ctx.send(f"{self.red_light_emote} Red Light")
                     embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
                                           color=discord.Colour.red())
                     await ctx.send(embed=embed)
-                    self.rlts = datetime.datetime.now()  # Red Light Time stamp
+                    self.rlts = datetime.datetime.now()
                     self.last[str(ctx.guild.id)] = "rl"
                     self.red_lights[str(ctx.guild.id)] = True
                 else:
-                    # await ctx.send(f"{self.green_light_emote} Green Light")
                     embed = discord.Embed(description=f"{self.green_light_emote} Green Light",
                                           color=discord.Colour.green())
                     await ctx.send(embed=embed)
@@ -176,13 +173,7 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        # if not bypass:
-        #     users = await self.tugofword(ctx, users)
 
-        # for usr in users:
-        #     congts_str += f"{usr.mention} "
-        #
-        # await ctx.send(f"{congts_str}\nYou have made it to the next round.")
         if not bypass:
             users = await marbles_collected(self.client, ctx.channel, users)
             print(users)
