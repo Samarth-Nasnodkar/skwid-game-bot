@@ -31,12 +31,13 @@ class Utilities(commands.Cog):
         Get some stats about the bot.
         """
         guilds = len(self.client.guilds)
-        users = len(set(self.client.get_all_members()))
-        channels = len(self.client.get_all_channels())
-        emojis = len(self.client.emojis)
+        users = 0
+        for guild in self.client.guilds:
+            users += guild.member_count
+
         embed = discord.Embed(
             title="Stats",
-            description=f"{guilds} guilds, {users} users, {channels} channels, and {emojis} emojis.",
+            description=f"{guilds} guilds, {users} users",
             color=discord.Color.blue()
         )
         await ctx.send(embed=embed)
