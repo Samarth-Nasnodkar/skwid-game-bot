@@ -1,1 +1,1 @@
-bot_icon = "https://i.imgur.com/2bv3xZf.png"
+bot_icon = "https://i.imgur.com/4jFxZFa.png"
