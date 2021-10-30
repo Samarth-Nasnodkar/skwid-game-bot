@@ -2,6 +2,7 @@ import os
 from discord.ext import commands
 
 client = commands.Bot(command_prefix="s!", case_insensitive=True)
+client.remove_command("help")
 TOKEN = os.environ.get("discord_bot_token")
 
 
