@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from src.utils.textStyles import *
+from src.constants.urls import bot_icon
 
 
 class Utilities(commands.Cog):
@@ -37,9 +39,10 @@ class Utilities(commands.Cog):
 
         embed = discord.Embed(
             title="Bot Stats",
-            description=f"============\n\nServers : `{guilds}`\nUsers : `{users}`\n\n============",
-            color=discord.Color.blue()
+            description=f"============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n============",
+            color=discord.Color.purple()
         )
+        embed.set_thumbnail(url=bot_icon)
         await ctx.send(embed=embed)
 
 
