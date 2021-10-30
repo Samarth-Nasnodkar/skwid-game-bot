@@ -81,26 +81,11 @@ class Game(commands.Cog):
     @commands.command(name="start")
     async def start_game(self, ctx):
         bypass = False
-        '''await ctx.send(f"Those who want to join the game click the Join button below"
-                                      f"You have `{self.reaction_timeout}` s",
-                                      components=[
-                                          Button(label="Join",
-                                                 style=ButtonStyle.blue,
-                                                 emoji="🎫")
-                                      ])'''
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
-        embed.add_field(name="Time Left",
-                        value=f"You have `{reaction_timeout}` s")
-        await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
-        # await ctx.send(f"Those who want to join the game click the Join button below"
-        #                f"You have `{reaction_timeout}` s",
-        #                components=[
-        #                    Button(label="Join",
-        #                           style=ButtonStyle.blue,
-        #                           emoji="🎫")
-        #                ])
-        # await announce_msg.add_reaction(self.checkmark)
+        embed.add_field(name="You have : ",
+                        value=f"`{reaction_timeout}` s")
+        msg = await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
         users = []
 
         def usr_check(i):
@@ -116,14 +101,12 @@ class Game(commands.Cog):
                 users.append(interation.user)
                 await interation.respond(content="You have successfully joined the game.")
 
-        print(users)
-
-        # announce_msg = await ctx.channel.fetch_message(announce_msg.id)
-        # for reaction in announce_msg.reactions:
-        #     if reaction.emoji == self.checkmark:
-        #         async for _ in reaction.users():
-        #             if _ != ctx.guild.me:
-        #                 users.append(_)
+        await msg.edit(embed=discord.Embed(
+            title="Game Started!",
+            description=f"`{len(users)}` Joined",
+            color=discord.Colour.blue()
+        ),
+            components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫", disabled=True)])
 
         if not bypass:
             scores = {str(usr.id): 0 for usr in users}
