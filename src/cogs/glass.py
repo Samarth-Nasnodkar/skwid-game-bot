@@ -41,19 +41,22 @@ async def glass_game(
     while i < len(users) and int(time_delta) < game_time and glasses_passed < glass_steps:
         print(f"{time_delta=}")
         if last_i != i:
-            await channel.send(f"{users[i].mention} Your turn to choose. Choose wisely.")
+            await channel.send(f"{users[i].mention} Your turn to choose. Choose wisely. {glass_steps - glasses_passed - 1} more to go")
 
         def check_button_press(_interaction):
             return _interaction.user == users[i]
 
         await channel.send(content="Choose your Glass Panel",
                            components=[
-                               Button(style=ButtonStyle.green, emoji=glass_emoji, custom_id="glass1"),
-                               Button(style=ButtonStyle.blue, emoji=glass_emoji, custom_id="glass2")
+                               Button(style=ButtonStyle.green,
+                                      emoji=glass_emoji, custom_id="glass1"),
+                               Button(style=ButtonStyle.blue,
+                                      emoji=glass_emoji, custom_id="glass2")
                            ])
         try:
             interaction = await client.wait_for('button_click',
-                                                timeout=int(game_time - time_delta),
+                                                timeout=int(
+                                                    game_time - time_delta),
                                                 check=check_button_press)
         except asyncio.TimeoutError:
             await channel.send(f"You took too long to respond and failed to cross the bridge. Players Eliminated.")
@@ -77,7 +80,7 @@ async def glass_game(
         return []
 
     if time_delta >= game_time:
-        await channel.send(f"{bold('Time is up!')}")
+        await channel.send(f"{bold('Time is up!')}, Everyone Eliminated.")
         return []
 
     return finishers

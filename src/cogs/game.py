@@ -125,6 +125,10 @@ class Game(commands.Cog):
                 description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
             await ctx.send(embed=embed)
             while time.time() - start_time < rlgl_timeout:
+                if not users:
+                    await ctx.send("No one is left in the game. Better luck next time :)")
+                    return
+
                 await asyncio.sleep(random.randint(3, 6))
                 last = self.last[str(ctx.guild.id)]
                 if last == "gl":
@@ -317,7 +321,7 @@ class Game(commands.Cog):
                        f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n"
                        f"The participants who fail to send the correct answer within the given time will be eliminated."
                        f" Good Luck!")
-        await asyncio.sleep(3)
+        await asyncio.sleep(10)
         self.players[str(ctx.guild.id)] = players
         for player in players:
             word = random.choice(words)
