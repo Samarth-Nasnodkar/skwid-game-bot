@@ -36,8 +36,8 @@ class Utilities(commands.Cog):
             users += guild.member_count
 
         embed = discord.Embed(
-            title="Stats",
-            description=f"{guilds} guilds, {users} users",
+            title="Bot Stats",
+            description=f"============\n\nServers : `{guilds}`\nUsers : `{users}`\n\n============",
             color=discord.Color.blue()
         )
         await ctx.send(embed=embed)
