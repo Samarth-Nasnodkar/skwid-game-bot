@@ -69,13 +69,13 @@ class Help(commands.Cog):
                 await msg.edit(
                     embed=current_embed,
                     components=[
-                        Button(label="‏‏‎ ‎", emoji=self.menuEmoji, custom_id="menu",
+                        Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                style=ButtonStyle.green),
-                        Button(label="‏‏‎ ‎", emoji=self.rlglEmoji, custom_id="rlgl",
+                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
                                style=ButtonStyle.blue),
-                        Button(label="‏‏‎ ‎", emoji=self.honeycombEmoji,
+                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
                                custom_id="honeycomb", style=ButtonStyle.blue),
-                        Button(label="‏‏‎ ‎", emoji=self.marblesEmoji,
+                        Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                                custom_id="marbles", style=ButtonStyle.blue),
                     ])
 
