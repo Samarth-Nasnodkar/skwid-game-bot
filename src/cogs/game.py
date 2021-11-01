@@ -10,6 +10,7 @@ from src.constants.timeouts import *
 from src.cogs.marbles import marbles_collected
 from src.cogs.glass import glass_game
 from src.constants.urls import bot_icon
+from src.constants.owners import owners
 
 
 def scramble(word) -> str:
@@ -81,8 +82,9 @@ class Game(commands.Cog):
             pass
 
     @commands.command(name="start")
-    async def start_game(self, ctx):
-        bypass = False
+    async def start_game(self, ctx, skip_to=0):
+        if not ctx.author.id in owners:
+            skip_to = 0
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="You have : ",
@@ -109,7 +111,7 @@ class Game(commands.Cog):
             color=discord.Colour.blue()
         ),
             components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫", disabled=True)])
-        if not bypass:
+        if skip_to == 0:
             scores = {str(usr.id): 0 for usr in users}
             self.scores[str(ctx.guild.id)] = scores
 
@@ -168,7 +170,7 @@ class Game(commands.Cog):
             congts_str += f"{usr.mention} "
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        if not bypass:
+        if skip_to <= 1:
             users = await self.honeycomb(ctx, users)
         if not users:
             return await ctx.send("None made it to the next round. Sed :(")
@@ -179,7 +181,7 @@ class Game(commands.Cog):
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
-        if not bypass:
+        if skip_to <= 2:
             users = await marbles_collected(self.client, ctx.channel, users)
             print(users)
 
@@ -190,16 +192,15 @@ class Game(commands.Cog):
 
     async def tugofword(self, ctx, players: list) -> list:
         embed = discord.Embed(title="Welcome to Tug Of Words", description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
-                       f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
-                       f"with a word(may or may not be in the dictionary) which starts with the last word of your "
-                       f"team member who replied just before you and must be at least 5 characters long."
-                       f" The team which can form the longest chain, wins",  color=discord.Colour.purple())
+                              f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
+                              f"with a word(may or may not be in the dictionary) which starts with the last word of your "
+                              f"team member who replied just before you and must be at least 5 characters long."
+                              f" The team which can form the longest chain, wins",  color=discord.Colour.purple())
         embed.set_footer(text="All the best. Game starts in 10 seconds.")
         embed.set_thumbnail(url=bot_icon)
         embed.set_thumbnail(url=bot_icon)
 
         await ctx.send(embed=embed)
-
 
         '''await ctx.send(f"All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
                        f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
