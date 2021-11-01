@@ -43,7 +43,7 @@ tug.set_thumbnail(url=bot_icon)
 glass = discord.Embed(title=f"{bold('Information on Glass Panel game')}", description=glass_i, color=discord.Colour.purple())
 glass.set_thumbnail(url=bot_icon)
 
-embeds = {'game1': red_green,
-          'game2': hc,
-          'game3': tug,
-          'game 4': glass}
+embeds = {'game_0': red_green,
+          'game_1': hc,
+          'game_2': tug,
+          'game_3': glass}
