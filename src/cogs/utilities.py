@@ -49,7 +49,8 @@ class Utilities(commands.Cog):
     async def help(self, ctx):
         embed = discord.Embed(
             title="Bot Help!",
-            description=f"{bold('Commands')}\n`help` ➜ Shows this command\n`start` ➜ Starts the game\n",
+            description=f"{bold('Commands')}\n`help` ➜ Shows this command\n`start` ➜ Starts the game\n"
+                        f"`prefix <new prefix>` ➜ updates the bot's prefix",
         )
         embed.set_footer(text="More commands & games coming soon.")
         await ctx.send(embed=embed)
