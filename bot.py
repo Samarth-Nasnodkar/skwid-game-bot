@@ -28,7 +28,10 @@ def set_prefix(guild_id, prefix):
         {"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
 
 
-client = commands.Bot(command_prefix=get_prefix, case_insensitive=True)
+intents = [discord.Intents.emojis, discord.Intents.members, discord.Intents.guilds,
+           discord.Intents.dm_messages, discord.Intents.guild_messages, discord.Intents.messages]
+client = commands.Bot(command_prefix=get_prefix,
+                      case_insensitive=True, intents=intents)
 logs_channel = client.get_channel(904637131736121375)
 mongoCLuster = MongoClient(os.environ.get('mongo_db_auth'))
 client.remove_command("help")
@@ -73,6 +76,7 @@ async def prefix(ctx, _p=None):
 
 
 client.load_extension("src.cogs.game")
-# client.load_extension("src.cogs.topgg")
+client.load_extension("src.cogs.topgg")
+client.load_extension("src.cogs.help")
 client.load_extension("src.cogs.utilities")
 client.run(TOKEN)

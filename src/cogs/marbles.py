@@ -54,11 +54,11 @@ async def game_of_marbles(
 
     def guesser_check(message: discord.Message):
         return isinstance(message.channel, discord.DMChannel) and message.author == users[turn]["user"] \
-               and message.content.isnumeric()
+            and message.content.isnumeric()
 
     def wager_check(message: discord.Message):
         return isinstance(message.channel, discord.DMChannel) and message.author == users[1 - turn]["user"] \
-               and message.content.isnumeric()
+            and message.content.isnumeric()
 
     while time.time() - start < marbles_total_time:
         guesser = users[turn]
@@ -107,7 +107,7 @@ async def game_of_marbles(
 
         def guess_check(message: discord.Message):
             return isinstance(message.channel, discord.DMChannel) and message.content.lower() in options \
-                   and message.author == guesser["user"]
+                and message.author == guesser["user"]
 
         await guesser["user"].send(guess_msg)
         got_right = False
@@ -185,6 +185,10 @@ async def marbles_collected(
     if bye:
         await txt_channel.send(f"{bye.mention} has made it to the next game for not finding a partner.")
 
+    if len(users) == 1:
+        await txt_channel.send("Only one participant left. You have won!")
+        return users[0]
+
     pairings = ""
     for i in range(0, users_length - 1, 2):
         pairings += f"{users[i].mention} Vs {users[i + 1].mention}\n"
@@ -207,4 +211,3 @@ async def marbles_collected(
 
     await txt_channel.send(f"The participants who have made it to the next round are : {w_str}.")
     return _winners
-
