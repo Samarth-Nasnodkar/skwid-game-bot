@@ -7,19 +7,25 @@ from pymongo import MongoClient
 
 
 def get_prefix(bot, message):
-    db = mongoCLuster["discord_bot"]
-    collection = db["prefixes"]
-    prefixes = collection.find_one({"_id": 0})
-    if str(message.guild.id) not in prefixes:
-        return commands.when_mentioned_or("s!")(bot, message)
-    else:
-        return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
+    return commands.when_mentioned_or("s!")(bot, message)
+    # try:
+    #     db = mongoCLuster["discord_bot"]
+    #     collection = db["prefixes"]
+    #     prefixes = collection.find_one({"_id": 0})
+    #     if str(message.guild.id) not in prefixes:
+    #         return commands.when_mentioned_or("s!")(bot, message)
+    #     else:
+    #         return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
+    # except Exception as e:
+    #     print(e)
+    #     return commands.when_mentioned_or("s!")(bot, message)
 
 
 def set_prefix(guild_id, prefix):
     db = mongoCLuster["discord_bot"]
     collection = db["prefixes"]
-    collection.update_one({"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
+    collection.update_one(
+        {"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
 
 
 client = commands.Bot(command_prefix=get_prefix, case_insensitive=True)
@@ -46,7 +52,7 @@ async def on_guild_remove(guild: discord.Guild):
 
 @client.command(name="prefix", pass_context=True)
 async def prefix(ctx, _p=None):
-    if not ctx.author.guild_permissions.manage_guild:
+    if not ctx.author.guild_permissions.manage_guild and _p is not None:
         return await ctx.send("You don't have permission to use this command.")
 
     if _p is None:
@@ -55,8 +61,9 @@ async def prefix(ctx, _p=None):
             return await ctx.send(f"My prefixes are {', '.join(pref)}")
         else:
             return await ctx.send("My prefix is {}".format(pref))
-    set_prefix(ctx.guild.id, _p)
-    await ctx.send("Prefix set to `{}`".format(_p))
+    # set_prefix(ctx.guild.id, _p)
+    # await ctx.send("Prefix set to `{}`".format(_p))
+    await ctx.send("This command is not available yet.")
 
 
 client.load_extension("src.cogs.game")
