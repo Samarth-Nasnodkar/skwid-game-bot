@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.ext.commands import bot
 from discord_components import *
 from discord_components.dpy_overrides import send_files
-from cogs.utilities import setup
+from src.cogs.utilities import setup
 from src.constants.help_embeds import embeds
 from src.constants.urls import bot_icon
 import asyncio
