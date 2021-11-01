@@ -41,7 +41,7 @@ async def on_ready():
 
 
 @client.command(name="et")
-async def emoji_test(ctx, emj: discord.Emoji):
+async def emoji_test(ctx, emj: discord.PartialEmoji):
     print(emj)
 
 
