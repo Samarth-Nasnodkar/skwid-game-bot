@@ -13,15 +13,15 @@ import asyncio
 class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.supportServer = client.get_guild(900056168716701696)
 
     @commands.command()
     async def help(self, ctx):
-        menuEmoji = await self.supportServer.fetch_emoji(904785389418602516)
-        rlglEmoji = await self.supportServer.fetch_emoji(904782170499981322)
-        marblesEmoji = await self.supportServer.fetch_emoji(904783089996279884)
-        honeycombEmoji = await self.supportServer.fetch_emoji(904782927060148224)
-        glassEmoji = await self.supportServer.fetch_emoji(903272838822240268)
+        supportServer = client.get_guild(900056168716701696)
+        menuEmoji = await supportServer.fetch_emoji(904785389418602516)
+        rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
+        marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
+        honeycombEmoji = await supportServer.fetch_emoji(904782927060148224)
+        glassEmoji = await supportServer.fetch_emoji(903272838822240268)
         menu_embed = discord.Embed(
             title="Help Menu",
             description=f"Click a button below to get more info on games.\n"
