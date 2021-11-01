@@ -12,5 +12,6 @@ async def on_ready():
 
 
 client.load_extension("src.cogs.game")
+client.load_extension("src.cogs.topgg")
 client.load_extension("src.cogs.utilities")
 client.run(TOKEN)
