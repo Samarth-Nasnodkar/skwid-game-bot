@@ -45,15 +45,15 @@ class Utilities(commands.Cog):
         embed.set_thumbnail(url=bot_icon)
         await ctx.send(embed=embed)
 
-    # @commands.command(name="help")
-    # async def help(self, ctx):
-    #     embed = discord.Embed(
-    #         title="Bot Help!",
-    #         description=f"{bold('Commands')}\n`help` ➜ Shows this command\n`start` ➜ Starts the game\n"
-    #                     f"`prefix <new prefix>` ➜ updates the bot's prefix",
-    #     )
-    #     embed.set_footer(text="More commands & games coming soon.")
-    #     await ctx.send(embed=embed)
+    @commands.command(name="help")
+    async def help(self, ctx):
+        embed = discord.Embed(
+            title="Bot Help!",
+            description=f"{bold('Commands')}\n`help` ➜ Shows this command\n`start` ➜ Starts the game\n"
+                        f"`prefix <new prefix>` ➜ updates the bot's prefix",
+        )
+        embed.set_footer(text="More commands & games coming soon.")
+        await ctx.send(embed=embed)
 
 
 def setup(client):

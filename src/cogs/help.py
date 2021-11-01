@@ -14,9 +14,9 @@ class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command()
+    @commands.command(name="t_help")
     async def help(self, ctx):
-        supportServer = client.get_guild(900056168716701696)
+        supportServer = self.client.get_guild(900056168716701696)
         menuEmoji = await supportServer.fetch_emoji(904785389418602516)
         rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
         marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
