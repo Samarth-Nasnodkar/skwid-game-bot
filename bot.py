@@ -43,6 +43,7 @@ async def on_ready():
 @client.command(name="et")
 async def emoji_test(ctx):
     emj = discord.utils.get(ctx.guild.emojis, name="sunglasses")
+    await ctx.send(emj)
 
 
 @client.event
