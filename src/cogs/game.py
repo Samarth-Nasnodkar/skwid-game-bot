@@ -87,6 +87,7 @@ class Game(commands.Cog):
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="You have : ",
                         value=f"`{reaction_timeout}` s")
+        embed.set_thumbnail(url=bot_icon)
         msg = await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
         users = []
 
@@ -113,11 +114,16 @@ class Game(commands.Cog):
             scores = {str(usr.id): 0 for usr in users}
             self.scores[str(ctx.guild.id)] = scores
 
-            await ctx.send("All Participants, get ready. The first game is `Red Light, Green Light`\n"
-                           f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`"
-                           f"\nYou can send the message when the I say **__Green Light__**. If you send a message after"
-                           f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send"
-                           f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!")
+            red_green_intro = f"All Participants, get ready. The first game is `Red Light, Green Light`\n"\
+                              f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`"\
+                              f"\nYou can send the message when the I say **__Green Light__**. If you send a message after"\
+                              f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send"\
+                              f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!"
+            red_green = discord.Embed(title="Welcome to Red Light, Green Light", description=red_green_intro, color=discord.Colour.purple())
+            red_green.set_thumbnail(url=bot_icon)
+            red_green.set_footer(text="Game start in 2 seconds.")
+            await ctx.send(embed=red_green)
+
             await asyncio.sleep(2)
             self.last[str(ctx.guild.id)] = "gl"
             self.players[str(ctx.guild.id)] = users
@@ -330,10 +336,15 @@ class Game(commands.Cog):
         return players
 
     async def honeycomb(self, ctx, players: list) -> list:
-        await ctx.send(f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled"
-                       f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n"
-                       f"The participants who fail to send the correct answer within the given time will be eliminated."
-                       f" Good Luck!")
+        honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled"\
+                          f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n"\
+                          f"The participants who fail to send the correct answer within the given time will be eliminated."\
+                          f" Good Luck!"
+        embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro, color=discord.Colour.purple())
+        embed.set_thumbnail(url=bot_icon)
+        embed.set_footer(text="Game will begin in 10 seconds.")
+        await ctx.send(embed=embed)
+
         await asyncio.sleep(10)
         self.players[str(ctx.guild.id)] = players
         for player in players:
