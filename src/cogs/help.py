@@ -13,22 +13,23 @@ import asyncio
 class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.menuEmoji = self.client.get_emoji(904785389418602516)
-        self.rlglEmoji = self.client.get_emoji(904782170499981322)
-        self.marblesEmoji = self.client.get_emoji(904783089996279884)
-        self.honeycombEmoji = self.client.get_emoji(904782927060148224)
-        self.glassEmoji = self.client.get_emoji(903272838822240268)
+        self.supportServer = client.get_guild(900056168716701696)
 
     @commands.command()
     async def help(self, ctx):
+        menuEmoji = await self.supportServer.fetch_emoji(904785389418602516)
+        rlglEmoji = await self.supportServer.fetch_emoji(904782170499981322)
+        marblesEmoji = await self.supportServer.fetch_emoji(904783089996279884)
+        honeycombEmoji = await self.supportServer.fetch_emoji(904782927060148224)
+        glassEmoji = await self.supportServer.fetch_emoji(903272838822240268)
         menu_embed = discord.Embed(
             title="Help Menu",
             description=f"Click a button below to get more info on games.\n"
-            f"{self.menuEmoji} **➜** Shows this Menu\n"
-            f"{self.rlglEmoji} **➜** Rules of Red Light Green Light\n"
-            f"{self.honeycombEmoji} **➜** Rules of Honeycomb\n"
-            f"{self.marblesEmoji} **➜** Rules of Marbles\n"
-            f"{self.glassEmoji} **➜** Rules of Glass Walk",
+            f"{menuEmoji} **➜** Shows this Menu\n"
+            f"{rlglEmoji} **➜** Rules of Red Light Green Light\n"
+            f"{honeycombEmoji} **➜** Rules of Honeycomb\n"
+            f"{marblesEmoji} **➜** Rules of Marbles\n"
+            f"{glassEmoji} **➜** Rules of Glass Walk",
             color=discord.Color.purple(),
         )
         current_embed = menu_embed
@@ -37,13 +38,13 @@ class Help(commands.Cog):
         msg = await ctx.send(
             embed=current_embed,
             components=[
-                Button(label="‏‏‎ ‎", emoji=self.menuEmoji, custom_id="menu",
+                Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                        style=ButtonStyle.green),
-                Button(label="‏‏‎ ‎", emoji=self.rlglEmoji, custom_id="rlgl",
+                Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
                        style=ButtonStyle.blue),
-                Button(label="‏‏‎ ‎", emoji=self.honeycombEmoji,
+                Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
                        custom_id="honeycomb", style=ButtonStyle.blue),
-                Button(label="‏‏‎ ‎", emoji=self.marblesEmoji,
+                Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                        custom_id="marbles", style=ButtonStyle.blue),
             ])
         while True:
@@ -53,13 +54,13 @@ class Help(commands.Cog):
                 await msg.edit(
                     embed=current_embed,
                     components=[
-                        Button(label="‎‏‏‎ ‎", emoji=self.menuEmoji, custom_id="menu",
+                        Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                style=ButtonStyle.green, disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=self.rlglEmoji, custom_id="rlgl",
+                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
                                style=ButtonStyle.blue, disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=self.honeycombEmoji, custom_id="honeycomb",
+                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji, custom_id="honeycomb",
                                style=ButtonStyle.blue,    disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=self.marblesEmoji, custom_id="marbles",
+                        Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
                                style=ButtonStyle.blue, disabled=True),
                     ])
                 return
