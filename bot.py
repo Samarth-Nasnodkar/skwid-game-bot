@@ -37,6 +37,7 @@ TOKEN = os.environ.get("discord_bot_token")
 
 @client.event
 async def on_ready():
+    await logs_channel.send(discord.Emoji(name=":sunglasses:"))
     print("Bot online.")
 
 
