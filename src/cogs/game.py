@@ -9,6 +9,7 @@ from discord_components import *
 from src.constants.timeouts import *
 from src.cogs.marbles import marbles_collected
 from src.cogs.glass import glass_game
+from src.constants.urls import bot_icon
 
 
 def scramble(word) -> str:
@@ -188,11 +189,23 @@ class Game(commands.Cog):
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
 
     async def tugofword(self, ctx, players: list) -> list:
-        await ctx.send(f"All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
+        embed = discord.Embed(title="Welcome to Tug Of Words", description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
                        f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
                        f"with a word(may or may not be in the dictionary) which starts with the last word of your "
                        f"team member who replied just before you and must be at least 5 characters long."
-                       f" The team which can form the longest chain, wins.")
+                       f" The team which can form the longest chain, wins",  color=discord.Colour.purple())
+        embed.set_footer(text="All the best. Game starts in 10 seconds.")
+        embed.set_thumbnail(url=bot_icon)
+        embed.set_thumbnail(url=bot_icon)
+
+        await ctx.send(embed=embed)
+
+
+        '''await ctx.send(f"All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
+                       f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
+                       f"with a word(may or may not be in the dictionary) which starts with the last word of your "
+                       f"team member who replied just before you and must be at least 5 characters long."
+                       f" The team which can form the longest chain, wins.")'''
         await asyncio.sleep(10)
         l = len(players) // 2
         team_1 = players[:l]

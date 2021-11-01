@@ -5,6 +5,7 @@ import time
 import asyncio
 from src.utils.textStyles import *
 import random
+from src.constants.urls import bot_icon
 
 glass_steps = 16
 game_time = 180
@@ -30,7 +31,12 @@ async def glass_game(
 ) -> list:
     support_server: discord.Guild = client.get_guild(support_server_id)
     glass_emoji = await support_server.fetch_emoji(glass_emoji_id)
-    await channel.send(intro_message)
+    #await channel.send(intro_message)
+    embed = discord.Embed(title="Welcome Glass walk", color=discord.Colour.purple(), description=intro_message)
+    embed.set_thumbnail(url=bot_icon)
+    embed.set_footer(text=f"The game begins in {wait_time}.")
+    await channel.send(embed=embed)
+
     await asyncio.sleep(wait_time)
     glasses_passed = 0
     start = time.time()
