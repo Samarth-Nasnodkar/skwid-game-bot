@@ -40,6 +40,12 @@ async def on_ready():
     print("Bot online.")
 
 
+@client.command(name="et")
+async def emoji_test(ctx):
+    emj = discord.utils.get(ctx.guild.emojis, name="sunglasses")
+    await ctx.send(emj)
+
+
 @client.event
 async def on_guild_join(guild: discord.Guild):
     await logs_channel.send(f"Joined guild: {bold(guild.name)}")
