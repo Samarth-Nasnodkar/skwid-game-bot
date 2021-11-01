@@ -28,8 +28,8 @@ def set_prefix(guild_id, prefix):
         {"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
 
 
-intents = [discord.Intents.emojis, discord.Intents.members, discord.Intents.guilds,
-           discord.Intents.dm_messages, discord.Intents.guild_messages, discord.Intents.messages]
+intents = discord.Intents.default()
+intents.members = True
 client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)
 logs_channel = client.get_channel(904637131736121375)
