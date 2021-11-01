@@ -7,19 +7,24 @@ from pymongo import MongoClient
 
 
 def get_prefix(bot, message):
-    db = mongoCLuster["discord_bot"]
-    collection = db["prefixes"]
-    prefixes = collection.find_one({"_id": 0})
-    if str(message.guild.id) not in prefixes:
+    try:
+        db = mongoCLuster["discord_bot"]
+        collection = db["prefixes"]
+        prefixes = collection.find_one({"_id": 0})
+        if str(message.guild.id) not in prefixes:
+            return commands.when_mentioned_or("s!")(bot, message)
+        else:
+            return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
+    except Exception as e:
+        print(e)
         return commands.when_mentioned_or("s!")(bot, message)
-    else:
-        return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
 
 
 def set_prefix(guild_id, prefix):
     db = mongoCLuster["discord_bot"]
     collection = db["prefixes"]
-    collection.update_one({"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
+    collection.update_one(
+        {"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
 
 
 client = commands.Bot(command_prefix=get_prefix, case_insensitive=True)
