@@ -81,7 +81,7 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def start_game(self, ctx):
-        bypass = True
+        bypass = False
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="You have : ",
