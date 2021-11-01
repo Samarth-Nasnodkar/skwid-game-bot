@@ -1,4 +1,6 @@
 import os
+from src.utils.textStyles import *
+import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
@@ -21,6 +23,7 @@ def set_prefix(guild_id, prefix):
 
 
 client = commands.Bot(command_prefix=get_prefix, case_insensitive=True)
+logs_channel = client.get_channel(904637131736121375)
 mongoCLuster = MongoClient(os.environ.get('mongo_db_auth'))
 client.remove_command("help")
 TOKEN = os.environ.get("discord_bot_token")
@@ -29,6 +32,16 @@ TOKEN = os.environ.get("discord_bot_token")
 @client.event
 async def on_ready():
     print("Bot online.")
+
+
+@client.event
+async def on_guild_join(guild: discord.Guild):
+    await logs_channel.send(f"Joined guild: {bold(guild.name)}")
+
+
+@client.event
+async def on_guild_remove(guild: discord.Guild):
+    await logs_channel.send(f"Left guild: {bold(guild.name)}")
 
 
 @client.command(name="prefix", pass_context=True)
