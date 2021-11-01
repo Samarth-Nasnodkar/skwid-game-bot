@@ -37,13 +37,13 @@ class Help(commands.Cog):
         msg = await ctx.send(
             embed=current_embed,
             components=[
-                Button(label="", emoji=self.menuEmoji, custom_id="menu",
+                Button(label="‏‏‎ ‎", emoji=self.menuEmoji, custom_id="menu",
                        style=ButtonStyle.green),
-                Button(label="", emoji=self.rlglEmoji, custom_id="rlgl",
+                Button(label="‏‏‎ ‎", emoji=self.rlglEmoji, custom_id="rlgl",
                        style=ButtonStyle.blue),
-                Button(label="", emoji=self.honeycombEmoji,
+                Button(label="‏‏‎ ‎", emoji=self.honeycombEmoji,
                        custom_id="honeycomb", style=ButtonStyle.blue),
-                Button(label="", emoji=self.marblesEmoji,
+                Button(label="‏‏‎ ‎", emoji=self.marblesEmoji,
                        custom_id="marbles", style=ButtonStyle.blue),
             ])
         while True:
@@ -53,13 +53,13 @@ class Help(commands.Cog):
                 await msg.edit(
                     embed=current_embed,
                     components=[
-                        Button(label="", emoji=self.menuEmoji, custom_id="menu",
+                        Button(label="‎‏‏‎ ‎", emoji=self.menuEmoji, custom_id="menu",
                                style=ButtonStyle.green, disabled=True),
-                        Button(label="", emoji=self.rlglEmoji, custom_id="rlgl",
+                        Button(label="‏‏‎ ‎", emoji=self.rlglEmoji, custom_id="rlgl",
                                style=ButtonStyle.blue, disabled=True),
-                        Button(label="", emoji=self.honeycombEmoji, custom_id="honeycomb",
+                        Button(label="‏‏‎ ‎", emoji=self.honeycombEmoji, custom_id="honeycomb",
                                style=ButtonStyle.blue,    disabled=True),
-                        Button(label="", emoji=self.marblesEmoji, custom_id="marbles",
+                        Button(label="‏‏‎ ‎", emoji=self.marblesEmoji, custom_id="marbles",
                                style=ButtonStyle.blue, disabled=True),
                     ])
                 return
@@ -68,13 +68,13 @@ class Help(commands.Cog):
                 await msg.edit(
                     embed=current_embed,
                     components=[
-                        Button(label="", emoji=self.menuEmoji, custom_id="menu",
+                        Button(label="‏‏‎ ‎", emoji=self.menuEmoji, custom_id="menu",
                                style=ButtonStyle.green),
-                        Button(label="", emoji=self.rlglEmoji, custom_id="rlgl",
+                        Button(label="‏‏‎ ‎", emoji=self.rlglEmoji, custom_id="rlgl",
                                style=ButtonStyle.blue),
-                        Button(label="", emoji=self.honeycombEmoji,
+                        Button(label="‏‏‎ ‎", emoji=self.honeycombEmoji,
                                custom_id="honeycomb", style=ButtonStyle.blue),
-                        Button(label="", emoji=self.marblesEmoji,
+                        Button(label="‏‏‎ ‎", emoji=self.marblesEmoji,
                                custom_id="marbles", style=ButtonStyle.blue),
                     ])
 
