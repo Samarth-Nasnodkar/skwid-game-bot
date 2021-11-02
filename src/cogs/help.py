@@ -50,6 +50,8 @@ class Help(commands.Cog):
                        custom_id="honeycomb", style=ButtonStyle.blue),
                 Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                        custom_id="marbles", style=ButtonStyle.blue),
+                Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                       custom_id="glass", style=ButtonStyle.blue)
             ]))
         while True:
             try:
@@ -66,6 +68,8 @@ class Help(commands.Cog):
                                style=ButtonStyle.blue,    disabled=True),
                         Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
                                style=ButtonStyle.blue, disabled=True),
+                        Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                               custom_id="glass", style=ButtonStyle.blue, disabled=True)
                     ]))
                 return
             except Exception as e:
@@ -86,6 +90,8 @@ class Help(commands.Cog):
                                            custom_id="honeycomb", style=ButtonStyle.blue),
                                     Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                                            custom_id="marbles", style=ButtonStyle.blue),
+                                    Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                                           custom_id="glass", style=ButtonStyle.blue)
                                 ]))
                 # await msg.edit(
                 #     embed=current_embed,
