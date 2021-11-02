@@ -52,14 +52,14 @@ async def on_ready():
 @client.event
 async def on_guild_join(guild: discord.Guild):
     supportServer = client.get_guild(900056168716701696)
-    logs_channel = await supportServer.fetch_channel(904637131736121375)
+    logs_channel = supportServer.get_channel(904637131736121375)
     await logs_channel.send(f"Joined {bold(guild.name)}")
 
 
 @client.event
 async def on_guild_remove(guild: discord.Guild):
     supportServer = client.get_guild(900056168716701696)
-    logs_channel = await supportServer.fetch_channel(904637131736121375)
+    logs_channel = supportServer.get_channel(904637131736121375)
     await logs_channel.send(f"Left {bold(guild.name)}")
 
 
