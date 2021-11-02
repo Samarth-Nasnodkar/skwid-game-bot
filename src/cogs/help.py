@@ -41,32 +41,32 @@ class Help(commands.Cog):
         menu_embed.set_footer(text="Click a button to get more info on games.")
         msg = await ctx.send(
             embed=current_embed,
-            components=[
-                ActionRow(*[Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                                   style=ButtonStyle.green, disabled=True)]),
-                ActionRow(*[Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                                   style=ButtonStyle.blue, disabled=True)]),
-                ActionRow(*[Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                                   custom_id="honeycomb", style=ButtonStyle.blue, disabled=True)]),
-                ActionRow(*[Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                                   custom_id="marbles", style=ButtonStyle.blue, disabled=True)]),
-            ])
+            components=ActionRow([
+                Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                       style=ButtonStyle.green),
+                Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                       style=ButtonStyle.blue),
+                Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                       custom_id="honeycomb", style=ButtonStyle.blue),
+                Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                       custom_id="marbles", style=ButtonStyle.blue),
+            ]))
         while True:
             try:
                 i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id)
             except asyncio.TimeoutError:
                 await msg.edit(
                     embed=current_embed,
-                    components=[
-                        ActionRow(*[Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                                           style=ButtonStyle.green, disabled=True)]),
-                        ActionRow(*[Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                                           style=ButtonStyle.blue, disabled=True)]),
-                        ActionRow(*[Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                                           custom_id="honeycomb", style=ButtonStyle.blue, disabled=True)]),
-                        ActionRow(*[Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                                           custom_id="marbles", style=ButtonStyle.blue, disabled=True)]),
-                    ])
+                    components=ActionRow(*[
+                        Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                               style=ButtonStyle.green, disabled=True),
+                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                               style=ButtonStyle.blue, disabled=True),
+                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji, custom_id="honeycomb",
+                               style=ButtonStyle.blue,    disabled=True),
+                        Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
+                               style=ButtonStyle.blue, disabled=True),
+                    ]))
                 return
             except Exception as e:
                 print(e)
@@ -77,16 +77,16 @@ class Help(commands.Cog):
                 # else:
                 #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
                 await i.respond(type=7, ephemeral=False, embed=current_embed,
-                                components=[
-                                    ActionRow(*[Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                                                       style=ButtonStyle.green, disabled=True)]),
-                                    ActionRow(*[Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                                                       style=ButtonStyle.blue, disabled=True)]),
-                                    ActionRow(*[Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                                                       custom_id="honeycomb", style=ButtonStyle.blue, disabled=True)]),
-                                    ActionRow(*[Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                                                       custom_id="marbles", style=ButtonStyle.blue, disabled=True)]),
-                                ])
+                                components=ActionRow(*[
+                                    Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                                           style=ButtonStyle.green),
+                                    Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                                           style=ButtonStyle.blue),
+                                    Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                                           custom_id="honeycomb", style=ButtonStyle.blue),
+                                    Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                                           custom_id="marbles", style=ButtonStyle.blue),
+                                ]))
                 # await msg.edit(
                 #     embed=current_embed,
                 #     components=[
