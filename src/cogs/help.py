@@ -43,7 +43,7 @@ class Help(commands.Cog):
         msg = await ctx.send(
             embed=current_embed,
             components=[
-                ActionRow([
+                ActionRow(*[
                     Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                            style=ButtonStyle.green),
                     Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
@@ -55,7 +55,7 @@ class Help(commands.Cog):
                     Button(label="‏‏‎ ‎", emoji=glassEmoji,
                            custom_id="glass", style=ButtonStyle.blue),
                 ]),
-                ActionRow([
+                ActionRow(*[
                     Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                            style=ButtonStyle.green, custom_id="cmds"),
                     Button(label="Vote", style=ButtonStyle.URL,
