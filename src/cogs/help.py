@@ -71,7 +71,7 @@ class Help(commands.Cog):
                 await msg.edit(
                     embed=current_embed,
                     components=[
-                        ActionRow([
+                        ActionRow(*[
                             Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                    style=ButtonStyle.green, disabled=True),
                             Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
@@ -85,7 +85,7 @@ class Help(commands.Cog):
                             Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                                    style=ButtonStyle.green, custom_id="cmds", disabled=True)
                         ]),
-                        ActionRow([
+                        ActionRow(*[
                             Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                                    style=ButtonStyle.green, custom_id="cmds", disabled=True)
                         ])
@@ -99,7 +99,7 @@ class Help(commands.Cog):
 
                 await i.respond(type=7, ephemeral=False, embed=current_embed,
                                 components=[
-                                    ActionRow([
+                                    ActionRow(*[
                                         Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                                style=ButtonStyle.green),
                                         Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
@@ -113,7 +113,7 @@ class Help(commands.Cog):
                                         Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                                                style=ButtonStyle.green, custom_id="cmds")
                                     ]),
-                                    ActionRow([
+                                    ActionRow(*[
                                         Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                                                style=ButtonStyle.green, custom_id="cmds"),
                                         Button(label="Vote", style=ButtonStyle.URL,
