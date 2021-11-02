@@ -30,7 +30,8 @@ class Help(commands.Cog):
             f"{rlglEmoji} **➜** Rules of Red Light Green Light\n"
             f"{honeycombEmoji} **➜** Rules of Honeycomb\n"
             f"{marblesEmoji} **➜** Rules of Marbles\n"
-            f"{glassEmoji} **➜** Rules of Glass Walk",
+            f"{glassEmoji} **➜** Rules of Glass Walk"
+            f"{cmdsEmoji} **➜** Bot Commands",
             color=discord.Color.purple(),
         )
         embeds["menu"] = {
@@ -81,9 +82,7 @@ class Help(commands.Cog):
                             Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
                                    style=ButtonStyle.blue, disabled=True),
                             Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                                   custom_id="glass", style=ButtonStyle.blue, disabled=True),
-                            Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                                   style=ButtonStyle.green, custom_id="cmds", disabled=True)
+                                   custom_id="glass", style=ButtonStyle.blue, disabled=True)
                         ]),
                         ActionRow(*[
                             Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
@@ -109,9 +108,7 @@ class Help(commands.Cog):
                                         Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                                                custom_id="marbles", style=ButtonStyle.blue),
                                         Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                                               custom_id="glass", style=ButtonStyle.blue),
-                                        Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                                               style=ButtonStyle.green, custom_id="cmds")
+                                               custom_id="glass", style=ButtonStyle.blue)
                                     ]),
                                     ActionRow(*[
                                         Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
