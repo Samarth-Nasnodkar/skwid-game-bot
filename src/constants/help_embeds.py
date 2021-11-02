@@ -38,7 +38,7 @@ glass_i = f"This is the game of {bold('Glass Walk')}, You will be assigned a ran
 
 commands = ""
 for cmd in cmds:
-    commands += f"`{cmd['name']}` **➜** {cmd['desc']}\n"
+    commands += f"{bold(cmd['name'])} **➜** {cmd['desc']}\n"
 
 cmd_emb = discord.Embed(title="Bot Commands",
                         description=commands, color=discord.Colour.purple())
