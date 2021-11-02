@@ -1,24 +1,27 @@
 import os
+
+from discord import webhook
 from src.utils.textStyles import *
 import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
+import aiohttp
 
 
 def get_prefix(bot, message):
-    return commands.when_mentioned_or("s!")(bot, message)
-    # try:
-    #     db = mongoCLuster["discord_bot"]
-    #     collection = db["prefixes"]
-    #     prefixes = collection.find_one({"_id": 0})
-    #     if str(message.guild.id) not in prefixes:
-    #         return commands.when_mentioned_or("s!")(bot, message)
-    #     else:
-    #         return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
-    # except Exception as e:
-    #     print(e)
-    #     return commands.when_mentioned_or("s!")(bot, message)
+    # return commands.when_mentioned_or("s!")(bot, message)
+    try:
+        db = mongoCLuster["discord_bot"]
+        collection = db["prefixes"]
+        prefixes = collection.find_one({"_id": 0})
+        if str(message.guild.id) not in prefixes:
+            return commands.when_mentioned_or("s!")(bot, message)
+        else:
+            return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
+    except Exception as e:
+        print(e)
+        return commands.when_mentioned_or("s!")(bot, message)
 
 
 def set_prefix(guild_id, prefix):
@@ -47,20 +50,20 @@ async def on_ready():
     print("Bot online.")
 
 
-@client.command(name="et")
-async def emoji_test(ctx):
-    emj = discord.utils.get(ctx.guild.emojis, name="sunglasses")
-    await ctx.send(emj)
-
-
 @client.event
 async def on_guild_join(guild: discord.Guild):
-    await logs_channel.send(f"Joined guild: {bold(guild.name)}")
+    async with aiohttp.ClientSession() as session:
+        webhook = discord.Webhook.from_url(
+            os.environ.get('logger_url', session=session))
+        await webhook.send(f"Joined {bold(guild.name)}")
 
 
 @client.event
 async def on_guild_remove(guild: discord.Guild):
-    await logs_channel.send(f"Left guild: {bold(guild.name)}")
+    async with aiohttp.ClientSession() as session:
+        webhook = discord.Webhook.from_url(
+            os.environ.get('logger_url', session=session))
+        await webhook.send(f"Left {bold(guild.name)}")
 
 
 @client.command(name="prefix", pass_context=True)
@@ -74,9 +77,9 @@ async def prefix(ctx, _p=None):
             return await ctx.send(f"My prefixes are {', '.join(pref)}")
         else:
             return await ctx.send("My prefix is {}".format(pref))
-    # set_prefix(ctx.guild.id, _p)
-    # await ctx.send("Prefix set to `{}`".format(_p))
-    await ctx.send("This command is not available yet.")
+    set_prefix(ctx.guild.id, _p)
+    await ctx.send("Prefix set to `{}`".format(_p))
+    # await ctx.send("This command is not available yet.")
 
 
 client.load_extension("src.cogs.game")
