@@ -39,7 +39,6 @@ intents.guild_messages = True
 intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)
-logs_channel = client.get_channel(904637131736121375)
 mongoCLuster = MongoClient(os.environ.get('mongo_db_auth'))
 client.remove_command("help")
 TOKEN = os.environ.get("discord_bot_token")
@@ -52,18 +51,16 @@ async def on_ready():
 
 @client.event
 async def on_guild_join(guild: discord.Guild):
-    async with aiohttp.ClientSession() as session:
-        webhook: discord.Webhook = discord.Webhook.from_url(
-            os.environ.get('logger_url'), session=session)
-        await webhook.send(f"Joined {bold(guild.name)}", username="Skwid Logger")
+    supportServer = client.get_guild(900056168716701696)
+    logs_channel = await supportServer.fetch_channel(904637131736121375)
+    await logs_channel.send(f"Joined {bold(guild.name)}")
 
 
 @client.event
 async def on_guild_remove(guild: discord.Guild):
-    async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(
-            os.environ.get('logger_url'), session=session)
-        await webhook.send(f"Left {bold(guild.name)}")
+    supportServer = client.get_guild(900056168716701696)
+    logs_channel = await supportServer.fetch_channel(904637131736121375)
+    await logs_channel.send(f"Left {bold(guild.name)}")
 
 
 @client.command(name="prefix", pass_context=True)
