@@ -53,7 +53,7 @@ class Help(commands.Cog):
             ])
         while True:
             try:
-                i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id and x.message.author == ctx.author)
+                i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id)
             except asyncio.TimeoutError:
                 await msg.edit(
                     embed=current_embed,
