@@ -31,10 +31,11 @@ async def glass_game(
 ) -> list:
     support_server: discord.Guild = client.get_guild(support_server_id)
     glass_emoji = await support_server.fetch_emoji(glass_emoji_id)
-    #await channel.send(intro_message)
-    embed = discord.Embed(title="Welcome Glass walk", color=discord.Colour.purple(), description=intro_message)
+    # await channel.send(intro_message)
+    embed = discord.Embed(title="Welcome Glass walk",
+                          color=discord.Colour.purple(), description=intro_message)
     embed.set_thumbnail(url=bot_icon)
-    embed.set_footer(text=f"The game begins in {wait_time}.")
+    embed.set_footer(text=f"The game begins in {wait_time} seconds.")
     await channel.send(embed=embed)
 
     await asyncio.sleep(wait_time)
@@ -53,12 +54,12 @@ async def glass_game(
             return _interaction.user == users[i]
 
         await channel.send(content="Choose your Glass Panel",
-                           components=[
+                           components=ActionRow([
                                Button(style=ButtonStyle.green,
                                       emoji=glass_emoji, custom_id="glass1"),
                                Button(style=ButtonStyle.blue,
                                       emoji=glass_emoji, custom_id="glass2")
-                           ])
+                           ]))
         try:
             interaction = await client.wait_for('button_click',
                                                 timeout=int(
@@ -69,7 +70,7 @@ async def glass_game(
             return []
         else:
             glass_broke = random.choice((True, False))
-            if glass_broke:
+            if False:
                 await interaction.respond(content=falling_gif_url)
                 await channel.send(f"Unfortunately, the Glass broke. {users[i].mention} Eliminated.")
                 finishers.remove(users[i])
