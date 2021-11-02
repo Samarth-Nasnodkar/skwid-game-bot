@@ -65,10 +65,11 @@ class Help(commands.Cog):
                     ])
                 return
             else:
-                if i.custom_id == "menu":
-                    await i.respond(content="Currently showing : `Menu`")
-                else:
-                    await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
+                # if i.custom_id == "menu":
+                #     await i.respond(content="Currently showing : `Menu`")
+                # else:
+                #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
+                i.respond(type=6)
                 current_embed = embeds[i.custom_id]['embed']
                 await msg.edit(
                     embed=current_embed,
