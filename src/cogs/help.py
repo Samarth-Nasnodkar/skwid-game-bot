@@ -32,6 +32,10 @@ class Help(commands.Cog):
             f"{glassEmoji} **➜** Rules of Glass Walk",
             color=discord.Color.purple(),
         )
+        embeds["menu"] = {
+            'embed': menu_embed,
+            'name': 'menu'
+        }
         current_embed = menu_embed
         menu_embed.set_thumbnail(url=bot_icon)
         menu_embed.set_footer(text="Click a button to get more info on games.")
@@ -64,13 +68,15 @@ class Help(commands.Cog):
                                style=ButtonStyle.blue, disabled=True),
                     ])
                 return
+            except Exception as e:
+                print(e)
             else:
-                current_embed = embeds[i.custom_id]['embed']
+                current_embed = embeds[i.component.custom_id]['embed']
                 # if i.custom_id == "menu":
                 #     await i.respond(content="Currently showing : `Menu`")
                 # else:
                 #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
-                await i.respond(type=6, embed=current_embed,
+                await i.respond(type=6, ephemeral=False, embed=current_embed,
                                 components=[
                                     Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                            style=ButtonStyle.green),

@@ -55,19 +55,20 @@ glass = discord.Embed(title="Rules of Glass Walk",
 glass.set_thumbnail(url=bot_icon)
 glass.set_footer(text="Click a button to get more info on games.")
 
-embeds = {'rlgl': {
-    'embed': red_green,
-    'name': 'Red Light Green Light'
-},
+embeds = {
+    'rlgl': {
+        'embed': red_green,
+        'name': 'Red Light Green Light'
+    },
     'honeycomb': {
         'embed': hc,
         'name': 'HoneyComb'
-},
+    },
     'marbles': {
         'embed': mar,
         'name': 'Marbles'
-},
+    },
     'glass': {
         'embed': glass,
         'name': 'Glass Walk'
-}}
+    }}
