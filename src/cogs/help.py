@@ -30,7 +30,7 @@ class Help(commands.Cog):
             f"{rlglEmoji} **➜** Rules of Red Light Green Light\n"
             f"{honeycombEmoji} **➜** Rules of Honeycomb\n"
             f"{marblesEmoji} **➜** Rules of Marbles\n"
-            f"{glassEmoji} **➜** Rules of Glass Walk"
+            f"{glassEmoji} **➜** Rules of Glass Walk\n"
             f"{cmdsEmoji} **➜** Bot Commands",
             color=discord.Color.purple(),
         )
