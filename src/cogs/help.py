@@ -15,7 +15,7 @@ class Help(commands.Cog):
         self.client = client
 
     @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
-    async def help(self, ctx):
+    async def help(self, ctx):  # New Help command.
         supportServer = self.client.get_guild(900056168716701696)
         menuEmoji = await supportServer.fetch_emoji(904785389418602516)
         rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
