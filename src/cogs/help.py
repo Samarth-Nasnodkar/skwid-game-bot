@@ -76,7 +76,7 @@ class Help(commands.Cog):
                 #     await i.respond(content="Currently showing : `Menu`")
                 # else:
                 #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
-                await i.respond(type=6, ephemeral=False, embed=current_embed,
+                await i.respond(type=7, ephemeral=False, embed=current_embed,
                                 components=[
                                     Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                            style=ButtonStyle.green),
