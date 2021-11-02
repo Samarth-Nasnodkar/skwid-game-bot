@@ -14,7 +14,7 @@ class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(name="t_help")
+    @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
     async def help(self, ctx):
         supportServer = self.client.get_guild(900056168716701696)
         menuEmoji = await supportServer.fetch_emoji(904785389418602516)
@@ -57,7 +57,7 @@ class Help(commands.Cog):
             except asyncio.TimeoutError:
                 await msg.edit(
                     embed=current_embed,
-                    components=ActionRow(*[
+                    components=ActionRow([
                         Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                style=ButtonStyle.green, disabled=True),
                         Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
@@ -77,7 +77,7 @@ class Help(commands.Cog):
                 # else:
                 #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
                 await i.respond(type=7, ephemeral=False, embed=current_embed,
-                                components=ActionRow(*[
+                                components=ActionRow([
                                     Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
                                            style=ButtonStyle.green),
                                     Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
