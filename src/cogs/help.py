@@ -42,44 +42,54 @@ class Help(commands.Cog):
         menu_embed.set_footer(text="Click a button to get more info on games.")
         msg = await ctx.send(
             embed=current_embed,
-            components=ActionRow([
-                Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                       style=ButtonStyle.green),
-                Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                       style=ButtonStyle.blue),
-                Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                       custom_id="honeycomb", style=ButtonStyle.blue),
-                Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                       custom_id="marbles", style=ButtonStyle.blue),
-                Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                       custom_id="glass", style=ButtonStyle.blue),
-                Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                       style=ButtonStyle.green, custom_id="cmds"),
-                Button(label="Vote", style=ButtonStyle.URL,
-                       url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
-                Button(label="Join the support server", style=ButtonStyle.URL,
-                       custom_id="invite", url="https://discord.gg/zyyjWAjxdD")
-            ]))
+            components=[
+                ActionRow([
+                    Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                           style=ButtonStyle.green),
+                    Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                           style=ButtonStyle.blue),
+                    Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                           custom_id="honeycomb", style=ButtonStyle.blue),
+                    Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                           custom_id="marbles", style=ButtonStyle.blue),
+                    Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                           custom_id="glass", style=ButtonStyle.blue),
+                ]),
+                ActionRow([
+                    Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                           style=ButtonStyle.green, custom_id="cmds"),
+                    Button(label="Vote", style=ButtonStyle.URL,
+                           url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
+                    Button(label="Join the support server", style=ButtonStyle.URL,
+                           custom_id="invite", url="https://discord.gg/zyyjWAjxdD")
+                ])
+            ])
         while True:
             try:
                 i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id)
             except asyncio.TimeoutError:
                 await msg.edit(
                     embed=current_embed,
-                    components=ActionRow([
-                        Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                               style=ButtonStyle.green, disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                               style=ButtonStyle.blue, disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji, custom_id="honeycomb",
-                               style=ButtonStyle.blue,    disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
-                               style=ButtonStyle.blue, disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                               custom_id="glass", style=ButtonStyle.blue, disabled=True),
-                        Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                               style=ButtonStyle.green, custom_id="cmds", disabled=True)
-                    ]))
+                    components=[
+                        ActionRow([
+                            Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                                   style=ButtonStyle.green, disabled=True),
+                            Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                                   style=ButtonStyle.blue, disabled=True),
+                            Button(label="‏‏‎ ‎", emoji=honeycombEmoji, custom_id="honeycomb",
+                                   style=ButtonStyle.blue,    disabled=True),
+                            Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
+                                   style=ButtonStyle.blue, disabled=True),
+                            Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                                   custom_id="glass", style=ButtonStyle.blue, disabled=True),
+                            Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                                   style=ButtonStyle.green, custom_id="cmds", disabled=True)
+                        ]),
+                        ActionRow([
+                            Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                                   style=ButtonStyle.green, custom_id="cmds", disabled=True)
+                        ])
+                    ])
                 return
             except Exception as e:
                 print(e)
@@ -88,20 +98,30 @@ class Help(commands.Cog):
                     current_embed = embeds[i.component.custom_id]['embed']
 
                 await i.respond(type=7, ephemeral=False, embed=current_embed,
-                                components=ActionRow([
-                                    Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                                           style=ButtonStyle.green),
-                                    Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                                           style=ButtonStyle.blue),
-                                    Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                                           custom_id="honeycomb", style=ButtonStyle.blue),
-                                    Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                                           custom_id="marbles", style=ButtonStyle.blue),
-                                    Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                                           custom_id="glass", style=ButtonStyle.blue),
-                                    Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                                           style=ButtonStyle.green, custom_id="cmds")
-                                ]))
+                                components=[
+                                    ActionRow([
+                                        Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                                               style=ButtonStyle.green),
+                                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                                               style=ButtonStyle.blue),
+                                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                                               custom_id="honeycomb", style=ButtonStyle.blue),
+                                        Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                                               custom_id="marbles", style=ButtonStyle.blue),
+                                        Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                                               custom_id="glass", style=ButtonStyle.blue),
+                                        Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                                               style=ButtonStyle.green, custom_id="cmds")
+                                    ]),
+                                    ActionRow([
+                                        Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                                               style=ButtonStyle.green, custom_id="cmds"),
+                                        Button(label="Vote", style=ButtonStyle.URL,
+                                               url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
+                                        Button(label="Join the support server", style=ButtonStyle.URL,
+                                               custom_id="invite", url="https://discord.gg/zyyjWAjxdD")
+                                    ])
+                                ])
 
 
 def setup(client):
