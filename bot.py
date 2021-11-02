@@ -1,6 +1,6 @@
 import os
 
-from discord import webhook
+from discord import user, webhook
 from src.utils.textStyles import *
 import discord
 from discord.ext import commands
@@ -53,16 +53,16 @@ async def on_ready():
 @client.event
 async def on_guild_join(guild: discord.Guild):
     async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(
-            os.environ.get('logger_url', session=session))
-        await webhook.send(f"Joined {bold(guild.name)}")
+        webhook: discord.Webhook = discord.Webhook.from_url(
+            os.environ.get('logger_url'), session=session)
+        await webhook.send(f"Joined {bold(guild.name)}", username="Skwid Logger")
 
 
 @client.event
 async def on_guild_remove(guild: discord.Guild):
     async with aiohttp.ClientSession() as session:
         webhook = discord.Webhook.from_url(
-            os.environ.get('logger_url', session=session))
+            os.environ.get('logger_url'), session=session)
         await webhook.send(f"Left {bold(guild.name)}")
 
 
