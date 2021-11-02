@@ -49,7 +49,7 @@ class Help(commands.Cog):
             ])
         while True:
             try:
-                i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id)
+                i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id and x.message.author == ctx.author)
             except asyncio.TimeoutError:
                 await msg.edit(
                     embed=current_embed,
@@ -65,8 +65,11 @@ class Help(commands.Cog):
                     ])
                 return
             else:
-                await i.respond(content="hm")
-                current_embed = embeds[i.custom_id]
+                if i.custom_id == "menu":
+                    await i.respond(content="Currently showing : `Menu`")
+                else:
+                    await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
+                current_embed = embeds[i.custom_id]['embed']
                 await msg.edit(
                     embed=current_embed,
                     components=[
