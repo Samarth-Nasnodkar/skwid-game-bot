@@ -40,6 +40,9 @@ commands = ""
 for cmd in cmds:
     commands += f"`{cmd['name']}` **➜** {cmd['desc']}\n"
 
+cmd_emb = discord.Embed(title="Bot Commands",
+                        description=commands, color=discord.Colour.purple())
+
 red_green = discord.Embed(title="Rules of Red Light, Green Light",
                           description=redgreen, color=discord.Colour.purple())
 red_green.set_thumbnail(url=bot_icon)
@@ -78,7 +81,7 @@ embeds = {
         'name': 'Glass Walk'
     },
     'cmds': {
-        'embed': commands,
+        'embed': cmd_emb,
         'name': 'Bot Commands'
     }
 }
