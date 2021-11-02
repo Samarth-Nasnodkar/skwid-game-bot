@@ -65,6 +65,7 @@ class Help(commands.Cog):
                     ])
                 return
             else:
+                await i.respond(suppress=True)
                 current_embed = embeds[i.custom_id]
                 await msg.edit(
                     embed=current_embed,

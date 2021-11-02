@@ -56,6 +56,6 @@ glass.set_thumbnail(url=bot_icon)
 glass.set_footer(text="Click a button to get more info on games.")
 
 embeds = {'rlgl': red_green,
-          'honycomb': hc,
+          'honeycomb': hc,
           'marbles': mar,
           'glass': glass}
