@@ -22,6 +22,7 @@ class Help(commands.Cog):
         marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
         honeycombEmoji = await supportServer.fetch_emoji(904782927060148224)
         glassEmoji = await supportServer.fetch_emoji(903272838822240268)
+        cmdsEmoji = await supportServer.fetch_emoji(905000304951586857)
         menu_embed = discord.Embed(
             title="Help Menu",
             description=f"Click a button below to get more info on games.\n"
@@ -51,7 +52,13 @@ class Help(commands.Cog):
                 Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                        custom_id="marbles", style=ButtonStyle.blue),
                 Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                       custom_id="glass", style=ButtonStyle.blue)
+                       custom_id="glass", style=ButtonStyle.blue),
+                Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                       style=ButtonStyle.green, custom_id="cmds"),
+                Button(label="Vote", style=ButtonStyle.URL,
+                       url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
+                Button(label="Join the support server", style=ButtonStyle.URL,
+                       custom_id="invite", url="https://discord.gg/zyyjWAjxdD")
             ]))
         while True:
             try:
@@ -69,17 +76,17 @@ class Help(commands.Cog):
                         Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
                                style=ButtonStyle.blue, disabled=True),
                         Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                               custom_id="glass", style=ButtonStyle.blue, disabled=True)
+                               custom_id="glass", style=ButtonStyle.blue, disabled=True),
+                        Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                               style=ButtonStyle.green, custom_id="cmds", disabled=True)
                     ]))
                 return
             except Exception as e:
                 print(e)
             else:
-                current_embed = embeds[i.component.custom_id]['embed']
-                # if i.custom_id == "menu":
-                #     await i.respond(content="Currently showing : `Menu`")
-                # else:
-                #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
+                if i.custom_id != "vote" and i.custom_id != "invite":
+                    current_embed = embeds[i.component.custom_id]['embed']
+
                 await i.respond(type=7, ephemeral=False, embed=current_embed,
                                 components=ActionRow([
                                     Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
@@ -91,20 +98,10 @@ class Help(commands.Cog):
                                     Button(label="‏‏‎ ‎", emoji=marblesEmoji,
                                            custom_id="marbles", style=ButtonStyle.blue),
                                     Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                                           custom_id="glass", style=ButtonStyle.blue)
+                                           custom_id="glass", style=ButtonStyle.blue),
+                                    Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                                           style=ButtonStyle.green, custom_id="cmds")
                                 ]))
-                # await msg.edit(
-                #     embed=current_embed,
-                #     components=[
-                #         Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                #                style=ButtonStyle.green),
-                #         Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                #                style=ButtonStyle.blue),
-                #         Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                #                custom_id="honeycomb", style=ButtonStyle.blue),
-                #         Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                #                custom_id="marbles", style=ButtonStyle.blue),
-                #     ])
 
 
 def setup(client):

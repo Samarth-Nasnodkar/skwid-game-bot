@@ -4,6 +4,7 @@ from src.cogs.glass import glass_steps, game_time
 from src.constants.timeouts import rlgl_min_score, rlgl_timeout, honeycomb_reply_timeout
 from src.constants.urls import bot_icon
 from src.utils.textStyles import *
+from src.constants.cmds import cmds
 
 
 redgreen = f"This game is {bold('`Red Light, Green Light`')}\n"\
@@ -34,6 +35,10 @@ glass_i = f"This is the game of {bold('Glass Walk')}, You will be assigned a ran
     f"glass, you're Eliminated. But if you choose the Durable glass, you survive and are presented with " \
     f"another pair of glass. There will be {glass_steps} rounds. The participants who cross the bridge " \
     f"before the timer ends({game_time} s) will be the winners, and rest will be Eliminated."
+
+commands = ""
+for cmd in cmds:
+    commands += f"`{cmd['name']}` **➜** {cmd['desc']}\n"
 
 red_green = discord.Embed(title="Rules of Red Light, Green Light",
                           description=redgreen, color=discord.Colour.purple())
@@ -71,4 +76,9 @@ embeds = {
     'glass': {
         'embed': glass,
         'name': 'Glass Walk'
-    }}
+    },
+    'cmds': {
+        'embed': commands,
+        'name': 'Bot Commands'
+    }
+}
