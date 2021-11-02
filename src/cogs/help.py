@@ -65,24 +65,34 @@ class Help(commands.Cog):
                     ])
                 return
             else:
+                current_embed = embeds[i.custom_id]['embed']
                 # if i.custom_id == "menu":
                 #     await i.respond(content="Currently showing : `Menu`")
                 # else:
                 #     await i.respond(content=f"Currently showing Rules of : `{i.custom_id}`")
-                i.respond(type=6)
-                current_embed = embeds[i.custom_id]['embed']
-                await msg.edit(
-                    embed=current_embed,
-                    components=[
-                        Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                               style=ButtonStyle.green),
-                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                               style=ButtonStyle.blue),
-                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                               custom_id="honeycomb", style=ButtonStyle.blue),
-                        Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                               custom_id="marbles", style=ButtonStyle.blue),
-                    ])
+                await i.respond(type=6, embed=current_embed,
+                                components=[
+                                    Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                                           style=ButtonStyle.green),
+                                    Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                                           style=ButtonStyle.blue),
+                                    Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                                           custom_id="honeycomb", style=ButtonStyle.blue),
+                                    Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                                           custom_id="marbles", style=ButtonStyle.blue),
+                                ])
+                # await msg.edit(
+                #     embed=current_embed,
+                #     components=[
+                #         Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                #                style=ButtonStyle.green),
+                #         Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                #                style=ButtonStyle.blue),
+                #         Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                #                custom_id="honeycomb", style=ButtonStyle.blue),
+                #         Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                #                custom_id="marbles", style=ButtonStyle.blue),
+                #     ])
 
 
 def setup(client):
