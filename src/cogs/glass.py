@@ -70,7 +70,7 @@ async def glass_game(
             return []
         else:
             glass_broke = random.choice((True, False))
-            if False:
+            if glass_broke:
                 await interaction.respond(content=falling_gif_url)
                 await channel.send(f"Unfortunately, the Glass broke. {users[i].mention} Eliminated.")
                 finishers.remove(users[i])

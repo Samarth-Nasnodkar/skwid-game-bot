@@ -11,6 +11,9 @@ from src.cogs.marbles import marbles_collected
 from src.cogs.glass import glass_game
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
+import pymongo
+from pymongo import MongoClient
+import os
 
 
 def scramble(word) -> str:
@@ -42,6 +45,7 @@ class Game(commands.Cog):
 
     def __init__(self, client):
         self.client: commands.Bot = client
+        self.mongoCluster = MongoClient(os.environ.get("mongo_db_auth"))
         DiscordComponents(self.client)
 
     @commands.Cog.listener()
@@ -85,6 +89,7 @@ class Game(commands.Cog):
     async def start_game(self, ctx, skip_to=0):
         if not ctx.author.id in owners:
             skip_to = 0
+
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="You have : ",
@@ -105,13 +110,26 @@ class Game(commands.Cog):
             else:
                 users.append(interation.user)
                 await interation.respond(content="You have successfully joined the game.")
+        if len(users) >= 1:
+            await msg.edit(embed=discord.Embed(
+                title="Game Started!",
+                description=f"`{len(users)}` Joined",
+                color=discord.Colour.blue()
+            ),
+                components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫", disabled=True)])
+        else:
+            await msg.edit(embed=discord.Embed(
+                title="Game Ended!",
+                description=f"No One joined :(",
+                color=discord.Colour.blue()
+            ),
+                components=[Button(label="Join", style=ButtonStyle.red, emoji="🎫", disabled=True)])
+            return
 
-        await msg.edit(embed=discord.Embed(
-            title="Game Started!",
-            description=f"`{len(users)}` Joined",
-            color=discord.Colour.blue()
-        ),
-            components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫", disabled=True)])
+        db = self.mongoCluster["discord_bot"]["realTimeStats"]
+        tg = db.find_one({"_id": 0})
+        db.update_one(
+            {"_id": 0}, {"$set": {"totalGames": tg["totalGames"] + 1}})
         if skip_to == 0:
             scores = {str(usr.id): 0 for usr in users}
             self.scores[str(ctx.guild.id)] = scores
@@ -121,7 +139,8 @@ class Game(commands.Cog):
                               f"\nYou can send the message when the I say **__Green Light__**. If you send a message after"\
                               f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send"\
                               f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!"
-            red_green = discord.Embed(title="Welcome to Red Light, Green Light", description=red_green_intro, color=discord.Colour.purple())
+            red_green = discord.Embed(title="Welcome to Red Light, Green Light",
+                                      description=red_green_intro, color=discord.Colour.purple())
             red_green.set_thumbnail(url=bot_icon)
             red_green.set_footer(text="Game start in 2 seconds.")
             await ctx.send(embed=red_green)
@@ -341,7 +360,8 @@ class Game(commands.Cog):
                           f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n"\
                           f"The participants who fail to send the correct answer within the given time will be eliminated."\
                           f" Good Luck!"
-        embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro, color=discord.Colour.purple())
+        embed = discord.Embed(title="Welcome to the Honeycomb game.",
+                              description=honeycomb_intro, color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)
         embed.set_footer(text="Game will begin in 10 seconds.")
         await ctx.send(embed=embed)
