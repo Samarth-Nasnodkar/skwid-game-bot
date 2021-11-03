@@ -1,10 +1,13 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands import bot
 from discord_components import *
 import pymongo
 from pymongo import MongoClient
 import os
-from src.constants.global_settings import default_settings
+from src.constants.global_settings import default_settings, settingTypes
+from utils.textStyles import bold, italics
+from src.constants.urls import bot_icon
 
 
 class Settings(commands.Cog):
@@ -24,7 +27,7 @@ class Settings(commands.Cog):
             _sets = default_settings
             for k in _sets.keys():
                 if k in settings[str(guild_id)]:
-                    _sets[k] = settings[str(guild_id)][k]
+                    _sets[k]["value"] = settings[str(guild_id)][k]
 
             return _sets
 
@@ -45,3 +48,19 @@ class Settings(commands.Cog):
             collection.update_one(
                 {"_id": 0}, {"$set": {str(guild_id): {key: value}}}, upsert=True)
             return True
+
+    @commands.command(name="settings", aliases=["set", "config"])
+    async def settings_command(self, ctx: commands.Context):
+        desc = ""
+        settings = self.get_settings(ctx.guild.id)
+        for k in settings.keys():
+            if settings[k]["type"] == settingTypes.MAIN_COMMAND:
+                desc += f"{bold(k)} **➜** {settings[k]['value']}\n{italics(settings[k]['desc'])}\n"
+
+        settings_embed = discord.Embed(
+            title=f"Bot setting for {ctx.guild.name}",
+            description=desc,
+            color=discord.Color.blue()
+        )
+        settings_embed.set_thumbnail(url=bot_icon)
+        await ctx.send(embed=settings_embed)
