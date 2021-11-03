@@ -12,7 +12,7 @@ class settingTypes(Enum):
 
 
 class settingsFormatter:
-    BOOLS = ['🟩', '🟥']
+    BOOLS = ['🟥', '🟩']
 
     def __init__(self) -> None:
         pass

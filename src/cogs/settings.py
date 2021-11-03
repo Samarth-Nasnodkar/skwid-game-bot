@@ -6,7 +6,7 @@ import pymongo
 from pymongo import MongoClient
 import os
 from src.constants.global_settings import default_settings, settingTypes, settingsFormatter
-from src.utils.textStyles import bold, italics
+from src.utils.textStyles import bold, highlight, italics
 from src.constants.urls import bot_icon
 
 
@@ -56,7 +56,7 @@ class Settings(commands.Cog):
         settings = self.get_settings(ctx.guild.id)
         for k in settings.keys():
             if settings[k]["type"] == settingTypes.MAIN_COMMAND:
-                desc += f"{bold(k)} **➜** {formatter.format(settings[k]['value'], settingTypes.MAIN_COMMAND)}\n{italics(settings[k]['desc'])}\n"
+                desc += f"{bold(settings[k]['name'])} ➜ {formatter.format(settings[k]['value'], settingTypes.MAIN_COMMAND)}\n{highlight(settings[k]['desc'])}\n"
 
         settings_embed = discord.Embed(
             title=f"Bot setting for {ctx.guild.name}",
