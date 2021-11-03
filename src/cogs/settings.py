@@ -6,7 +6,7 @@ import pymongo
 from pymongo import MongoClient
 import os
 from src.constants.global_settings import default_settings, settingTypes
-from utils.textStyles import bold, italics
+from src.utils.textStyles import bold, italics
 from src.constants.urls import bot_icon
 
 
