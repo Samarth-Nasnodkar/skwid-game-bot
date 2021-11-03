@@ -17,7 +17,7 @@ class settingsFormatter:
     def __init__(self) -> None:
         pass
 
-    def format(self, val, type) -> str:
+    def format(self, val, type: settingTypes) -> str:
         if type == settingTypes.MAIN_COMMAND:
             return self.BOOLS[int(val)]
 
