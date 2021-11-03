@@ -209,5 +209,7 @@ async def marbles_collected(
             _winners.append(_w)
             w_str += f"{_w.mention} "
 
-    await txt_channel.send(f"The participants who have made it to the next round are : {w_str}.")
+    if _winners:
+        await txt_channel.send(f"The participants who have made it to the next round are : {w_str}.")
+
     return _winners

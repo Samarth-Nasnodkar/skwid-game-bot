@@ -43,9 +43,31 @@ class Game(commands.Cog):
     honeycomb_replied = {}
     rlts = datetime.datetime.now()
 
+    def game_over(self):
+        db = self.mongoCluster["discord_bot"]
+        collection = db["realTimeStats"]
+        stats = collection.find_one({"_id": 0})
+        ongoing = stats["ongoing"]
+        ongoing = ongoing - 1 if ongoing > 0 else 0
+        collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing}})
+
+    def game_started(self):
+        db = self.mongoCluster["discord_bot"]
+        collection = db["realTimeStats"]
+        stats = collection.find_one({"_id": 0})
+        ongoing = stats["ongoing"]
+        ongoing = ongoing if ongoing > 0 else 0
+        collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing + 1}})
+
+    def default_stats(self):
+        db = self.mongoCluster["discord_bot"]
+        collection = db["realTimeStats"]
+        collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
+
     def __init__(self, client):
         self.client: commands.Bot = client
         self.mongoCluster = MongoClient(os.environ.get("mongo_db_auth"))
+        self.default_stats()
         DiscordComponents(self.client)
 
     @commands.Cog.listener()
@@ -130,6 +152,7 @@ class Game(commands.Cog):
         tg = db.find_one({"_id": 0})
         db.update_one(
             {"_id": 0}, {"$set": {"totalGames": tg["totalGames"] + 1}})
+        self.game_started()
         if skip_to == 0:
             scores = {str(usr.id): 0 for usr in users}
             self.scores[str(ctx.guild.id)] = scores
@@ -155,7 +178,7 @@ class Game(commands.Cog):
             while time.time() - start_time < rlgl_timeout:
                 if not users:
                     await ctx.send("No one is left in the game. Better luck next time :)")
-                    return
+                    return self.game_over()
 
                 await asyncio.sleep(random.randint(3, 6))
                 last = self.last[str(ctx.guild.id)]
@@ -188,7 +211,8 @@ class Game(commands.Cog):
                         print(usr.id, " not found")
 
         if not users:
-            return await ctx.send("None made it to the next round. Sed :(")
+            await ctx.send("None made it to the next round. Sed :(")
+            return self.game_over()
 
         congts_str = "Congratulations "
         for usr in users:
@@ -198,6 +222,7 @@ class Game(commands.Cog):
         if skip_to <= 1:
             users = await self.honeycomb(ctx, users)
         if not users:
+            self.game_over()
             return await ctx.send("None made it to the next round. Sed :(")
 
         congts_str = "Congratulations "
@@ -208,12 +233,25 @@ class Game(commands.Cog):
 
         if skip_to <= 2:
             users = await marbles_collected(self.client, ctx.channel, users)
-            print(users)
+
+        if not users:
+            await ctx.send("None made it to the next round. Game Ended.")
+            self.game_over()
+            return
+
+        if len(users) == 1:
+            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            self.game_over()
+            return
 
         users = await glass_game(self.client, ctx.channel, users)
 
         if users:
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
+        else:
+            await ctx.send("None managed to cross the glass bridge. Game Ended.")
+
+        self.game_over()
 
     async def tugofword(self, ctx, players: list) -> list:
         embed = discord.Embed(title="Welcome to Tug Of Words", description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"

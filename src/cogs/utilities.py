@@ -41,6 +41,7 @@ class Utilities(commands.Cog):
         collection = db["realTimeStats"]
         stats = collection.find_one({'_id': 0})
         total_games = stats['totalGames']
+        ongoing = stats['ongoing']
         guilds = len(self.client.guilds)
         users = 0
         for guild in self.client.guilds:
@@ -48,7 +49,7 @@ class Utilities(commands.Cog):
 
         embed = discord.Embed(
             title="Bot Stats",
-            description=f"============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n{bold('Total games')} : `{total_games}`\n============",
+            description=f"============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n{bold('Total games')} : `{total_games}`\n{bold('Ongoing')} : `{ongoing}`\n============",
             color=discord.Color.purple()
         )
         embed.set_thumbnail(url=bot_icon)

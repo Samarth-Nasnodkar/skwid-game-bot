@@ -71,13 +71,13 @@ async def glass_game(
         else:
             glass_broke = random.choice((True, False))
             if glass_broke:
-                await interaction.respond(content=falling_gif_url)
+                await interaction.respond(content=falling_gif_url, ephemeral=False)
                 await channel.send(f"Unfortunately, the Glass broke. {users[i].mention} Eliminated.")
                 finishers.remove(users[i])
                 i += 1
                 last_i = i - 1
             else:
-                await interaction.respond(content=thumbs_up_gif_url)
+                await interaction.respond(content=thumbs_up_gif_url, ephemeral=False)
                 glasses_passed += 1
 
         time_delta = time.time() - start
