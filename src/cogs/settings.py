@@ -64,3 +64,7 @@ class Settings(commands.Cog):
         )
         settings_embed.set_thumbnail(url=bot_icon)
         await ctx.send(embed=settings_embed)
+
+
+def setup(client: commands.Bot):
+    client.add_cog(Settings(client))

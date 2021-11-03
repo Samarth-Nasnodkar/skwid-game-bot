@@ -41,6 +41,13 @@ client = commands.Bot(command_prefix=get_prefix,
 mongoCLuster = MongoClient(os.environ.get('mongo_db_auth'))
 client.remove_command("help")
 TOKEN = os.environ.get("discord_bot_token")
+COGS = [
+    "game",
+    "topgg",
+    "help",
+    "utilities",
+    "settings"
+]
 
 
 @client.event
@@ -78,8 +85,7 @@ async def prefix(ctx, _p=None):
     # await ctx.send("This command is not available yet.")
 
 
-client.load_extension("src.cogs.game")
-client.load_extension("src.cogs.topgg")
-client.load_extension("src.cogs.help")
-client.load_extension("src.cogs.utilities")
+for cog in COGS:
+    client.load_extension(".".join(("src", "cogs", cog)))
+
 client.run(TOKEN)
