@@ -1,12 +1,17 @@
 import discord
 from discord.ext import commands
+from pymongo import collection
 from src.utils.textStyles import *
 from src.constants.urls import bot_icon
+import pymongo
+from pymongo import MongoClient
+import os
 
 
 class Utilities(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
+        self.mongoCluster = MongoClient(os.environ.get('mongo_db_auth'))
 
     @commands.command()
     async def clear(self, ctx, amount=5):
@@ -32,6 +37,10 @@ class Utilities(commands.Cog):
         """
         Get some stats about the bot.
         """
+        db = self.mongoCluster["discord_bot"]
+        collection = db["realTimeStats"]
+        stats = collection.find_one({'_id': 0})
+        total_games = stats['totalGames']
         guilds = len(self.client.guilds)
         users = 0
         for guild in self.client.guilds:
@@ -39,7 +48,7 @@ class Utilities(commands.Cog):
 
         embed = discord.Embed(
             title="Bot Stats",
-            description=f"============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n============",
+            description=f"============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n{bold('Total games')} : `{total_games}`\n============",
             color=discord.Color.purple()
         )
         embed.set_thumbnail(url=bot_icon)
