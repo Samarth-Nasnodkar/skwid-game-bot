@@ -5,14 +5,32 @@ from discord.ext.commands import bot
 from discord_components import *
 from discord_components.dpy_overrides import send_files
 from src.cogs.utilities import setup
-from src.constants.help_embeds import embeds
+from src.constants.help_embeds import embeds, get_cmd_embed
 from src.constants.urls import bot_icon
 import asyncio
+import pymongo
+from pymongo import MongoClient
+import os
+
+
+def get_prefix(mongoCluster, message):
+    try:
+        db = mongoCluster["discord_bot"]
+        collection = db["prefixes"]
+        prefixes = collection.find_one({"_id": 0})
+        if str(message.guild.id) not in prefixes:
+            return "s!"
+        else:
+            return prefixes[str(message.guild.id)]
+    except Exception as e:
+        print(e)
+        return "s!"
 
 
 class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
+        self.mongoCluster = MongoClient(os.environ.get("mongo_db_auth"))
 
     @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
     async def help(self, ctx):  # New Help command.
@@ -38,6 +56,11 @@ class Help(commands.Cog):
             'embed': menu_embed,
             'name': 'menu'
         }
+        embeds["cmds"] = {
+            'embed': get_cmd_embed(get_prefix(self.mongoCluster, ctx.message)),
+            'name': 'Bot Commands'
+        }
+
         current_embed = menu_embed
         menu_embed.set_thumbnail(url=bot_icon)
         menu_embed.set_footer(text="Click a button to get more info on games.")
@@ -62,7 +85,7 @@ class Help(commands.Cog):
                     Button(label="Vote", style=ButtonStyle.URL,
                            url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
                     Button(label="Join the support server", style=ButtonStyle.URL,
-                           custom_id="invite", url="https://discord.gg/zyyjWAjxdD")
+                           custom_id="invite", url="https://discord.gg/2vyURSNgFm")
                 ])
             ])
         while True:
@@ -116,7 +139,7 @@ class Help(commands.Cog):
                                         Button(label="Vote", style=ButtonStyle.URL,
                                                url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
                                         Button(label="Join the support server", style=ButtonStyle.URL,
-                                               custom_id="invite", url="https://discord.gg/zyyjWAjxdD")
+                                               custom_id="invite", url="https://discord.gg/2vyURSNgFm")
                                     ])
                                 ])
 
