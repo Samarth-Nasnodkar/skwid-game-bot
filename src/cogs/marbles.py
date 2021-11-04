@@ -186,8 +186,8 @@ async def marbles_collected(
         await txt_channel.send(f"{bye.mention} has made it to the next game for not finding a partner.")
 
     if len(users) == 1:
-        await txt_channel.send("Only one participant left. You have won!")
-        return users[0]
+        await txt_channel.send("Only one participant left.")
+        return [users[0]]
 
     pairings = ""
     for i in range(0, users_length - 1, 2):

@@ -5,11 +5,9 @@ import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
-import aiohttp
 
 
 def get_prefix(bot, message):
-    # return commands.when_mentioned_or("s!")(bot, message)
     try:
         db = mongoCLuster["discord_bot"]
         collection = db["prefixes"]
@@ -43,7 +41,7 @@ client.remove_command("help")
 TOKEN = os.environ.get("discord_bot_token")
 COGS = [
     "game",
-    "topgg",
+    # "topgg",
     "help",
     "utilities",
     "settings"

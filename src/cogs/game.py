@@ -74,16 +74,12 @@ class Game(commands.Cog):
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.DMChannel):
             if str(message.author.id) in self.honeycomb_words:
-                print(list(message.content))
                 if message.content.lower() == self.honeycomb_words[str(message.author.id)].lower():
                     time_delta = message.created_at - \
-                        self.honeycomb_ts[str(message.author.id)]
-                    print(time_delta)
-                    print(time_delta.total_seconds())
+                                 self.honeycomb_ts[str(message.author.id)]
                     if time_delta.seconds < honeycomb_reply_timeout:
                         self.honeycomb_replied[str(message.author.id)] = True
-                        await message.author.dm_channel.send(f"That is correct! You made it to the next round.")
-                        print(f"{message.author.id} Took {time_delta.seconds}s")
+                        await message.author.dm_channel.send(f"That is correct!")
 
         try:
             if str(message.guild.id) in self.red_lights:
@@ -107,11 +103,135 @@ class Game(commands.Cog):
         except Exception as e:
             pass
 
+    @commands.command(name="play")
+    async def play_single_game(self, ctx):
+        supportServer = self.client.get_guild(900056168716701696)
+        rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
+        marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
+        honeycombEmoji = await supportServer.fetch_emoji(904782927060148224)
+        glassEmoji = await supportServer.fetch_emoji(903272838822240268)
+
+        embed = discord.Embed(
+            title="Choose the Game",
+            description=f"Click a button below to choose that game\n"
+                        f"{rlglEmoji} - Red Light Green Light\n"
+                        f"{marblesEmoji} - Marbles\n"
+                        f"{honeycombEmoji} - Honeycomb\n"
+                        f"{glassEmoji} - Glass",
+            colour=discord.Colour.purple()
+        )
+        embed.set_footer(text="Click a button below to choose the game")
+        await ctx.send(
+            embed=embed,
+            components=ActionRow([
+                Button(label="‏‏‎ ‎", emoji=rlglEmoji, style=ButtonStyle.green, custom_id="rlgl"),
+                Button(label="‏‏‎ ‎", emoji=marblesEmoji, style=ButtonStyle.green, custom_id="marbles"),
+                Button(label="‏‏‎ ‎", emoji=honeycombEmoji, style=ButtonStyle.green, custom_id="honeycomb"),
+                Button(label="‏‏‎ ‎", emoji=glassEmoji, style=ButtonStyle.green, custom_id="glass")
+            ])
+        )
+        custom_ids = ["rlgl", "marbles", "honeycomb", "glass"]
+        try:
+            i = await self.client.wait_for('button_click', timeout=30, check=lambda x: x.custom_id in custom_ids)
+        except asyncio.TimeoutError:
+            await ctx.send("You took too long to respond. Try again later.")
+        else:
+            await i.respond(type=7, embed=embed, components=ActionRow([
+                Button(label="‏‏‎ ‎", emoji=rlglEmoji, style=ButtonStyle.green, custom_id="rlgl",
+                       disabled=True),
+                Button(label="‏‏‎ ‎", emoji=marblesEmoji, style=ButtonStyle.green, custom_id="marbles",
+                       disabled=True),
+                Button(label="‏‏‎ ‎", emoji=honeycombEmoji, style=ButtonStyle.green, custom_id="honeycomb",
+                       disabled=True),
+                Button(label="‏‏‎ ‎", emoji=glassEmoji, style=ButtonStyle.green, custom_id="glass",
+                       disabled=True)
+            ]))
+            self.game_started()
+            users = await self.player_join(ctx)
+            if not users:
+                await ctx.send("No one joined, game ended.")
+                self.game_over()
+                return
+
+            if i.custom_id == "rlgl":
+                users = await self.redlight_greenlight(users, ctx)
+            elif i.custom_id == "marbles":
+                if len(users) == 1:
+                    await ctx.send("You need at least 2 players to play this game.")
+                    self.game_over()
+                    return
+                users = await marbles_collected(self.client, ctx.channel, users)
+            elif i.custom_id == "honeycomb":
+                users = await self.honeycomb(ctx, users)
+            elif i.custom_id == "glass":
+                users = await glass_game(self.client, ctx.channel, users)
+
+            if len(users) == 1:
+                await ctx.send(f"Congratulations {users[0].mention} on winning game!")
+            elif len(users) == 0:
+                await ctx.send("No one passed the game.")
+            else:
+                await ctx.send(f"Congratulations {', '.join([x.mention for x in users])} on winning game!")
+
     @commands.command(name="start")
     async def start_game(self, ctx, skip_to=0):
-        if not ctx.author.id in owners:
+        if ctx.author.id not in owners:
             skip_to = 0
 
+        users = await self.player_join(ctx)
+        db = self.mongoCluster["discord_bot"]["realTimeStats"]
+        tg = db.find_one({"_id": 0})
+        db.update_one(
+            {"_id": 0}, {"$set": {"totalGames": tg["totalGames"] + 1}})
+        self.game_started()
+        if skip_to == 0:
+            users = await self.redlight_greenlight(users, ctx)
+
+        if not users:
+            await ctx.send("None made it to the next round. Sed :(")
+            return self.game_over()
+
+        congts_str = "Congratulations "
+        for usr in users:
+            congts_str += f"{usr.mention} "
+
+        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
+        if skip_to <= 1:
+            users = await self.honeycomb(ctx, users)
+
+        if not users:
+            self.game_over()
+            return await ctx.send("None made it to the next round. Sed :(")
+
+        congts_str = "Congratulations "
+        for usr in users:
+            congts_str += f"{usr.mention} "
+
+        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
+
+        if skip_to <= 2:
+            users = await marbles_collected(self.client, ctx.channel, users)
+
+        if not users:
+            await ctx.send("None made it to the next round. Game Ended.")
+            self.game_over()
+            return
+
+        if len(users) == 1:
+            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            self.game_over()
+            return
+
+        users = await glass_game(self.client, ctx.channel, users)
+
+        if users:
+            await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
+        else:
+            await ctx.send("None managed to cross the glass bridge. Game Ended.")
+
+        self.game_over()
+
+    async def player_join(self, ctx):
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="You have : ",
@@ -146,119 +266,76 @@ class Game(commands.Cog):
                 color=discord.Colour.blue()
             ),
                 components=[Button(label="Join", style=ButtonStyle.red, emoji="🎫", disabled=True)])
-            return
+            return []
 
-        db = self.mongoCluster["discord_bot"]["realTimeStats"]
-        tg = db.find_one({"_id": 0})
-        db.update_one(
-            {"_id": 0}, {"$set": {"totalGames": tg["totalGames"] + 1}})
-        self.game_started()
-        if skip_to == 0:
-            scores = {str(usr.id): 0 for usr in users}
-            self.scores[str(ctx.guild.id)] = scores
+        return users
 
-            red_green_intro = f"All Participants, get ready. The first game is `Red Light, Green Light`\n"\
-                              f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`"\
-                              f"\nYou can send the message when the I say **__Green Light__**. If you send a message after"\
-                              f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send"\
-                              f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!"
-            red_green = discord.Embed(title="Welcome to Red Light, Green Light",
-                                      description=red_green_intro, color=discord.Colour.purple())
-            red_green.set_thumbnail(url=bot_icon)
-            red_green.set_footer(text="Game start in 2 seconds.")
-            await ctx.send(embed=red_green)
+    async def redlight_greenlight(self, users, ctx) -> list:
+        scores = {str(usr.id): 0 for usr in users}
+        self.scores[str(ctx.guild.id)] = scores
 
-            await asyncio.sleep(2)
-            self.last[str(ctx.guild.id)] = "gl"
-            self.players[str(ctx.guild.id)] = users
-            start_time = time.time()
-            embed = discord.Embed(
-                description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
-            await ctx.send(embed=embed)
-            while time.time() - start_time < rlgl_timeout:
-                if not users:
-                    await ctx.send("No one is left in the game. Better luck next time :)")
-                    return self.game_over()
+        red_green_intro = f"All Participants, get ready. The first game is `Red Light, Green Light`\n" \
+                          f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`" \
+                          f"\nYou can send the message when the I say **__Green Light__**. If you send a message after" \
+                          f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send" \
+                          f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!"
+        red_green = discord.Embed(title="Welcome to Red Light, Green Light",
+                                  description=red_green_intro, color=discord.Colour.purple())
+        red_green.set_thumbnail(url=bot_icon)
+        red_green.set_footer(text="Game start in 2 seconds.")
+        await ctx.send(embed=red_green)
 
-                await asyncio.sleep(random.randint(3, 6))
-                last = self.last[str(ctx.guild.id)]
-                if last == "gl":
-                    embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
-                                          color=discord.Colour.red())
-                    await ctx.send(embed=embed)
-                    self.rlts = datetime.datetime.now()
-                    self.last[str(ctx.guild.id)] = "rl"
-                    self.red_lights[str(ctx.guild.id)] = True
-                else:
-                    embed = discord.Embed(description=f"{self.green_light_emote} Green Light",
-                                          color=discord.Colour.green())
-                    await ctx.send(embed=embed)
-                    self.last[str(ctx.guild.id)] = "gl"
-                    self.red_lights[str(ctx.guild.id)] = False
+        await asyncio.sleep(2)
+        self.last[str(ctx.guild.id)] = "gl"
+        self.players[str(ctx.guild.id)] = users
+        start_time = time.time()
+        embed = discord.Embed(
+            description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
+        await ctx.send(embed=embed)
+        while time.time() - start_time < rlgl_timeout:
+            if not users:
+                await ctx.send("No one is left in the game. Better luck next time :)")
+                return self.game_over()
 
-            self.red_lights[str(ctx.guild.id)] = False
-            scores = self.scores[str(ctx.guild.id)]
-            print(scores)
-            users = self.players[str(ctx.guild.id)]
-            print(users)
-            for usr_id, score in scores.items():
-                if score < rlgl_min_score:
-                    usr = await ctx.guild.fetch_member(int(usr_id))
-                    try:
-                        users.remove(usr)
-                        await ctx.send(f"{usr.mention} Eliminated(Insufficient score).")
-                    except ValueError:
-                        print(usr.id, " not found")
+            await asyncio.sleep(random.randint(3, 6))
+            last = self.last[str(ctx.guild.id)]
+            if last == "gl":
+                embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
+                                      color=discord.Colour.red())
+                await ctx.send(embed=embed)
+                self.rlts = datetime.datetime.now()
+                self.last[str(ctx.guild.id)] = "rl"
+                self.red_lights[str(ctx.guild.id)] = True
+            else:
+                embed = discord.Embed(description=f"{self.green_light_emote} Green Light",
+                                      color=discord.Colour.green())
+                await ctx.send(embed=embed)
+                self.last[str(ctx.guild.id)] = "gl"
+                self.red_lights[str(ctx.guild.id)] = False
 
-        if not users:
-            await ctx.send("None made it to the next round. Sed :(")
-            return self.game_over()
+        self.red_lights[str(ctx.guild.id)] = False
+        scores = self.scores[str(ctx.guild.id)]
+        print(scores)
+        users = self.players[str(ctx.guild.id)]
+        for usr_id, score in scores.items():
+            if score < rlgl_min_score:
+                usr = await ctx.guild.fetch_member(int(usr_id))
+                try:
+                    users.remove(usr)
+                    await ctx.send(f"{usr.mention} Eliminated(Insufficient score).")
+                except ValueError:
+                    print(usr.id, " not found")
 
-        congts_str = "Congratulations "
-        for usr in users:
-            congts_str += f"{usr.mention} "
-
-        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-        if skip_to <= 1:
-            users = await self.honeycomb(ctx, users)
-        if not users:
-            self.game_over()
-            return await ctx.send("None made it to the next round. Sed :(")
-
-        congts_str = "Congratulations "
-        for usr in users:
-            congts_str += f"{usr.mention} "
-
-        await ctx.send(f"{congts_str}\nYou have made it to the next round.")
-
-        if skip_to <= 2:
-            users = await marbles_collected(self.client, ctx.channel, users)
-
-        if not users:
-            await ctx.send("None made it to the next round. Game Ended.")
-            self.game_over()
-            return
-
-        if len(users) == 1:
-            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
-            self.game_over()
-            return
-
-        users = await glass_game(self.client, ctx.channel, users)
-
-        if users:
-            await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
-        else:
-            await ctx.send("None managed to cross the glass bridge. Game Ended.")
-
-        self.game_over()
+        return users
 
     async def tugofword(self, ctx, players: list) -> list:
-        embed = discord.Embed(title="Welcome to Tug Of Words", description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
-                              f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
-                              f"with a word(may or may not be in the dictionary) which starts with the last word of your "
-                              f"team member who replied just before you and must be at least 5 characters long."
-                              f" The team which can form the longest chain, wins",  color=discord.Colour.purple())
+        embed = discord.Embed(title="Welcome to Tug Of Words",
+                              description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
+                                          f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
+                                          f"with a word(may or may not be in the dictionary) which starts with the last word of your "
+                                          f"team member who replied just before you and must be at least 5 characters long."
+                                          f" The team which can form the longest chain, wins",
+                              color=discord.Colour.purple())
         embed.set_footer(text="All the best. Game starts in 10 seconds.")
         embed.set_thumbnail(url=bot_icon)
         embed.set_thumbnail(url=bot_icon)
@@ -394,9 +471,9 @@ class Game(commands.Cog):
         return players
 
     async def honeycomb(self, ctx, players: list) -> list:
-        honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled"\
-                          f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n"\
-                          f"The participants who fail to send the correct answer within the given time will be eliminated."\
+        honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled" \
+                          f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n" \
+                          f"The participants who fail to send the correct answer within the given time will be eliminated." \
                           f" Good Luck!"
         embed = discord.Embed(title="Welcome to the Honeycomb game.",
                               description=honeycomb_intro, color=discord.Colour.purple())

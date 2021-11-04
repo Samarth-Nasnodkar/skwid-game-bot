@@ -32,6 +32,13 @@ class Utilities(commands.Cog):
             except discord.HTTPException:
                 pass
 
+    @commands.command(name="ping")
+    async def ping(self, ctx):
+        """
+        Get the bot's ping.
+        """
+        await ctx.send(f"Bot ping : `{round(self.client.latency * 1000)}`ms")
+
     @commands.command(name="stats")
     async def stats(self, ctx):
         """
