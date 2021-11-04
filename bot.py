@@ -41,7 +41,7 @@ client.remove_command("help")
 TOKEN = os.environ.get("discord_bot_token")
 COGS = [
     "game",
-    # "topgg",
+    "topgg",
     "help",
     "utilities",
     "settings"
