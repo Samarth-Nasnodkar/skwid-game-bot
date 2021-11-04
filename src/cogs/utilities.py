@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord_components import *
 from pymongo import collection
 from src.utils.textStyles import *
 from src.constants.urls import bot_icon
@@ -38,6 +39,19 @@ class Utilities(commands.Cog):
         Get the bot's ping.
         """
         await ctx.send(f"Bot ping : `{round(self.client.latency * 1000)}`ms")
+
+    @commands.command(ame="invite")
+    async def invite(self,ctx):
+        """Command for inviting the bot."""
+
+        embed = discord.Embed(title="Invite the bot",
+                              description="Invite the bot using the bot below and help us by voting on top.gg",
+                              color=discord.Colour.purple())
+
+        await ctx.send(embed=embed, components = [Button(label="Join the support server",
+                                                         style=ButtonStyle.URL,
+                                                         custom_id="invite",url="https://discord.com/oauth2/authorize?client_id=900054290784190507&permissions=532978986064&scope=bot")])
+
 
     @commands.command(name="stats")
     async def stats(self, ctx):
