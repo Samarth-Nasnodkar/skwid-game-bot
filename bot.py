@@ -33,6 +33,7 @@ intents.guilds = True
 intents.messages = True
 intents.dm_messages = True
 intents.guild_messages = True
+intents.members = True
 intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)

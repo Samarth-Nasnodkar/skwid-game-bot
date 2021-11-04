@@ -288,7 +288,7 @@ class Game(commands.Cog):
         while time.time() - start_time < rlgl_timeout:
             if not users:
                 await ctx.send("No one is left in the game. Better luck next time :)")
-                return
+                return []
 
             await asyncio.sleep(random.randint(3, 6))
             last = self.last[str(ctx.guild.id)]
