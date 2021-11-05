@@ -1,22 +1,22 @@
 cmds = [
     {
-        "name": "Start",
+        "name": "start",
         "desc": "Starts the game."
     },
     {
-        "name": "Help",
+        "name": "help",
         "desc": "Displays this help message."
     },
     {
-        "name": "Prefix <new prefix(optional)>",
-        "desc": "Sets the new prefix if specified, else shows the current prefix"
+        "name": "prefix <new prefix>",
+        "desc": "Sets the new prefix"
     },
     {
-        "name": "Play",
+        "name": "play",
         "desc": "Play a specific game out of the available games!"
     },
     {
-        "name": "Ping",
+        "name": "ping",
         "desc": "Shows the bot's latency"
     }
 ]

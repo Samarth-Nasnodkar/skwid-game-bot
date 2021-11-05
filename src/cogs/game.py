@@ -56,8 +56,9 @@ class Game(commands.Cog):
         collection = db["realTimeStats"]
         stats = collection.find_one({"_id": 0})
         ongoing = stats["ongoing"]
+        totalGames = stats["totalGames"]
         ongoing = ongoing if ongoing > 0 else 0
-        collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing + 1}})
+        collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
 
     def default_stats(self):
         db = self.mongoCluster["discord_bot"]
@@ -146,11 +147,9 @@ class Game(commands.Cog):
                 Button(label="‏‏‎ ‎", emoji=glassEmoji, style=ButtonStyle.green, custom_id="glass",
                        disabled=True)
             ]))
-            self.game_started()
             users = await self.player_join(ctx)
             if not users:
                 await ctx.send("No one joined, game ended.")
-                self.game_over()
                 return
 
             if i.custom_id == "rlgl":
@@ -158,7 +157,6 @@ class Game(commands.Cog):
             elif i.custom_id == "marbles":
                 if len(users) == 1:
                     await ctx.send("You need at least 2 players to play this game.")
-                    self.game_over()
                     return
                 users = await marbles_collected(self.client, ctx.channel, users)
             elif i.custom_id == "honeycomb":
@@ -174,22 +172,22 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {', '.join([x.mention for x in users])} on winning game!")
 
     @commands.command(name="start")
-    async def start_game(self, ctx, skip_to=0):
+    async def game_launcher(self, ctx, skip_to=0):
+        self.game_started()
+        await self.game(ctx, skip_to)
+        self.game_over()
+
+    async def game(self, ctx, skip_to=0):
         if ctx.author.id not in owners:
             skip_to = 0
 
         users = await self.player_join(ctx)
-        db = self.mongoCluster["discord_bot"]["realTimeStats"]
-        tg = db.find_one({"_id": 0})
-        db.update_one(
-            {"_id": 0}, {"$set": {"totalGames": tg["totalGames"] + 1}})
-        self.game_started()
         if skip_to == 0:
             users = await self.redlight_greenlight(users, ctx)
 
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
-            return self.game_over()
+            return
 
         congts_str = "Congratulations "
         for usr in users:
@@ -200,7 +198,6 @@ class Game(commands.Cog):
             users = await self.honeycomb(ctx, users)
 
         if not users:
-            self.game_over()
             return await ctx.send("None made it to the next round. Sed :(")
 
         congts_str = "Congratulations "
@@ -214,12 +211,10 @@ class Game(commands.Cog):
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
-            self.game_over()
             return
 
         if len(users) == 1:
             await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
-            self.game_over()
             return
 
         users = await glass_game(self.client, ctx.channel, users)
@@ -228,8 +223,6 @@ class Game(commands.Cog):
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
         else:
             await ctx.send("None managed to cross the glass bridge. Game Ended.")
-
-        self.game_over()
 
     async def player_join(self, ctx):
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
@@ -295,7 +288,7 @@ class Game(commands.Cog):
         while time.time() - start_time < rlgl_timeout:
             if not users:
                 await ctx.send("No one is left in the game. Better luck next time :)")
-                return self.game_over()
+                return []
 
             await asyncio.sleep(random.randint(3, 6))
             last = self.last[str(ctx.guild.id)]

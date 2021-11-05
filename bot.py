@@ -13,12 +13,12 @@ def get_prefix(bot, message):
         collection = db["prefixes"]
         prefixes = collection.find_one({"_id": 0})
         if str(message.guild.id) not in prefixes:
-            return commands.when_mentioned_or("s!")(bot, message)
+            return "s!"
         else:
-            return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
+            return prefixes[str(message.guild.id)]
     except Exception as e:
         print(e)
-        return commands.when_mentioned_or("s!")(bot, message)
+        return "s!"
 
 
 def set_prefix(guild_id, prefix):
@@ -33,6 +33,7 @@ intents.guilds = True
 intents.messages = True
 intents.dm_messages = True
 intents.guild_messages = True
+intents.members = True
 intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)
