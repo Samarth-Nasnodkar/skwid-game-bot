@@ -291,11 +291,12 @@ class Game(commands.Cog):
             description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
         await ctx.send(embed=embed)
         while time.time() - start_time < rlgl_timeout:
+            await asyncio.sleep(random.randint(3, 6))
+
             if not users:
-                await ctx.send("No one is left in the game. Better luck next time :)")
+                # await ctx.send("No one is left in the game. Better luck next time :)")
                 return []
 
-            await asyncio.sleep(random.randint(3, 6))
             last = self.last[str(ctx.guild.id)]
             if last == "gl":
                 embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
