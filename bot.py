@@ -1,15 +1,15 @@
-import os
 from discord import user, webhook
 from src.utils.textStyles import *
 import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
+from src.constants.vars import TOKEN, MONGO_URL
 
 
 def get_prefix(bot, message):
     try:
-        db = mongoCLuster["discord_bot"]
+        db = mongoCluster["discord_bot"]
         collection = db["prefixes"]
         prefixes = collection.find_one({"_id": 0})
         if str(message.guild.id) not in prefixes:
@@ -22,7 +22,7 @@ def get_prefix(bot, message):
 
 
 def set_prefix(guild_id, prefix):
-    db = mongoCLuster["discord_bot"]
+    db = mongoCluster["discord_bot"]
     collection = db["prefixes"]
     collection.update_one(
         {"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
@@ -37,9 +37,8 @@ intents.members = True
 intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)
-mongoCLuster = MongoClient(os.environ.get('mongo_db_auth'))
+mongoCluster = MongoClient(MONGO_URL)
 client.remove_command("help")
-TOKEN = os.environ.get("discord_bot_token")
 COGS = [
     "game",
     "topgg",

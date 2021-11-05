@@ -4,7 +4,7 @@ from discord.ext.commands import bot
 from discord_components import *
 import pymongo
 from pymongo import MongoClient
-import os
+from src.constants.vars import MONGO_URL
 from src.constants.global_settings import default_settings, settingTypes, settingsFormatter
 from src.utils.textStyles import bold, highlight, italics
 from src.constants.urls import bot_icon
@@ -13,7 +13,7 @@ from src.constants.urls import bot_icon
 class Settings(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.mongoCluster = MongoClient(os.environ.get('mongo_db_auth'))
+        self.mongoCluster = MongoClient(MONGO_URL)
 
     def get_settings(self, guild_id: int):
         db = self.mongoCluster["discord_bot"]

@@ -6,13 +6,13 @@ from src.utils.textStyles import *
 from src.constants.urls import bot_icon, invite_url, support_server_invite
 import pymongo
 from pymongo import MongoClient
-import os
+from src.constants.vars import MONGO_URL
 
 
 class Utilities(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.mongoCluster = MongoClient(os.environ.get('mongo_db_auth'))
+        self.mongoCluster = MongoClient(MONGO_URL)
 
     @commands.command()
     async def clear(self, ctx, amount=5):

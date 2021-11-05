@@ -2,13 +2,15 @@ import discord
 from discord.ext import commands, tasks
 import os
 import topgg
+from src.constants.vars import TOPGG_TOKEN
 
 
 class TopGG(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.token = os.environ.get("topgg_token")  # set this to your DBL token
+        # set this to your DBL token
+        self.token = TOPGG_TOKEN
         self.topgg_client = topgg.DBLClient(self.bot, self.token)
         self.update_stats.start()
 

@@ -10,7 +10,7 @@ from src.constants.urls import *
 import asyncio
 import pymongo
 from pymongo import MongoClient
-import os
+from src.constants.vars import MONGO_URL
 
 
 def get_prefix(mongoCluster, message):
@@ -30,7 +30,7 @@ def get_prefix(mongoCluster, message):
 class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.mongoCluster = MongoClient(os.environ.get("mongo_db_auth"))
+        self.mongoCluster = MongoClient(MONGO_URL)
 
     @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
     async def help(self, ctx):  # New Help command.

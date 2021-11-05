@@ -13,7 +13,7 @@ from src.constants.urls import bot_icon
 from src.constants.owners import owners
 import pymongo
 from pymongo import MongoClient
-import os
+from src.constants.vars import MONGO_URL
 
 
 def scramble(word) -> str:
@@ -58,7 +58,8 @@ class Game(commands.Cog):
         ongoing = stats["ongoing"]
         totalGames = stats["totalGames"]
         ongoing = ongoing if ongoing > 0 else 0
-        collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
+        collection.update_one(
+            {"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
 
     def default_stats(self):
         db = self.mongoCluster["discord_bot"]
@@ -67,7 +68,7 @@ class Game(commands.Cog):
 
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.mongoCluster = MongoClient(os.environ.get("mongo_db_auth"))
+        self.mongoCluster = MongoClient(MONGO_URL)
         self.default_stats()
         DiscordComponents(self.client)
 
@@ -77,7 +78,7 @@ class Game(commands.Cog):
             if str(message.author.id) in self.honeycomb_words:
                 if message.content.lower() == self.honeycomb_words[str(message.author.id)].lower():
                     time_delta = message.created_at - \
-                                 self.honeycomb_ts[str(message.author.id)]
+                        self.honeycomb_ts[str(message.author.id)]
                     if time_delta.seconds < honeycomb_reply_timeout:
                         self.honeycomb_replied[str(message.author.id)] = True
                         await message.author.dm_channel.send(f"That is correct!")
@@ -125,10 +126,14 @@ class Game(commands.Cog):
         await ctx.send(
             embed=embed,
             components=ActionRow([
-                Button(label="‏‏‎ ‎", emoji=rlglEmoji, style=ButtonStyle.green, custom_id="rlgl"),
-                Button(label="‏‏‎ ‎", emoji=marblesEmoji, style=ButtonStyle.green, custom_id="marbles"),
-                Button(label="‏‏‎ ‎", emoji=honeycombEmoji, style=ButtonStyle.green, custom_id="honeycomb"),
-                Button(label="‏‏‎ ‎", emoji=glassEmoji, style=ButtonStyle.green, custom_id="glass")
+                Button(label="‏‏‎ ‎", emoji=rlglEmoji,
+                       style=ButtonStyle.green, custom_id="rlgl"),
+                Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                       style=ButtonStyle.green, custom_id="marbles"),
+                Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                       style=ButtonStyle.green, custom_id="honeycomb"),
+                Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                       style=ButtonStyle.green, custom_id="glass")
             ])
         )
         custom_ids = ["rlgl", "marbles", "honeycomb", "glass"]
