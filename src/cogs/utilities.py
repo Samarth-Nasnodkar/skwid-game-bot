@@ -49,7 +49,7 @@ class Utilities(commands.Cog):
                               color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)
 
-        await ctx.send(embed=embed, components = [Button(label="Join the support server",
+        await ctx.send(embed=embed, components = [Button(label="Invite the bot",
                                                          style=ButtonStyle.URL,
                                                          custom_id="invite",url="https://discord.com/oauth2/authorize?client_id=900054290784190507&permissions=532978986064&scope=bot")])
 
