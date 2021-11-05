@@ -47,6 +47,7 @@ class Utilities(commands.Cog):
         embed = discord.Embed(title="Invite the bot",
                               description="Invite the bot using the bot below and help us by voting on top.gg",
                               color=discord.Colour.purple())
+        embed.set_thumbnail(url=bot_icon)
 
         await ctx.send(embed=embed, components = [Button(label="Join the support server",
                                                          style=ButtonStyle.URL,
