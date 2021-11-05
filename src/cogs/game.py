@@ -254,7 +254,12 @@ class Game(commands.Cog):
                 pass
             else:
                 users.append(interation.user)
-                await interation.respond(content="You have successfully joined the game.")
+                try:
+                    await interation.respond(content="You have successfully joined the game.")
+                except discord.NotFound:
+                    await ctx.send("Encountered an error, please try again.")
+                    return
+
         if len(users) >= 1:
             await msg.edit(embed=discord.Embed(
                 title="Game Started!",

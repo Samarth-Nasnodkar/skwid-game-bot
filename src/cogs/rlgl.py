@@ -49,16 +49,10 @@ async def rlgl(ctx: commands.Context, client: commands.Bot, user: discord.User, 
         except asyncio.TimeoutError:
             time_delta = time.time() - start
         else:
-            if red_light:
-                await ctx.send(f"{user.mention} Eliminated! (Red Light)")
+            if red_light and count < rlgl_min_score:
+                await ctx.send(f"{user.mention} Eliminated! (Red Light, score : `{count}`)")
                 return None
             count += 1
-            if count >= rlgl_min_score:
-                return {
-                    'user': user,
-                    'score': count
-                }
-
             time_delta = time.time() - start
 
     return {
@@ -105,5 +99,5 @@ async def rlgl_collected(ctx: commands.Context, client: commands.Bot, users: lis
             await ctx.send(f"{f['user'].mention} Eliminated! Insufficient score.")
 
     passed = [f['user'] for f in finalists if f['score'] >= rlgl_min_score]
-    print(passed)
+    # print(passed)
     return passed
