@@ -45,7 +45,7 @@ class Utilities(commands.Cog):
         """Command for inviting the bot."""
 
         embed = discord.Embed(title="Invite the bot",
-                              description="Invite the bot using the bot below and help us by voting on top.gg",
+                              description="Invite the bot using the button below and help us by voting on top.gg",
                               color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)
 
