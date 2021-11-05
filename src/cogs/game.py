@@ -480,12 +480,12 @@ class Game(commands.Cog):
         return players
 
     async def honeycomb(self, ctx, players: list) -> list:
-        honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled" \
-                          f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n" \
-                          f"The participants who fail to send the correct answer vis DMs within the given time will " \
-                          f"be eliminated. Good Luck!"
-        embed = discord.Embed(title="Welcome to the Honeycomb game.",
-                              description=honeycomb_intro, color=discord.Colour.purple())
+        honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a " \
+                          f"scrambled word. You have to un-scramble it and send it within " \
+                          f"`{honeycomb_reply_timeout}s`.\nThe participants who fail to send the correct answer vis " \
+                          f"DMs within the given time will be eliminated. Good Luck!"
+        embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro,
+                              color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)
         embed.set_footer(text="Game will begin in 10 seconds.")
         await ctx.send(embed=embed)
@@ -495,7 +495,8 @@ class Game(commands.Cog):
         for player in players:
             word = random.choice(words)
             await player.create_dm()
-            await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{honeycomb_reply_timeout}s`")
+            await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{honeycomb_reply_timeout}s` "
+                                         f"to DM me the answer.")
             self.honeycomb_words[str(player.id)] = word
             self.honeycomb_ts[str(player.id)] = datetime.datetime.utcnow()
 
