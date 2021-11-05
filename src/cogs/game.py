@@ -472,8 +472,8 @@ class Game(commands.Cog):
     async def honeycomb(self, ctx, players: list) -> list:
         honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a scrambled" \
                           f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n" \
-                          f"The participants who fail to send the correct answer within the given time will be eliminated." \
-                          f" Good Luck!"
+                          f"The participants who fail to send the correct answer vis DMs within the given time will " \
+                          f"be eliminated. Good Luck!"
         embed = discord.Embed(title="Welcome to the Honeycomb game.",
                               description=honeycomb_intro, color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)

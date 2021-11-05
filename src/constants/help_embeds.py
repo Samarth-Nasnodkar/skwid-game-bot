@@ -14,7 +14,7 @@ redgreen = f"This game is {bold('`Red Light, Green Light`')}\n" \
 
 honeycomb = f"This game is called {bold('HoneyComb')}. You will be {highlight('DMed')} a scrambled" \
             f" word. You have to un-scramble it and send it within `{honeycomb_reply_timeout}s`.\n" \
-            f"The participants who fail to send the correct answer within the given time will be eliminated."
+            f"The participants who fail to send the correct answer via DMS within the given time will be eliminated."
 
 marbles = "This is the game of Marbles. Each one of you will be given 10 marbles. This game will last a maximum" \
           "of 3 minutes. If within 3 minutes, you're able to win all 10 of your opponent's marbles, you WIN. If not" \
