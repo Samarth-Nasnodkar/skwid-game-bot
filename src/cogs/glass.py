@@ -5,15 +5,13 @@ import time
 import asyncio
 from src.utils.textStyles import *
 import random
-from src.constants.urls import bot_icon
+from src.constants.urls import bot_icon, falling_gif_url, thumbs_up_gif_url
 
 glass_steps = 16
 game_time = 180
 wait_time = 5
 support_server_id = 900056168716701696
 glass_emoji_id = 903272838822240268
-falling_gif_url = "https://tenor.com/view/cholito-falling-down-float-gif-15396007"
-thumbs_up_gif_url = "https://tenor.com/view/boy-kid-computer-thumbs-up-face-gif-9548945"
 
 intro_message = f"Welcome participants to this game of {bold('Glass Walk')}, You will be assigned a random serial " \
                 f"number, You will be called in order and will be presented with two glass panels. One will be " \

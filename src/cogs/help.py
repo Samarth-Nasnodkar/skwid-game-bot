@@ -6,7 +6,7 @@ from discord_components import *
 from discord_components.dpy_overrides import send_files
 from src.cogs.utilities import setup
 from src.constants.help_embeds import embeds, get_cmd_embed
-from src.constants.urls import bot_icon
+from src.constants.urls import *
 import asyncio
 import pymongo
 from pymongo import MongoClient
@@ -83,9 +83,9 @@ class Help(commands.Cog):
                     Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                            style=ButtonStyle.green, custom_id="cmds"),
                     Button(label="Vote", style=ButtonStyle.URL,
-                           url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
+                           url=bot_vote_url, custom_id="vote"),
                     Button(label="Join the support server", style=ButtonStyle.URL,
-                           custom_id="invite", url="https://discord.gg/2vyURSNgFm")
+                           custom_id="invite", url=support_server_invite)
                 ])
             ])
         while True:
@@ -137,9 +137,9 @@ class Help(commands.Cog):
                                         Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
                                                style=ButtonStyle.green, custom_id="cmds"),
                                         Button(label="Vote", style=ButtonStyle.URL,
-                                               url="https://top.gg/bot/900054290784190507/vote", custom_id="vote"),
+                                               url=bot_vote_url, custom_id="vote"),
                                         Button(label="Join the support server", style=ButtonStyle.URL,
-                                               custom_id="invite", url="https://discord.gg/2vyURSNgFm")
+                                               custom_id="invite", url=support_server_invite)
                                     ])
                                 ])
 

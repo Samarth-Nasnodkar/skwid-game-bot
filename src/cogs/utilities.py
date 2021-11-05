@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord_components import *
 from pymongo import collection
 from src.utils.textStyles import *
-from src.constants.urls import bot_icon
+from src.constants.urls import bot_icon, invite_url, support_server_invite
 import pymongo
 from pymongo import MongoClient
 import os
@@ -41,7 +41,7 @@ class Utilities(commands.Cog):
         await ctx.send(f"Bot ping : `{round(self.client.latency * 1000)}`ms")
 
     @commands.command(ame="invite")
-    async def invite(self,ctx):
+    async def invite(self, ctx):
         """Command for inviting the bot."""
 
         embed = discord.Embed(title="Invite the bot",
@@ -49,10 +49,15 @@ class Utilities(commands.Cog):
                               color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)
 
-        await ctx.send(embed=embed, components = [Button(label="Invite the bot",
-                                                         style=ButtonStyle.URL,
-                                                         custom_id="invite",url="https://discord.com/oauth2/authorize?client_id=900054290784190507&permissions=532978986064&scope=bot")])
-
+        await ctx.send(embed=embed, components=ActionRow(*[
+            Button(label="Invite Me",
+                   style=ButtonStyle.URL,
+                   custom_id="invite",
+                   url=invite_url),
+            Button(label="Join Support Server",
+                   style=ButtonStyle.URL,
+                   custom_id="server",
+                   url=support_server_invite)]))
 
     @commands.command(name="stats")
     async def stats(self, ctx):
