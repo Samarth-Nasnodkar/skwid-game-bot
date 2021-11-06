@@ -41,15 +41,17 @@ class Help(commands.Cog):
         honeycombEmoji = await supportServer.fetch_emoji(904782927060148224)
         glassEmoji = await supportServer.fetch_emoji(903272838822240268)
         cmdsEmoji = await supportServer.fetch_emoji(905000304951586857)
+        teamEmoji = await supportServer.fetch_emoji(906440335893356544)
         menu_embed = discord.Embed(
             title="Help Menu",
             description=f"Click a button below to get more info on games.\n"
-            f"{menuEmoji} **➜** Shows this Menu\n"
-            f"{rlglEmoji} **➜** Rules of Red Light Green Light\n"
-            f"{honeycombEmoji} **➜** Rules of Honeycomb\n"
-            f"{marblesEmoji} **➜** Rules of Marbles\n"
-            f"{glassEmoji} **➜** Rules of Glass Walk\n"
-            f"{cmdsEmoji} **➜** Bot Commands",
+                        f"{rlglEmoji} **➜** Rules of Red Light Green Light\n"
+                        f"{honeycombEmoji} **➜** Rules of Honeycomb\n"
+                        f"{teamEmoji} **➜** Rules of Tug Of War\n"
+                        f"{marblesEmoji} **➜** Rules of Marbles\n"
+                        f"{glassEmoji} **➜** Rules of Glass Walk\n"
+                        f"{cmdsEmoji} **➜** Bot Commands\n"
+                        f"{menuEmoji} **➜** Shows this Menu\n",
             color=discord.Color.purple(),
         )
         embeds["menu"] = {
@@ -61,56 +63,52 @@ class Help(commands.Cog):
             'name': 'Bot Commands'
         }
 
+        button_list_1 = [
+            Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+                   style=ButtonStyle.blue),
+            Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                   custom_id="honeycomb", style=ButtonStyle.blue),
+            Button(label="‏‏‎ ‎", emoji=teamEmoji,
+                   custom_id="tug", style=ButtonStyle.blue),
+            Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                   custom_id="marbles", style=ButtonStyle.blue),
+            Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                   custom_id="glass", style=ButtonStyle.blue),
+        ]
+
+        button_list_2 = [
+            Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+                   style=ButtonStyle.green),
+            Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+                   style=ButtonStyle.green, custom_id="cmds"),
+            Button(label="Vote", style=ButtonStyle.URL,
+                   url=bot_vote_url, custom_id="vote"),
+            Button(label="Join the support server", style=ButtonStyle.URL,
+                   custom_id="invite", url=support_server_invite)
+        ]
+
         current_embed = menu_embed
         menu_embed.set_thumbnail(url=bot_icon)
         menu_embed.set_footer(text="Click a button to get more info on games.")
         msg = await ctx.send(
             embed=current_embed,
             components=[
-                ActionRow(*[
-                    Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                           style=ButtonStyle.green),
-                    Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                           style=ButtonStyle.blue),
-                    Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                           custom_id="honeycomb", style=ButtonStyle.blue),
-                    Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                           custom_id="marbles", style=ButtonStyle.blue),
-                    Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                           custom_id="glass", style=ButtonStyle.blue),
-                ]),
-                ActionRow(*[
-                    Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                           style=ButtonStyle.green, custom_id="cmds"),
-                    Button(label="Vote", style=ButtonStyle.URL,
-                           url=bot_vote_url, custom_id="vote"),
-                    Button(label="Join the support server", style=ButtonStyle.URL,
-                           custom_id="invite", url=support_server_invite)
-                ])
+                ActionRow(*button_list_1),
+                ActionRow(*button_list_2)
             ])
         while True:
             try:
                 i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id)
             except asyncio.TimeoutError:
+                for i in range(len(button_list_1)):
+                    button_list_1[i].disabled = True
+                for i in range(len(button_list_2)):
+                    button_list_2[i].disabled = True
                 await msg.edit(
                     embed=current_embed,
                     components=[
-                        ActionRow(*[
-                            Button(label="‎‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                                   style=ButtonStyle.green, disabled=True),
-                            Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                                   style=ButtonStyle.blue, disabled=True),
-                            Button(label="‏‏‎ ‎", emoji=honeycombEmoji, custom_id="honeycomb",
-                                   style=ButtonStyle.blue,    disabled=True),
-                            Button(label="‏‏‎ ‎", emoji=marblesEmoji, custom_id="marbles",
-                                   style=ButtonStyle.blue, disabled=True),
-                            Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                                   custom_id="glass", style=ButtonStyle.blue, disabled=True)
-                        ]),
-                        ActionRow(*[
-                            Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                                   style=ButtonStyle.green, custom_id="cmds", disabled=True)
-                        ])
+                        ActionRow(*button_list_1),
+                        ActionRow(*button_list_2)
                     ])
                 return
             except Exception as e:
@@ -121,26 +119,8 @@ class Help(commands.Cog):
 
                 await i.respond(type=7, ephemeral=False, embed=current_embed,
                                 components=[
-                                    ActionRow(*[
-                                        Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
-                                               style=ButtonStyle.green),
-                                        Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
-                                               style=ButtonStyle.blue),
-                                        Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                                               custom_id="honeycomb", style=ButtonStyle.blue),
-                                        Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                                               custom_id="marbles", style=ButtonStyle.blue),
-                                        Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                                               custom_id="glass", style=ButtonStyle.blue)
-                                    ]),
-                                    ActionRow(*[
-                                        Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
-                                               style=ButtonStyle.green, custom_id="cmds"),
-                                        Button(label="Vote", style=ButtonStyle.URL,
-                                               url=bot_vote_url, custom_id="vote"),
-                                        Button(label="Join the support server", style=ButtonStyle.URL,
-                                               custom_id="invite", url=support_server_invite)
-                                    ])
+                                    ActionRow(*button_list_1),
+                                    ActionRow(*button_list_2)
                                 ])
 
 

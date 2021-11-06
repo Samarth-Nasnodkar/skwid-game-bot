@@ -35,6 +35,16 @@ glass_i = f"This is the game of {bold('Glass Walk')}, You will be assigned a ran
           f"another pair of glass. There will be {glass_steps} rounds. The participants who cross the bridge " \
           f"before the timer ends({game_time} s) will be the winners, and rest will be Eliminated."
 
+tug_d = f"This is {bold('Tug Of War')}, All the players will be split into two teams. If there are odd number of " \
+      f"players, then one of the players will directly make it to the next round for not finding a partner.\n" \
+      f"You will be then DMed a message with two buttons, A green and a red button. Each user has to click the green " \
+      f"button for their team to get `+1` points, clicking the red button will result in their team getting `-1` " \
+      f"points. If you don't click a button, the team will be rewarded `0` points. After everyone has done with " \
+      f"this, the points will be calculated. The team with more points wins. But if both teams score equal points " \
+      f"then the time taken by each user to click the button will be taken into consideration and the team who's " \
+      f"total time will be lesser, will be the winner. So click the buttons as fast as possible.(Not clicking a " \
+      f"button will be counted as `60s`)"
+
 
 def get_cmd_embed(prefix: str) -> discord.Embed:
     commands = ""
@@ -58,6 +68,12 @@ hc = discord.Embed(title="Rules of Honeycomb",
                    description=honeycomb, color=discord.Colour.purple())
 hc.set_thumbnail(url=bot_icon)
 hc.set_footer(text="Click a button to get more info on games.")
+
+tug = discord.Embed(title="Rules of Tug of War",
+                    description=tug_d, color=discord.Colour.purple())
+
+tug.set_thumbnail(url=bot_icon)
+tug.set_footer(text="Click a button to get more info on games.")
 
 mar = discord.Embed(title="Rules of Marbles",
                     description=marbles, color=discord.Colour.purple())
@@ -86,8 +102,8 @@ embeds = {
         'embed': glass,
         'name': 'Glass Walk'
     },
-    # 'cmds': {
-    #     'embed': cmd_emb,
-    #     'name': 'Bot Commands'
-    # }
+    'tug': {
+        'embed': tug,
+        'name': 'Tug of War'
+    }
 }

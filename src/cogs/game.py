@@ -10,6 +10,7 @@ from src.constants.timeouts import *
 from src.cogs.marbles import marbles_collected
 from src.cogs.rlgl import rlgl_collected
 from src.cogs.glass import glass_game
+from src.cogs.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
 import pymongo
@@ -34,10 +35,8 @@ class Game(commands.Cog):
     green_light_emote = "🟢"
     red_light_emote = "🔴"
     players = {}
-    # red_lights = {}
     scores = {}
     eliminated: discord.User = None
-    # is_red_light = False
     last = {}
     honeycomb_words = {}
     honeycomb_ts = {}
@@ -91,6 +90,7 @@ class Game(commands.Cog):
         marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
         honeycombEmoji = await supportServer.fetch_emoji(904782927060148224)
         glassEmoji = await supportServer.fetch_emoji(903272838822240268)
+        teamEmoji = await supportServer.fetch_emoji(906440335893356544)
 
         embed = discord.Embed(
             title="Choose the Game",
@@ -98,55 +98,54 @@ class Game(commands.Cog):
                         f"{rlglEmoji} - Red Light Green Light\n"
                         f"{marblesEmoji} - Marbles\n"
                         f"{honeycombEmoji} - Honeycomb\n"
+                        f"{teamEmoji} - Tug Of War\n"
                         f"{glassEmoji} - Glass",
             colour=discord.Colour.purple()
         )
         embed.set_footer(text="Click a button below to choose the game")
+        buttons = [
+            Button(label="‏‏‎ ‎", emoji=rlglEmoji,
+                   style=ButtonStyle.green, custom_id="rlgl"),
+            Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+                   style=ButtonStyle.green, custom_id="marbles"),
+            Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+                   style=ButtonStyle.green, custom_id="honeycomb"),
+            Button(label="‏‏‎ ‎", emoji=teamEmoji,
+                   style=ButtonStyle.green, custom_id="tug"),
+            Button(label="‏‏‎ ‎", emoji=glassEmoji,
+                   style=ButtonStyle.green, custom_id="glass")
+        ]
         await ctx.send(
             embed=embed,
-            components=ActionRow([
-                Button(label="‏‏‎ ‎", emoji=rlglEmoji,
-                       style=ButtonStyle.green, custom_id="rlgl"),
-                Button(label="‏‏‎ ‎", emoji=marblesEmoji,
-                       style=ButtonStyle.green, custom_id="marbles"),
-                Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
-                       style=ButtonStyle.green, custom_id="honeycomb"),
-                Button(label="‏‏‎ ‎", emoji=glassEmoji,
-                       style=ButtonStyle.green, custom_id="glass")
-            ])
+            components=ActionRow(buttons)
         )
-        custom_ids = ["rlgl", "marbles", "honeycomb", "glass"]
+        custom_ids = ["rlgl", "marbles", "honeycomb", "glass", "tug"]
         try:
-            i = await self.client.wait_for('button_click', timeout=30, check=lambda x: x.custom_id in custom_ids)
+            _interaction = await self.client.wait_for('button_click', timeout=30,
+                                                      check=lambda x: x.custom_id in custom_ids)
         except asyncio.TimeoutError:
             await ctx.send("You took too long to respond. Try again later.")
         else:
-            await i.respond(type=7, embed=embed, components=ActionRow([
-                Button(label="‏‏‎ ‎", emoji=rlglEmoji, style=ButtonStyle.green, custom_id="rlgl",
-                       disabled=True),
-                Button(label="‏‏‎ ‎", emoji=marblesEmoji, style=ButtonStyle.green, custom_id="marbles",
-                       disabled=True),
-                Button(label="‏‏‎ ‎", emoji=honeycombEmoji, style=ButtonStyle.green, custom_id="honeycomb",
-                       disabled=True),
-                Button(label="‏‏‎ ‎", emoji=glassEmoji, style=ButtonStyle.green, custom_id="glass",
-                       disabled=True)
-            ]))
+            for i in range(len(buttons)):
+                buttons[i].disabled = True
+            await _interaction.respond(type=7, embed=embed, components=ActionRow(buttons))
             users = await self.player_join(ctx)
             if not users:
                 await ctx.send("No one joined, game ended.")
                 return
 
-            if i.custom_id == "rlgl":
-                # users = await self.redlight_greenlight(users, ctx)
+            if _interaction.custom_id == "rlgl":
                 users = await rlgl_collected(ctx, self.client, users)
-            elif i.custom_id == "marbles":
+            elif _interaction.custom_id == "marbles":
                 if len(users) == 1:
                     await ctx.send("You need at least 2 players to play this game.")
                     return
                 users = await marbles_collected(self.client, ctx.channel, users)
-            elif i.custom_id == "honeycomb":
+            elif _interaction.custom_id == "honeycomb":
                 users = await self.honeycomb(ctx, users)
-            elif i.custom_id == "glass":
+            elif _interaction.custom_id == "tug":
+                users = await tug_collected(self.client, ctx, users)
+            elif _interaction.custom_id == "glass":
                 users = await glass_game(self.client, ctx.channel, users)
 
             if len(users) == 1:
@@ -159,8 +158,12 @@ class Game(commands.Cog):
     @commands.command(name="start")
     async def game_launcher(self, ctx, skip_to=0):
         self.game_started()
-        await self.game(ctx, skip_to)
-        self.game_over()
+        try:
+            await self.game(ctx, skip_to)
+        except Exception as e:
+            print(e)
+        finally:
+            self.game_over()
 
     async def game(self, ctx, skip_to=0):
         if ctx.author.id not in owners:
@@ -168,7 +171,6 @@ class Game(commands.Cog):
 
         users = await self.player_join(ctx)
         if skip_to == 0:
-            # users = await self.redlight_greenlight(users, ctx)
             users = await rlgl_collected(ctx, self.client, users)
 
         if not users:
@@ -193,6 +195,17 @@ class Game(commands.Cog):
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         if skip_to <= 2:
+            users = await tug_collected(self.client, ctx, users)
+
+        if not users:
+            await ctx.send("None made it to the next round. Game Ended.")
+            return
+
+        if len(users) == 1:
+            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            return
+
+        if skip_to <= 3:
             users = await marbles_collected(self.client, ctx.channel, users)
 
         if not users:
@@ -255,148 +268,6 @@ class Game(commands.Cog):
             return []
 
         return users
-
-    async def tugofword(self, ctx, players: list) -> list:
-        embed = discord.Embed(title="Welcome to Tug Of Words",
-                              description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
-                                          f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
-                                          f"with a word(may or may not be in the dictionary) which starts with the last word of your "
-                                          f"team member who replied just before you and must be at least 5 characters long."
-                                          f" The team which can form the longest chain, wins",
-                              color=discord.Colour.purple())
-        embed.set_footer(text="All the best. Game starts in 10 seconds.")
-        embed.set_thumbnail(url=bot_icon)
-        embed.set_thumbnail(url=bot_icon)
-
-        await ctx.send(embed=embed)
-
-        '''await ctx.send(f"All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
-                       f" two teams. You will have to form a chain. The bot will call your name and you have to reply "
-                       f"with a word(may or may not be in the dictionary) which starts with the last word of your "
-                       f"team member who replied just before you and must be at least 5 characters long."
-                       f" The team which can form the longest chain, wins.")'''
-        await asyncio.sleep(10)
-        l = len(players) // 2
-        team_1 = players[:l]
-        team_2 = players[l:]
-        await ctx.send(f"The Team 1 is as follows: ")
-        t_1_members = "** ** "
-        for player in team_1:
-            t_1_members += f"{player.mention}\n"
-
-        await ctx.send(t_1_members)
-        await ctx.send(f"The Team 2 is as follows: ")
-        t_2_members = "** ** " \
-                      ""
-        for player in team_2:
-            t_2_members += f"{player.mention}\n"
-
-        await ctx.send(t_2_members)
-        await ctx.send(f"It is TEAM ONE's turn")
-        last_letter = ""
-        team_1_chain = 0
-        winners = ""
-        for player in team_1:
-            def msg_check(message):
-                ct = list(message.content)
-                while True:
-                    try:
-                        ct.remove(" ")
-                    except ValueError:
-                        break
-
-                return message.author == player and message.channel == ctx.channel and len(ct) > 3
-
-            if last_letter == "":
-                await ctx.send(f"It's your turn {player.mention}. Send a word in 2s, not shorter than 4 letters.")
-                try:
-                    msg = await self.client.wait_for('message', check=msg_check, timeout=2)
-                except asyncio.TimeoutError:
-                    await ctx.send(f"Your Chain Ended at {team_1_chain}. TEAM TWO needs to form a longer chain to win")
-                    break
-                else:
-                    team_1_chain += 1
-                    last_letter = msg.content[-1]
-            else:
-                await ctx.send(f"It's your turn {player.mention}. Send a word starting with {last_letter} in 2s,"
-                               f" not shorter than 4 letters.")
-                try:
-                    msg = await self.client.wait_for('message', check=msg_check, timeout=2)
-                except asyncio.TimeoutError:
-                    await ctx.send(f"Your Chain Ended at {team_1_chain}. TEAM TWO needs to form a longer chain to win")
-                    break
-                else:
-                    team_1_chain += 1
-                    last_letter = msg.content[-1]
-                    if player == team_1[-1]:
-                        await ctx.send(
-                            f"Your Chain Ended at {team_1_chain}. TEAM TWO needs to form a longer chain to win")
-
-        await ctx.send(f"It is TEAM TWO's turn")
-        last_letter = ""
-        team_2_chain = 0
-        for player in team_2:
-            def msg_check(message):
-                ct = list(message.content)
-                while True:
-                    try:
-                        ct.remove(" ")
-                    except ValueError:
-                        break
-
-                return message.author == player and message.channel == ctx.channel and len(ct) > 3
-
-            if last_letter == "":
-                await ctx.send(f"It's your turn {player.mention}. Send a word in 2s, not shorter than 4 letters.")
-                try:
-                    msg = await self.client.wait_for('message', check=msg_check, timeout=2)
-                except asyncio.TimeoutError:
-                    if team_2_chain < team_1_chain:
-                        await ctx.send(f"TEAM TWO Lost. TEAM ONE makes it to the next round.")
-                        winners = "team 1"
-                    break
-                else:
-                    team_2_chain += 1
-                    last_letter = msg.content[-1]
-                    if team_2_chain > team_1_chain:
-                        await ctx.send(f"TEAM TWO Won. Congrats on making it to the next round.")
-                        winners = "team 2"
-            else:
-                await ctx.send(f"It's your turn {player.mention}. Send a word starting with {last_letter} in 2s,"
-                               f" not shorter than 4 letters.")
-                try:
-                    msg = await self.client.wait_for('message', check=msg_check, timeout=2)
-                except asyncio.TimeoutError:
-                    if team_2_chain < team_1_chain:
-                        await ctx.send(f"TEAM TWO Lost. TEAM ONE makes it to the next round.")
-                        winners = "team 1"
-                    break
-                else:
-                    team_2_chain += 1
-                    last_letter = msg.content[-1]
-                    if team_2_chain > team_1_chain:
-                        await ctx.send(f"TEAM TWO Won. Congrats on making it to the next round.")
-                        winners = "team 2"
-
-        if winners == "":
-            await ctx.send("Game tied. Going Random.")
-            if random.randint(0, 1) == 1:
-                await ctx.send("TEAM TWO Eliminated.")
-                winners = "team 1"
-            else:
-                await ctx.send("TEAM ONE Eliminated.")
-                winners = "team 2"
-
-        if winners == "team 1":
-            for player in team_2:
-                players.remove(player)
-                await ctx.send(f"{player.mention} Eliminated.")
-        elif winners == "team 1":
-            for player in team_1:
-                players.remove(player)
-                await ctx.send(f"{player.mention} Eliminated.")
-
-        return players
 
     async def honeycomb(self, ctx, players: list) -> list:
         honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a " \
