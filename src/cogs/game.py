@@ -84,28 +84,6 @@ class Game(commands.Cog):
                         self.honeycomb_replied[str(message.author.id)] = True
                         await message.author.dm_channel.send(f"That is correct!")
 
-        # try:
-        #     if str(message.guild.id) in self.red_lights:
-        #         if self.red_lights[str(message.guild.id)]:
-        #             if str(message.guild.id) in self.players:
-        #                 if message.author in self.players[str(message.guild.id)]:
-        #                     if message.created_at > self.rlts:
-        #                         self.players[str(message.guild.id)].remove(
-        #                             message.author)
-        #                         await message.channel.send(f"{message.author.mention} Eliminated.")
-        #                     else:
-        #                         scores = self.scores[str(message.guild.id)]
-        #                         if str(message.author.id) in scores:
-        #                             self.scores[str(message.guild.id)][str(
-        #                                 message.author.id)] += 1
-        #         else:
-        #             scores = self.scores[str(message.guild.id)]
-        #             if str(message.author.id) in scores:
-        #                 self.scores[str(message.guild.id)][str(
-        #                     message.author.id)] += 1
-        # except Exception as e:
-        #     pass
-
     @commands.command(name="play")
     async def play_single_game(self, ctx):
         supportServer = self.client.get_guild(900056168716701696)
@@ -278,65 +256,6 @@ class Game(commands.Cog):
 
         return users
 
-    # async def redlight_greenlight(self, users, ctx) -> list:
-    #     scores = {str(usr.id): 0 for usr in users}
-    #     self.scores[str(ctx.guild.id)] = scores
-    #
-    #     red_green_intro = f"All Participants, get ready. The first game is `Red Light, Green Light`\n" \
-    #                       f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`" \
-    #                       f"\nYou can send the message when the I say **__Green Light__**. If you send a message after" \
-    #                       f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send" \
-    #                       f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!"
-    #     red_green = discord.Embed(title="Welcome to Red Light, Green Light",
-    #                               description=red_green_intro, color=discord.Colour.purple())
-    #     red_green.set_thumbnail(url=bot_icon)
-    #     red_green.set_footer(text="Game start in 2 seconds.")
-    #     await ctx.send(embed=red_green)
-    #
-    #     await asyncio.sleep(2)
-    #     self.last[str(ctx.guild.id)] = "gl"
-    #     self.players[str(ctx.guild.id)] = users
-    #     start_time = time.time()
-    #     embed = discord.Embed(
-    #         description=f"{self.green_light_emote} Green Light", color=discord.Colour.green())
-    #     await ctx.send(embed=embed)
-    #     while time.time() - start_time < rlgl_timeout:
-    #         await asyncio.sleep(random.randint(3, 6))
-    #
-    #         if not users:
-    #             # await ctx.send("No one is left in the game. Better luck next time :)")
-    #             return []
-    #
-    #         last = self.last[str(ctx.guild.id)]
-    #         if last == "gl":
-    #             embed = discord.Embed(description=f"{self.red_light_emote} Red Light  ",
-    #                                   color=discord.Colour.red())
-    #             await ctx.send(embed=embed)
-    #             self.rlts = datetime.datetime.now()
-    #             self.last[str(ctx.guild.id)] = "rl"
-    #             self.red_lights[str(ctx.guild.id)] = True
-    #         else:
-    #             embed = discord.Embed(description=f"{self.green_light_emote} Green Light",
-    #                                   color=discord.Colour.green())
-    #             await ctx.send(embed=embed)
-    #             self.last[str(ctx.guild.id)] = "gl"
-    #             self.red_lights[str(ctx.guild.id)] = False
-    #
-    #     self.red_lights[str(ctx.guild.id)] = False
-    #     scores = self.scores[str(ctx.guild.id)]
-    #     print(scores)
-    #     users = self.players[str(ctx.guild.id)]
-    #     for usr_id, score in scores.items():
-    #         if score < rlgl_min_score:
-    #             usr = await ctx.guild.fetch_member(int(usr_id))
-    #             try:
-    #                 users.remove(usr)
-    #                 await ctx.send(f"{usr.mention} Eliminated(Insufficient score).")
-    #             except ValueError:
-    #                 print(usr.id, " not found")
-    #
-    #     return users
-
     async def tugofword(self, ctx, players: list) -> list:
         embed = discord.Embed(title="Welcome to Tug Of Words",
                               description="All participants get ready. The third game is called Tug-Of-Word. You will be divided into"
@@ -500,7 +419,7 @@ class Game(commands.Cog):
             self.honeycomb_words[str(player.id)] = word
             self.honeycomb_ts[str(player.id)] = datetime.datetime.utcnow()
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(honeycomb_reply_timeout)
         final_players = []
         for player in players:
             if str(player.id) in self.honeycomb_replied:
