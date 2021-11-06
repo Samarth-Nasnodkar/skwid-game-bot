@@ -10,6 +10,7 @@ from src.constants.timeouts import *
 from src.cogs.marbles import marbles_collected
 from src.cogs.rlgl import rlgl_collected
 from src.cogs.glass import glass_game
+from src.cogs.honeycomb import honey_collected
 from src.cogs.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
@@ -18,30 +19,18 @@ from pymongo import MongoClient
 from src.constants.vars import MONGO_URL
 
 
-def scramble(word) -> str:
-    """Scrambles a word"""
-    scrambled_word = ""
-    word = list(word)
-    while word:
-        random_index = random.randint(0, len(word) - 1)
-        scrambled_word += word[random_index]
-        word.pop(random_index)
-
-    return scrambled_word
-
-
 class Game(commands.Cog):
     checkmark = "✅"
     green_light_emote = "🟢"
     red_light_emote = "🔴"
-    players = {}
-    scores = {}
-    eliminated: discord.User = None
-    last = {}
-    honeycomb_words = {}
-    honeycomb_ts = {}
-    honeycomb_replied = {}
-    rlts = datetime.datetime.now()
+    # players = {}
+    # scores = {}
+    # eliminated: discord.User = None
+    # last = {}
+    # honeycomb_words = {}
+    # honeycomb_ts = {}
+    # honeycomb_replied = {}
+    # rlts = datetime.datetime.now()
 
     def game_over(self):
         db = self.mongoCluster["discord_bot"]
@@ -72,16 +61,16 @@ class Game(commands.Cog):
         self.default_stats()
         DiscordComponents(self.client)
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if isinstance(message.channel, discord.DMChannel):
-            if str(message.author.id) in self.honeycomb_words:
-                if message.content.lower() == self.honeycomb_words[str(message.author.id)].lower():
-                    time_delta = message.created_at - \
-                                 self.honeycomb_ts[str(message.author.id)]
-                    if time_delta.seconds < honeycomb_reply_timeout:
-                        self.honeycomb_replied[str(message.author.id)] = True
-                        await message.author.dm_channel.send(f"That is correct!")
+    # @commands.Cog.listener()
+    # async def on_message(self, message: discord.Message):
+    #     if isinstance(message.channel, discord.DMChannel):
+    #         if str(message.author.id) in self.honeycomb_words:
+    #             if message.content.lower() == self.honeycomb_words[str(message.author.id)].lower():
+    #                 time_delta = message.created_at - \
+    #                              self.honeycomb_ts[str(message.author.id)]
+    #                 if time_delta.seconds < honeycomb_reply_timeout:
+    #                     self.honeycomb_replied[str(message.author.id)] = True
+    #                     await message.author.dm_channel.send(f"That is correct!")
 
     @commands.command(name="play")
     async def play_single_game(self, ctx):
@@ -142,7 +131,8 @@ class Game(commands.Cog):
                     return
                 users = await marbles_collected(self.client, ctx.channel, users)
             elif _interaction.custom_id == "honeycomb":
-                users = await self.honeycomb(ctx, users)
+                # users = await self.honeycomb(ctx, users)
+                users = await honey_collected(self.client, ctx, users)
             elif _interaction.custom_id == "tug":
                 users = await tug_collected(self.client, ctx, users)
             elif _interaction.custom_id == "glass":
@@ -183,10 +173,14 @@ class Game(commands.Cog):
 
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
         if skip_to <= 1:
-            users = await self.honeycomb(ctx, users)
-
+            # users = await self.honeycomb(ctx, users)
+            users = await honey_collected(self.client, ctx, users)
         if not users:
             return await ctx.send("None made it to the next round. Sed :(")
+
+        if len(users) == 1:
+            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            return
 
         congts_str = "Congratulations "
         for usr in users:
@@ -269,47 +263,47 @@ class Game(commands.Cog):
 
         return users
 
-    async def honeycomb(self, ctx, players: list) -> list:
-        honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a " \
-                          f"scrambled word. You have to un-scramble it and send it within " \
-                          f"`{honeycomb_reply_timeout}s`.\nThe participants who fail to send the correct answer vis " \
-                          f"DMs within the given time will be eliminated. Good Luck!"
-        embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro,
-                              color=discord.Colour.purple())
-        embed.set_thumbnail(url=bot_icon)
-        embed.set_footer(text="Game will begin in 10 seconds.")
-        await ctx.send(embed=embed)
-
-        await asyncio.sleep(10)
-        self.players[str(ctx.guild.id)] = players
-        for player in players:
-            word = random.choice(words)
-            await player.create_dm()
-            await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{honeycomb_reply_timeout}s` "
-                                         f"to DM me the answer.")
-            self.honeycomb_words[str(player.id)] = word
-            self.honeycomb_ts[str(player.id)] = datetime.datetime.utcnow()
-
-        await asyncio.sleep(honeycomb_reply_timeout)
-        final_players = []
-        for player in players:
-            if str(player.id) in self.honeycomb_replied:
-                if self.honeycomb_replied[str(player.id)]:
-                    final_players.append(player)
-                    del self.honeycomb_replied[str(player.id)]
-                    del self.honeycomb_words[str(player.id)]
-                    del self.honeycomb_ts[str(player.id)]
-                else:
-                    await ctx.send(f"{player.mention} Eliminated.")
-                    del self.honeycomb_replied[str(player.id)]
-                    del self.honeycomb_words[str(player.id)]
-                    del self.honeycomb_ts[str(player.id)]
-            else:
-                await ctx.send(f"{player.mention} Eliminated.")
-                del self.honeycomb_words[str(player.id)]
-                del self.honeycomb_ts[str(player.id)]
-
-        return final_players
+    # async def honeycomb(self, ctx, players: list) -> list:
+    #     honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a " \
+    #                       f"scrambled word. You have to un-scramble it and send it within " \
+    #                       f"`{honeycomb_reply_timeout}s`.\nThe participants who fail to send the correct answer vis " \
+    #                       f"DMs within the given time will be eliminated. Good Luck!"
+    #     embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro,
+    #                           color=discord.Colour.purple())
+    #     embed.set_thumbnail(url=bot_icon)
+    #     embed.set_footer(text="Game will begin in 10 seconds.")
+    #     await ctx.send(embed=embed)
+    #
+    #     await asyncio.sleep(10)
+    #     self.players[str(ctx.guild.id)] = players
+    #     for player in players:
+    #         word = random.choice(words)
+    #         await player.create_dm()
+    #         await player.dm_channel.send(f"Your word is `{scramble(word)}`. You have `{honeycomb_reply_timeout}s` "
+    #                                      f"to DM me the answer.")
+    #         self.honeycomb_words[str(player.id)] = word
+    #         self.honeycomb_ts[str(player.id)] = datetime.datetime.utcnow()
+    #
+    #     await asyncio.sleep(honeycomb_reply_timeout)
+    #     final_players = []
+    #     for player in players:
+    #         if str(player.id) in self.honeycomb_replied:
+    #             if self.honeycomb_replied[str(player.id)]:
+    #                 final_players.append(player)
+    #                 del self.honeycomb_replied[str(player.id)]
+    #                 del self.honeycomb_words[str(player.id)]
+    #                 del self.honeycomb_ts[str(player.id)]
+    #             else:
+    #                 await ctx.send(f"{player.mention} Eliminated.")
+    #                 del self.honeycomb_replied[str(player.id)]
+    #                 del self.honeycomb_words[str(player.id)]
+    #                 del self.honeycomb_ts[str(player.id)]
+    #         else:
+    #             await ctx.send(f"{player.mention} Eliminated.")
+    #             del self.honeycomb_words[str(player.id)]
+    #             del self.honeycomb_ts[str(player.id)]
+    #
+    #     return final_players
 
 
 def setup(client):
