@@ -79,6 +79,7 @@ async def rlgl_collected(ctx: commands.Context, client: commands.Bot, users: lis
     start = time.time()
     red_light = False
     finalists = [{'user': user, 'score': 0} for user in users]
+    winners = []
     while time.time() - start < rlgl_timeout:
         await ctx.send(embed=embeds[int(red_light)])
         timeout = timeouts[i]
@@ -89,15 +90,16 @@ async def rlgl_collected(ctx: commands.Context, client: commands.Bot, users: lis
         finalists = []
         for f in _finalists:
             if f is not None:
-                finalists.append(f)
+                if f['score'] >= rlgl_min_score:
+                    if f['user'] not in winners:
+                        winners.append(f['user'])
+                else:
+                    finalists.append(f)
+
         if len(finalists) == 0:
-            return []
-        users = [f['user'] for f in finalists]
+            return winners
 
     for f in finalists:
-        if f['score'] < rlgl_min_score:
-            await ctx.send(f"{f['user'].mention} Eliminated! Insufficient score.")
+        await ctx.send(f"{f['user'].mention} Eliminated! Insufficient score.")
 
-    passed = [f['user'] for f in finalists if f['score'] >= rlgl_min_score]
-    # print(passed)
-    return passed
+    return winners

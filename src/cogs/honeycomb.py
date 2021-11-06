@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 from src.constants.timeouts import honeycomb_reply_timeout
 from src.constants.scramble_words import words
+from src.constants.urls import bot_icon
 import random
 
 
@@ -38,6 +39,16 @@ async def honey_solo(client: commands.Bot, ctx: commands.Context, word: str, use
 
 
 async def honey_collected(client: commands.Bot, ctx: commands.Context, users: list):
+    honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a " \
+                      f"scrambled word. You have to un-scramble it and send it within " \
+                      f"`{honeycomb_reply_timeout}s`.\nThe participants who fail to send the correct answer vis " \
+                      f"DMs within the given time will be eliminated. Good Luck!"
+    embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro,
+                          color=discord.Colour.purple())
+    embed.set_thumbnail(url=bot_icon)
+    embed.set_footer(text="Game will begin in 10 seconds.")
+    await ctx.send(embed=embed)
+
     _passed = await asyncio.gather(*[honey_solo(client, ctx, random.choice(words), user) for user in users])
     passed = [user for user in _passed if user is not None]
     return passed
