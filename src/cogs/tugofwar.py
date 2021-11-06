@@ -20,24 +20,30 @@ async def tug(client: commands.Bot, ctx: commands.Context, user: discord.User):
                     f"button click will give `-1` points. If both teams tie, then the team who's users took the least "
                     f"time to click the green button will win."
     )
-    org_msg = await user.dm_channel.send(embed=embed, components=ActionRow(*[green_button, red_button]))
+    org_msg = await user.dm_channel.send(embed=embed, components=ActionRow([green_button, red_button]))
     time_interval = random.randint(10, 15)
     await asyncio.sleep(time_interval)
     green_button.disabled = False
     red_button.disabled = False
     start = time.time()
     time_interval = 30
-    await org_msg.edit(embed=embed, components=ActionRow(*[green_button, red_button]))
+    await org_msg.edit(embed=embed, components=ActionRow([green_button, red_button]))
     try:
         click = await client.wait_for('button_click', timeout=time_interval,
                                       check=lambda x: x.custom_id == "green" or x.custom_id == "red")
     except asyncio.TimeoutError:
+        green_button.disabled = True
+        red_button.disabled = True
+        await org_msg.edit(embed=embed, components=ActionRow([green_button, red_button]))
         await user.dm_channel.send("You took too long to respond. Guess you didn't want the point")
         return {
             "points": 0,
             "time": 30
         }
     else:
+        green_button.disabled = True
+        red_button.disabled = True
+        await org_msg.edit(embed=embed, components=ActionRow([green_button, red_button]))
         time_interval = time.time() - start
         points = 1 if click.custom_id == "green" else -1
         if click.custom_id == "green":
@@ -51,10 +57,6 @@ async def tug(client: commands.Bot, ctx: commands.Context, user: discord.User):
             "points": points,
             "time": time_interval
         }
-    finally:
-        green_button.disabled = True
-        red_button.disabled = True
-        await org_msg.edit(embed=embed, components=ActionRow(*[green_button, red_button]))
 
 
 async def tug_collected(client: commands.Bot, ctx: commands.Context, users: list) -> list:
