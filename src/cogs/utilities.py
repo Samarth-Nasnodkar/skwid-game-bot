@@ -76,13 +76,13 @@ class Utilities(commands.Cog):
 
         embed = discord.Embed(
             title="Bot Stats",
-            description="Stats as given below",
+            description=f"{bold('Stats as given below')}",
             color=discord.Color.purple()
         )
 
         # ============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n{bold('Total games')} : `{total_games}`\n{bold('Ongoing')} : `{ongoing}`\n============
         embed.set_thumbnail(url=bot_icon)
-        embed.add_field(name=f"{bold('Servers')} ", value=f"`{guilds}`", inline=False)
+        embed.add_field(name=f"{bold('Servers')}", value=f"`{guilds}`", inline=False)
         embed.add_field(name=f"{bold('Users')}", value=f"`{users}`", inline=False)
         embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=False)
         embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=False)
