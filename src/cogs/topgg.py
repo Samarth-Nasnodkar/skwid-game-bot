@@ -22,7 +22,8 @@ class TopGG(commands.Cog):
         """This function runs every 30 minutes to automatically update your server count."""
         await self.bot.wait_until_ready()
         try:
-            server_count = len(self.bot.guilds)
+            # server_count = len(self.bot.guilds)
+            server_count = 100
             await self.topgg_client.post_guild_count(server_count)
             print("Posted server count ({})".format(server_count))
         except Exception as e:
