@@ -245,6 +245,13 @@ class Game(commands.Cog):
                     await ctx.send("Encountered an error, please try again.")
                     return
 
+        res = []
+        for usr in users:
+            if usr not in res:
+                res.append(usr)
+
+        users = res
+
         if len(users) >= 1:
             await msg.edit(embed=discord.Embed(
                 title="Game Started!",
