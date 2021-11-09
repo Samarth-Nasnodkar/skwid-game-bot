@@ -43,8 +43,9 @@ COGS = [
     "game",
     "topgg",
     "help",
+    "global",
     "utilities",
-    "settings"
+    # "settings"
 ]
 
 

@@ -3,3 +3,4 @@ discord_components
 topggpy
 pymongo
 dnspython
+flask
