@@ -71,7 +71,8 @@ async def tug_collected(client: commands.Bot, ctx: commands.Context, users: list
         players.pop(-1)
 
     team_one = users[:int(length / 2)]
-    team_two = users[int(length / 2):-1] if length % 2 == 1 else users[int(length / 2):]
+    # team_two = users[int(length / 2):-1] if length % 2 == 1 else users[int(length / 2):]
+    team_two = users[int(length / 2):]
 
     await ctx.send("Team One consists of {}".format(", ".join([x.mention for x in team_one])))
     await ctx.send("Team Two consists of {}".format(", ".join([x.mention for x in team_two])))
