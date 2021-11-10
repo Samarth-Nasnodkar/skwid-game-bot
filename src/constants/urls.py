@@ -1,5 +1,5 @@
 bot_icon = "https://i.imgur.com/11elRR7.png"
-invite_url = "https://discord.com/oauth2/authorize?client_id=900054290784190507&permissions=532978986064&scope=bot"
+invite_url = "https://discord.com/oauth2/authorize?client_id=907877170616098838&permissions=532978986064&scope=bot"
 topgg_page = "https://top.gg/bot/900054290784190507"
 bot_vote_url = "https://top.gg/bot/900054290784190507/vote"
 support_server_invite = "https://discord.gg/2vyURSNgFm"
