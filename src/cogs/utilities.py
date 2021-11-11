@@ -49,7 +49,7 @@ class Utilities(commands.Cog):
                               color=discord.Colour.purple())
         embed.set_thumbnail(url=bot_icon)
 
-        await ctx.send(embed=embed, components=ActionRow(*[
+        await ctx.send(embed=embed, components=ActionRow([
             Button(label="Invite Me",
                    style=ButtonStyle.URL,
                    custom_id="invite",
@@ -80,7 +80,6 @@ class Utilities(commands.Cog):
             color=discord.Color.purple()
         )
 
-        # ============\n{bold('Servers')} : `{guilds}`\n{bold('Users')} : `{users}`\n{bold('Total games')} : `{total_games}`\n{bold('Ongoing')} : `{ongoing}`\n============
         embed.set_thumbnail(url=bot_icon)
         embed.add_field(name=f"{bold('Servers')}", value=f"`{guilds}`", inline=True)
         embed.add_field(name=f"{bold('Users')}  ", value=f"`{users}`", inline=True)

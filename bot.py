@@ -4,24 +4,24 @@ import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
-from src.constants.vars import TOKEN, MONGO_URL, INSTANCE
+from src.constants.vars import TOKEN, MONGO_URL, INSTANCE, DEFAULT_PREFIX
 from src.constants.urls import bot_icon
 from src.constants.urls import invite_url
 from discord_components import *
 
 
-def get_prefix(bot, message):
+def get_prefix(bot: commands.Bot, message):
     try:
         db = mongoCluster["discord_bot"]
         collection = db["prefixes"]
         prefixes = collection.find_one({"_id": 0})
         if str(message.guild.id) not in prefixes:
-            return "s!"
+            return commands.when_mentioned_or(DEFAULT_PREFIX)(bot, message)
         else:
-            return prefixes[str(message.guild.id)]
+            return commands.when_mentioned_or(prefixes[str(message.guild.id)])(bot, message)
     except Exception as e:
         print(e)
-        return "s!"
+        return commands.when_mentioned_or(DEFAULT_PREFIX)(bot, message)
 
 
 def set_prefix(guild_id, prefix):
@@ -80,11 +80,9 @@ async def prefix(ctx, _p=None):
         return await ctx.send("You don't have permission to use this command.")
 
     if _p is None:
-        pref = get_prefix(client, ctx.message)
-        if len(pref) > 1:
-            return await ctx.send(f"My prefixes are {', '.join(pref)}")
-        else:
-            return await ctx.send("My prefix is {}".format(pref))
+        _prefs = get_prefix(client, ctx.message)
+        pref = _prefs[-1]
+        return await ctx.send("My prefix is `{}`".format(pref))
     set_prefix(ctx.guild.id, _p)
     await ctx.send("Prefix set to `{}`".format(_p))
     # await ctx.send("This command is not available yet.")
@@ -112,6 +110,7 @@ async def push_update(ctx):
     server: discord.Guild
     for server in client.guilds:
         await server.system_channel.send(embed=embed, components=[invite_button])
+
 
 for cog in COGS:
     client.load_extension(".".join(("src", "cogs", cog)))
