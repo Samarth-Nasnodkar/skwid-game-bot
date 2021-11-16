@@ -1,9 +1,9 @@
 import discord
 from discord.ext import commands
 from discord_components import *
-from pymongo import collection
 from src.utils.textStyles import *
 from src.constants.urls import bot_icon, invite_url, support_server_invite
+from src.constants.owners import owners
 import pymongo
 from pymongo import MongoClient
 from src.constants.vars import MONGO_URL, INSTANCE
@@ -50,7 +50,9 @@ class Utilities(commands.Cog):
     @commands.command(ame="invite")
     async def invite(self, ctx):
         """Command for inviting the bot."""
-
+        if INSTANCE == "secondary":
+            await se_warn(ctx)
+            return
         embed = discord.Embed(title="Invite the bot",
                               description="Invite the bot using the button below and help us by voting on top.gg",
                               color=discord.Colour.purple())
@@ -71,6 +73,8 @@ class Utilities(commands.Cog):
         """
         Get some stats about the bot.
         """
+        if ctx.author.id not in owners:
+            return
         db = self.mongoCluster["discord_bot"]
         collection = db["realTimeStats"]
         stats = collection.find_one({'_id': 0})
@@ -93,16 +97,6 @@ class Utilities(commands.Cog):
         embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=True)
         embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=True)
         await ctx.send(embed=embed)
-
-    # @commands.command(name="help")
-    # async def help(self, ctx):
-    #     embed = discord.Embed(
-    #         title="Bot Help!",
-    #         description=f"{bold('Commands')}\n`help` ➜ Shows this command\n`start` ➜ Starts the game\n"
-    #                     f"`prefix <new prefix>` ➜ updates the bot's prefix",
-    #     )
-    #     embed.set_footer(text="More commands & games coming soon.")
-    #     await ctx.send(embed=embed)
 
 
 def setup(client):

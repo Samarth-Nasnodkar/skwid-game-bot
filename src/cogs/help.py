@@ -10,7 +10,8 @@ from src.constants.urls import *
 import asyncio
 import pymongo
 from pymongo import MongoClient
-from src.constants.vars import MONGO_URL
+from src.constants.vars import MONGO_URL, INSTANCE
+from src.cogs.se_warn import se_warn
 
 
 def get_prefix(mongoCluster, message):
@@ -34,6 +35,9 @@ class Help(commands.Cog):
 
     @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
     async def help(self, ctx):  # New Help command.
+        if INSTANCE == "secondary":
+            await se_warn(ctx)
+            return
         supportServer = self.client.get_guild(900056168716701696)
         menuEmoji = await supportServer.fetch_emoji(904785389418602516)
         rlglEmoji = await supportServer.fetch_emoji(904782170499981322)

@@ -78,6 +78,7 @@ async def on_guild_remove(guild: discord.Guild):
 async def prefix(ctx, _p=None):
     if INSTANCE == "secondary":
         await se_warn(ctx)
+        return
     if not ctx.author.guild_permissions.manage_guild and _p is not None:
         return await ctx.send("You don't have permission to use this command.")
 
@@ -88,7 +89,6 @@ async def prefix(ctx, _p=None):
     set_prefix(ctx.guild.id, _p)
     await ctx.send("Prefix set to `{}`".format(_p))
     # await ctx.send("This command is not available yet.")
-
 
 
 for cog in COGS:
