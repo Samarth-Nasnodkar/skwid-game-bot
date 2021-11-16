@@ -253,13 +253,13 @@ class Game(commands.Cog):
                 pass
             else:
                 try:
-                    if interation.component.label == "join":
+                    if interation.component.label == "Join":
                         if interation.user not in users:
                             users.append(interation.user)
                         await interation.respond(type=7,
                                                  embed=get_players_embed(),
                                                  components=ActionRow(buttons))
-                    elif interation.component.label == "leave":
+                    elif interation.component.label == "Leave":
                         if interation.user in users:
                             users.remove(interation.user)
                         await interation.respond(type=7,
