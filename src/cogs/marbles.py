@@ -54,11 +54,11 @@ async def game_of_marbles(
 
     def guesser_check(message: discord.Message):
         return isinstance(message.channel, discord.DMChannel) and message.author == users[turn]["user"] \
-            and message.content.isnumeric()
+               and message.content.isnumeric()
 
     def wager_check(message: discord.Message):
         return isinstance(message.channel, discord.DMChannel) and message.author == users[1 - turn]["user"] \
-            and message.content.isnumeric()
+               and message.content.isnumeric()
 
     while time.time() - start < marbles_total_time:
         guesser = users[turn]
@@ -107,7 +107,7 @@ async def game_of_marbles(
 
         def guess_check(message: discord.Message):
             return isinstance(message.channel, discord.DMChannel) and message.content.lower() in options \
-                and message.author == guesser["user"]
+                   and message.author == guesser["user"]
 
         await guesser["user"].send(guess_msg)
         got_right = False
@@ -155,8 +155,8 @@ async def game_of_marbles(
 
         turn = 1 - turn
     for _u in users:
-        _u["user"].dm_channel.send("Time up!! Lets see who's got more marbles. The participant with less marbles gets"
-                                   " eliminated.")
+        await _u["user"].dm_channel.send("Time up!! Lets see who's got more marbles. The participant with less "
+                                         "marbles gets eliminated.")
 
     if users[0]["marbles"] > users[1]["marbles"]:
         await users[0]["user"].dm_channel.send("Congratulations. You have made it to the next game.")
@@ -198,7 +198,7 @@ async def marbles_collected(
     await asyncio.sleep(20)
 
     winners = await asyncio.gather(*[game_of_marbles(client, users[i], users[i + 1])
-                                   for i in range(0, users_length - 1, 2)])
+                                     for i in range(0, users_length - 1, 2)])
     _winners = []
     if bye:
         _winners.append(bye)

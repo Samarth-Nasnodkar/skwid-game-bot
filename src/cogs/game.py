@@ -144,6 +144,10 @@ class Game(commands.Cog):
             skip_to = 0
 
         users = await self.player_join(ctx)
+        if len(users) == 0:
+            return await ctx.send("No one joined. Game ended :(")
+
+        initial_players = len(users)
         if skip_to == 0:
             users = await rlgl_collected(ctx, self.client, users)
 
@@ -163,7 +167,12 @@ class Game(commands.Cog):
             return await ctx.send("None made it to the next round. Sed :(")
 
         if len(users) == 1:
-            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            if initial_players != 1:
+                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            else:
+                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
+                               f"*DEFINITELY Not because the other games needed more than one player and you don't"
+                               f" have friends for that* ...")
             return
 
         congts_str = "Congratulations "
@@ -180,7 +189,12 @@ class Game(commands.Cog):
             return
 
         if len(users) == 1:
-            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            if initial_players != 1:
+                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            else:
+                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
+                               f"*DEFINITELY Not because the other games needed more than one player and you don't"
+                               f" have friends for that* ...")
             return
 
         if skip_to <= 3:
@@ -191,7 +205,12 @@ class Game(commands.Cog):
             return
 
         if len(users) == 1:
-            await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            if initial_players != 1:
+                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
+            else:
+                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
+                               f"*DEFINITELY Not because the other games needed more than one player and you don't"
+                               f" have friends for that* ...")
             return
 
         users = await glass_game(self.client, ctx.channel, users)
@@ -207,11 +226,22 @@ class Game(commands.Cog):
         embed.add_field(name="You have : ",
                         value=f"`{reaction_timeout}` s")
         embed.set_thumbnail(url=bot_icon)
-        msg = await ctx.send(embed=embed, components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫")])
+        buttons = [
+            Button(label="Join", style=ButtonStyle.blue, emoji="🪤"),
+            Button(label="Leave", style=ButtonStyle.red)
+        ]
+        msg = await ctx.send(embed=embed, components=ActionRow(buttons))
+        labels = ["Join", "Leave"]
         users = []
 
-        def usr_check(i):
-            return i.component.label == "Join"
+        def usr_check(_i):
+            return _i.component.label in labels
+
+        def get_players_embed():
+            return discord.Embed(title="Join the game",
+                                 description=f"**Players joined** : `{len(users)}`\n\n"
+                                             f"{' '.join([u.mention for u in users])}",
+                                 colour=discord.Colour.blue())
 
         start = time.time()
         while time.time() - start < reaction_timeout:
@@ -222,13 +252,21 @@ class Game(commands.Cog):
             except asyncio.TimeoutError:
                 pass
             else:
-                users.append(interation.user)
                 try:
-                    await interation.respond(content="You have successfully joined the game.")
+                    if interation.component.label == "join":
+                        if interation.user not in users:
+                            users.append(interation.user)
+                        await interation.respond(type=7,
+                                                 embed=get_players_embed(),
+                                                 components=ActionRow(buttons))
+                    elif interation.component.label == "leave":
+                        if interation.user in users:
+                            users.remove(interation.user)
+                        await interation.respond(type=7,
+                                                 embed=get_players_embed(),
+                                                 components=ActionRow(buttons))
                 except discord.NotFound:
-                    msg = await ctx.send("Encountered an error, please try again.")
-                    await msg.delete(delay=3)
-                    return
+                    pass
 
         res = []
         for usr in users:
@@ -236,6 +274,8 @@ class Game(commands.Cog):
                 res.append(usr)
 
         users = res
+        for i in range(len(buttons)):
+            buttons[i].disabled = True
 
         if len(users) >= 1:
             await msg.edit(embed=discord.Embed(
@@ -243,14 +283,14 @@ class Game(commands.Cog):
                 description=f"`{len(users)}` Joined",
                 color=discord.Colour.blue()
             ),
-                components=[Button(label="Join", style=ButtonStyle.blue, emoji="🎫", disabled=True)])
+                components=ActionRow(buttons))
         else:
             await msg.edit(embed=discord.Embed(
                 title="Game Ended!",
                 description=f"No One joined :(",
                 color=discord.Colour.blue()
             ),
-                components=[Button(label="Join", style=ButtonStyle.red, emoji="🎫", disabled=True)])
+                components=ActionRow(buttons))
             return []
 
         return users

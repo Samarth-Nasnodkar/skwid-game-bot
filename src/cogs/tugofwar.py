@@ -11,8 +11,10 @@ async def tug(client: commands.Bot, ctx: commands.Context, user: discord.User):
     Tug of War
     """
     await user.create_dm()
-    green_button = Button(label="Click!", style=ButtonStyle.green, custom_id="green", disabled=True)
-    red_button = Button(label="Click!", style=ButtonStyle.red, custom_id="red", disabled=True)
+    buttons = [
+        Button(label="Click!", style=ButtonStyle.grey, custom_id="b1", disabled=True),
+        Button(label="Click!", style=ButtonStyle.grey, custom_id="b2", disabled=True)
+    ]
     embed = discord.Embed(
         title="Tug of War",
         description=f"The buttons below will be enabled after a random interval. Be sure to click the green button"
@@ -20,34 +22,37 @@ async def tug(client: commands.Bot, ctx: commands.Context, user: discord.User):
                     f"button click will give `-1` points. If both teams tie, then the team who's users took the least "
                     f"time to click the green button will win."
     )
-    org_msg = await user.dm_channel.send(embed=embed, components=ActionRow([green_button, red_button]))
+    org_msg = await user.dm_channel.send(embed=embed, components=ActionRow(buttons))
     time_interval = random.randint(10, 15)
     await asyncio.sleep(time_interval)
-    green_button.disabled = False
-    red_button.disabled = False
+    r_i = random.randint(0, 1)
+    buttons[r_i] = Button(label="Click!", style=ButtonStyle.green, custom_id="green")
+    buttons[1 - r_i] = Button(label="Click!", style=ButtonStyle.red, custom_id="red")
+    for i in range(len(buttons)):
+        buttons[i].disabled = False
     start = time.time()
     time_interval = 30
-    await org_msg.edit(embed=embed, components=ActionRow([green_button, red_button]))
+    await org_msg.edit(embed=embed, components=ActionRow(buttons))
     try:
         click = await client.wait_for('button_click', timeout=time_interval,
                                       check=lambda x: x.custom_id == "green" or x.custom_id == "red")
     except asyncio.TimeoutError:
-        green_button.disabled = True
-        red_button.disabled = True
-        await org_msg.edit(embed=embed, components=ActionRow([green_button, red_button]))
+        for i in range(len(buttons)):
+            buttons[i].disabled = True
+        await org_msg.edit(embed=embed, components=ActionRow(buttons))
         await user.dm_channel.send("You took too long to respond. Guess you didn't want the point")
         return {
             "points": 0,
             "time": 30
         }
     else:
-        green_button.disabled = True
-        red_button.disabled = True
-        await org_msg.edit(embed=embed, components=ActionRow([green_button, red_button]))
+        for i in range(len(buttons)):
+            buttons[i].disabled = True
+        await org_msg.edit(embed=embed, components=ActionRow(buttons))
         time_interval = time.time() - start
         points = 1 if click.custom_id == "green" else -1
         if click.custom_id == "green":
-            await click.respond(type=4, content="You got the point!, Time Taken : `{}s`".format(time_interval))
+            await click.respond(type=4, content=f"You got the point!, Time Taken : `{round(time_interval, 2)}s`")
         else:
             await click.respond(type=4,
                                 content="And that's a negative point for the team. Your teammates will definitely "
