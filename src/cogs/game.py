@@ -16,7 +16,8 @@ from src.constants.urls import bot_icon
 from src.constants.owners import owners
 import pymongo
 from pymongo import MongoClient
-from src.constants.vars import MONGO_URL
+from src.constants.vars import MONGO_URL, INSTANCE
+from src.cogs.se_warn import se_warn
 
 
 class Game(commands.Cog):
@@ -51,6 +52,9 @@ class Game(commands.Cog):
 
     @commands.command(name="play")
     async def play_single_game(self, ctx):
+        if INSTANCE == "secondary":
+            await se_warn(ctx)
+            return
         supportServer = self.client.get_guild(900056168716701696)
         rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
         marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
@@ -124,6 +128,9 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def game_launcher(self, ctx, skip_to=0):
+        if INSTANCE == "secondary":
+            await se_warn(ctx)
+            return
         self.game_started()
         try:
             await self.game(ctx, skip_to)

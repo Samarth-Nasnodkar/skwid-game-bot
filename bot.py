@@ -8,6 +8,7 @@ from src.constants.vars import TOKEN, MONGO_URL, INSTANCE, DEFAULT_PREFIX
 from src.constants.urls import bot_icon
 from src.constants.urls import invite_url
 from discord_components import *
+from src.cogs.se_warn import se_warn
 
 
 def get_prefix(bot: commands.Bot, message):
@@ -48,8 +49,7 @@ COGS = [
     "topgg",
     "help",
     "global",
-    "utilities",
-    # "settings"
+    "utilities"
 ]
 
 
@@ -76,6 +76,8 @@ async def on_guild_remove(guild: discord.Guild):
 
 @client.command(name="prefix", pass_context=True)
 async def prefix(ctx, _p=None):
+    if INSTANCE == "secondary":
+        await se_warn(ctx)
     if not ctx.author.guild_permissions.manage_guild and _p is not None:
         return await ctx.send("You don't have permission to use this command.")
 
@@ -87,29 +89,6 @@ async def prefix(ctx, _p=None):
     await ctx.send("Prefix set to `{}`".format(_p))
     # await ctx.send("This command is not available yet.")
 
-
-# @client.command(name="push_update")
-async def push_update(ctx):
-    if INSTANCE == "primary":
-        return
-
-    if ctx.author.id != 727539383405772901:
-        return
-
-    embed = discord.Embed(
-        title="Urgent Notice!",
-        description="This bot was meant to be the secondary bot to the original squid game unofficial bot until it was"
-                    " verified by discord(a bot cannot join more than `100` servers until it is). And since now it has "
-                    "been verified, we urge you to invite that bot using the button below and kick this bot.\n"
-                    "**__This Bot will go offline after 7 days. Please invite the primary bot before that.__**\n"
-                    "Thanks!,\nDevs.",
-        color=discord.Colour.green()
-    )
-    embed.set_thumbnail(url=bot_icon)
-    invite_button = Button(label="Invite!", style=ButtonStyle.URL, url=invite_url)
-    server: discord.Guild
-    for server in client.guilds:
-        await server.system_channel.send(embed=embed, components=[invite_button])
 
 
 for cog in COGS:
