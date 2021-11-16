@@ -39,14 +39,14 @@ intents.dm_messages = True
 # intents.guild_messages = True
 intents.members = True
 intents.emojis = True
-client = commands.Bot(command_prefix="t!",
+client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)
 DiscordComponents(client)
 mongoCluster = MongoClient(MONGO_URL)
 client.remove_command("help")
 COGS = [
     "game",
-    # "topgg",
+    "topgg",
     "help",
     "global",
     "utilities"
