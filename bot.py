@@ -33,9 +33,9 @@ def set_prefix(guild_id, prefix):
 
 intents = discord.Intents.default()
 intents.guilds = True
-intents.messages = True
+# intents.messages = True
 intents.dm_messages = True
-intents.guild_messages = True
+# intents.guild_messages = True
 intents.members = True
 intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,

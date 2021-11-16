@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 import os
 import topgg
-from src.constants.vars import TOPGG_TOKEN
+from src.constants.vars import TOPGG_TOKEN, INSTANCE
 
 
 class TopGG(commands.Cog):
@@ -21,9 +21,10 @@ class TopGG(commands.Cog):
     async def update_stats(self):
         """This function runs every 30 minutes to automatically update your server count."""
         await self.bot.wait_until_ready()
+        if INSTANCE == "secondary":
+            return
         try:
-            # server_count = len(self.bot.guilds)
-            server_count = 100
+            server_count = len(self.bot.guilds)
             await self.topgg_client.post_guild_count(server_count)
             print("Posted server count ({})".format(server_count))
         except Exception as e:
