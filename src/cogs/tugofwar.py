@@ -35,7 +35,8 @@ async def tug(client: commands.Bot, ctx: commands.Context, user: discord.User):
     await org_msg.edit(embed=embed, components=ActionRow(buttons))
     try:
         click = await client.wait_for('button_click', timeout=time_interval,
-                                      check=lambda x: x.custom_id == "green" or x.custom_id == "red")
+                                      check=lambda x:
+                                      (x.custom_id == "green" or x.custom_id == "red") and x.user.id == user.id)
     except asyncio.TimeoutError:
         for i in range(len(buttons)):
             buttons[i].disabled = True
