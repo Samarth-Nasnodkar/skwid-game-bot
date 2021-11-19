@@ -14,15 +14,13 @@ from src.cogs.honeycomb import honey_collected
 from src.cogs.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
-import pymongo
-from pymongo import MongoClient
-from src.constants.vars import MONGO_URL, INSTANCE
+from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
 from src.cogs.se_warn import se_warn
 
 
 class Game(commands.Cog):
     def game_over(self):
-        db = self.mongoCluster["discord_bot"]
+        db = MONGO_CLIENT["discord_bot"]
         collection = db["realTimeStats"]
         stats = collection.find_one({"_id": 0})
         ongoing = stats["ongoing"]
@@ -30,7 +28,7 @@ class Game(commands.Cog):
         collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing}})
 
     def game_started(self):
-        db = self.mongoCluster["discord_bot"]
+        db = MONGO_CLIENT["discord_bot"]
         collection = db["realTimeStats"]
         stats = collection.find_one({"_id": 0})
         ongoing = stats["ongoing"]
@@ -40,13 +38,12 @@ class Game(commands.Cog):
             {"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
 
     def default_stats(self):
-        db = self.mongoCluster["discord_bot"]
+        db = MONGO_CLIENT["discord_bot"]
         collection = db["realTimeStats"]
         collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
 
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.mongoCluster = MongoClient(MONGO_URL)
         self.default_stats()
         DiscordComponents(self.client)
 
@@ -74,15 +71,15 @@ class Game(commands.Cog):
         )
         embed.set_footer(text="Click a button below to choose the game")
         buttons = [
-            Button(label="‏‏‎ ‎", emoji=rlglEmoji,
+            Button(emoji=rlglEmoji,
                    style=ButtonStyle.green, custom_id="rlgl"),
-            Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+            Button(emoji=marblesEmoji,
                    style=ButtonStyle.green, custom_id="marbles"),
-            Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+            Button(emoji=honeycombEmoji,
                    style=ButtonStyle.green, custom_id="honeycomb"),
-            Button(label="‏‏‎ ‎", emoji=teamEmoji,
+            Button(emoji=teamEmoji,
                    style=ButtonStyle.green, custom_id="tug"),
-            Button(label="‏‏‎ ‎", emoji=glassEmoji,
+            Button(emoji=glassEmoji,
                    style=ButtonStyle.green, custom_id="glass")
         ]
         await ctx.send(
@@ -92,7 +89,8 @@ class Game(commands.Cog):
         custom_ids = ["rlgl", "marbles", "honeycomb", "glass", "tug"]
         try:
             _interaction = await self.client.wait_for('button_click', timeout=30,
-                                                      check=lambda x: x.custom_id in custom_ids)
+                                                      check=lambda x: x.custom_id in custom_ids and
+                                                                      x.user.id == ctx.author.id)
         except asyncio.TimeoutError:
             await ctx.send("You took too long to respond. Try again later.")
         else:
@@ -235,7 +233,7 @@ class Game(commands.Cog):
         users = []
 
         def usr_check(_i):
-            return _i.component.label in labels
+            return _i.component.label in labels and _i.channel.id == ctx.channel.id
 
         def get_players_embed():
             return discord.Embed(title="Join the game",

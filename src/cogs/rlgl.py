@@ -41,8 +41,6 @@ async def rlgl(ctx: commands.Context, client: commands.Bot, user: discord.User, 
         return message.author == user and message.channel == ctx.channel
 
     while int(time_delta) < timeout:
-        # embed = embeds[int(red_light)]
-        # await ctx.send(embed=embed)
         try:
             msg = await client.wait_for('message', timeout=timeout - int(time_delta),
                                         check=check)

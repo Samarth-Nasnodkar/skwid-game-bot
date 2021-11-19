@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
-from src.constants.vars import TOKEN, MONGO_URL, INSTANCE, DEFAULT_PREFIX
+from src.constants.vars import TOKEN, MONGO_URL, INSTANCE, DEFAULT_PREFIX, MONGO_CLIENT
 from src.constants.urls import bot_icon
 from src.constants.urls import invite_url
 from discord_components import *
@@ -13,7 +13,7 @@ from src.cogs.se_warn import se_warn
 
 def get_prefix(bot: commands.Bot, message):
     try:
-        db = mongoCluster["discord_bot"]
+        db = MONGO_CLIENT["discord_bot"]
         collection = db["prefixes"]
         prefixes = collection.find_one({"_id": 0})
         if str(message.guild.id) not in prefixes:
@@ -26,7 +26,7 @@ def get_prefix(bot: commands.Bot, message):
 
 
 def set_prefix(guild_id, prefix):
-    db = mongoCluster["discord_bot"]
+    db = MONGO_CLIENT["discord_bot"]
     collection = db["prefixes"]
     collection.update_one(
         {"_id": 0}, {"$set": {str(guild_id): prefix}}, upsert=True)
@@ -42,7 +42,6 @@ intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,
                       case_insensitive=True, intents=intents)
 DiscordComponents(client)
-mongoCluster = MongoClient(MONGO_URL)
 client.remove_command("help")
 COGS = [
     "game",

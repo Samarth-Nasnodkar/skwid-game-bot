@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands, tasks
-import os
 import topgg
 from src.constants.vars import TOPGG_TOKEN, INSTANCE
 

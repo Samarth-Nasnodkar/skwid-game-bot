@@ -8,15 +8,13 @@ from src.cogs.utilities import setup
 from src.constants.help_embeds import embeds, get_cmd_embed
 from src.constants.urls import *
 import asyncio
-import pymongo
-from pymongo import MongoClient
-from src.constants.vars import MONGO_URL, INSTANCE
+from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
 from src.cogs.se_warn import se_warn
 
 
-def get_prefix(mongoCluster, message):
+def get_prefix(message):
     try:
-        db = mongoCluster["discord_bot"]
+        db = MONGO_CLIENT["discord_bot"]
         collection = db["prefixes"]
         prefixes = collection.find_one({"_id": 0})
         if str(message.guild.id) not in prefixes:
@@ -31,7 +29,6 @@ def get_prefix(mongoCluster, message):
 class Help(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.mongoCluster = MongoClient(MONGO_URL)
 
     @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
     async def help(self, ctx):  # New Help command.
@@ -63,7 +60,7 @@ class Help(commands.Cog):
             'name': 'menu'
         }
         embeds["cmds"] = {
-            'embed': get_cmd_embed(get_prefix(self.mongoCluster, ctx.message)),
+            'embed': get_cmd_embed(get_prefix(ctx.message)),
             'name': 'Bot Commands'
         }
 

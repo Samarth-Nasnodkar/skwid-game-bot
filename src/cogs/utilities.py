@@ -4,16 +4,13 @@ from discord_components import *
 from src.utils.textStyles import *
 from src.constants.urls import bot_icon, invite_url, support_server_invite
 from src.constants.owners import owners
-import pymongo
-from pymongo import MongoClient
-from src.constants.vars import MONGO_URL, INSTANCE
+from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
 from src.cogs.se_warn import se_warn
 
 
 class Utilities(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.mongoCluster = MongoClient(MONGO_URL)
 
     @commands.command()
     async def clear(self, ctx, amount=5):
@@ -75,7 +72,7 @@ class Utilities(commands.Cog):
         """
         if ctx.author.id not in owners:
             return
-        db = self.mongoCluster["discord_bot"]
+        db = MONGO_CLIENT["discord_bot"]
         collection = db["realTimeStats"]
         stats = collection.find_one({'_id': 0})
         total_games = stats['totalGames']
