@@ -3,15 +3,15 @@ from discord.ext import commands
 import asyncio
 from discord_components import *
 from src.constants.timeouts import *
-from src.cogs.marbles import marbles_collected
-from src.cogs.rlgl import rlgl_collected
-from src.cogs.glass import glass_game
-from src.cogs.honeycomb import honey_collected
-from src.cogs.tugofwar import tug_collected
+from src.cogs.games.marbles import marbles_collected
+from src.cogs.games.rlgl import rlgl_collected
+from src.cogs.games.glass import glass_game
+from src.cogs.games.honeycomb import honey_collected
+from src.cogs.games.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
-from src.constants.vars import INSTANCE, MONGO_CLIENT
-from src.cogs.stikk_blast import stikk
+from src.constants.vars import MONGO_CLIENT
+from src.cogs.games.stikk_blast import stikk
 
 
 def default_stats():
@@ -264,7 +264,7 @@ class Game(commands.Cog):
         while not started:
             try:
                 interation = await self.client.wait_for('button_click', check=usr_check,
-                                                        timeout=30)
+                                                        timeout=15)
             except asyncio.TimeoutError:
                 pass
             else:

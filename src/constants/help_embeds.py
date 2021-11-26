@@ -1,5 +1,5 @@
 import discord
-from src.cogs.glass import glass_steps, game_time
+from src.cogs.games.glass import glass_steps, game_time
 from src.constants.timeouts import rlgl_min_score, rlgl_timeout, honeycomb_reply_timeout
 from src.constants.urls import bot_icon
 from src.utils.textStyles import *
