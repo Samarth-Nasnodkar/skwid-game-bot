@@ -8,10 +8,11 @@ from src.constants.vars import TOKEN, MONGO_URL, INSTANCE, DEFAULT_PREFIX, MONGO
 from src.constants.urls import bot_icon
 from src.constants.urls import invite_url
 from discord_components import *
-from src.cogs.se_warn import se_warn
 
 
 def get_prefix(bot: commands.Bot, message):
+    if INSTANCE == "beta":
+        return "t!"
     try:
         db = MONGO_CLIENT["discord_bot"]
         collection = db["prefixes"]
@@ -75,8 +76,8 @@ async def on_guild_remove(guild: discord.Guild):
 
 @client.command(name="prefix", pass_context=True)
 async def prefix(ctx, _p=None):
-    if INSTANCE == "secondary":
-        await se_warn(ctx)
+    if INSTANCE == "beta":
+        await ctx.send("No prefix changes can be done to the `BETA` instance.")
         return
     if not ctx.author.guild_permissions.manage_guild and _p is not None:
         return await ctx.send("You don't have permission to use this command.")

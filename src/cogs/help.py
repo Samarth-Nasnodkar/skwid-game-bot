@@ -9,7 +9,6 @@ from src.constants.help_embeds import embeds, get_cmd_embed
 from src.constants.urls import *
 import asyncio
 from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
-from src.cogs.se_warn import se_warn
 
 
 def get_prefix(message):
@@ -32,9 +31,6 @@ class Help(commands.Cog):
 
     @commands.command(name="help", aliases=["h", "halp", "commands", "cmds"])
     async def help(self, ctx):  # New Help command.
-        if INSTANCE == "secondary":
-            await se_warn(ctx)
-            return
         supportServer = self.client.get_guild(900056168716701696)
         menuEmoji = await supportServer.fetch_emoji(904785389418602516)
         rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
@@ -65,22 +61,22 @@ class Help(commands.Cog):
         }
 
         button_list_1 = [
-            Button(label="‏‏‎ ‎", emoji=rlglEmoji, custom_id="rlgl",
+            Button(emoji=rlglEmoji, custom_id="rlgl",
                    style=ButtonStyle.blue),
-            Button(label="‏‏‎ ‎", emoji=honeycombEmoji,
+            Button(emoji=honeycombEmoji,
                    custom_id="honeycomb", style=ButtonStyle.blue),
-            Button(label="‏‏‎ ‎", emoji=teamEmoji,
+            Button(emoji=teamEmoji,
                    custom_id="tug", style=ButtonStyle.blue),
-            Button(label="‏‏‎ ‎", emoji=marblesEmoji,
+            Button(emoji=marblesEmoji,
                    custom_id="marbles", style=ButtonStyle.blue),
-            Button(label="‏‏‎ ‎", emoji=glassEmoji,
+            Button(emoji=glassEmoji,
                    custom_id="glass", style=ButtonStyle.blue),
         ]
 
         button_list_2 = [
-            Button(label="‏‏‎ ‎", emoji=menuEmoji, custom_id="menu",
+            Button(emoji=menuEmoji, custom_id="menu",
                    style=ButtonStyle.green),
-            Button(label="‏‏‎ ‎", emoji=cmdsEmoji,
+            Button(emoji=cmdsEmoji,
                    style=ButtonStyle.green, custom_id="cmds"),
             Button(label="Vote", style=ButtonStyle.URL,
                    url=bot_vote_url, custom_id="vote"),

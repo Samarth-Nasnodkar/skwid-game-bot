@@ -5,7 +5,6 @@ from src.utils.textStyles import *
 from src.constants.urls import bot_icon, invite_url, support_server_invite
 from src.constants.owners import owners
 from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
-from src.cogs.se_warn import se_warn
 
 
 class Utilities(commands.Cog):
@@ -14,9 +13,6 @@ class Utilities(commands.Cog):
 
     @commands.command()
     async def clear(self, ctx, amount=5):
-        if INSTANCE == "secondary":
-            await se_warn(ctx)
-            return
         if amount > 100:
             await ctx.send("You can only delete 100 messages at a time.")
             return
@@ -39,17 +35,11 @@ class Utilities(commands.Cog):
         """
         Get the bot's ping.
         """
-        if INSTANCE == "secondary":
-            await se_warn(ctx)
-            return
         await ctx.send(f"Bot ping : `{round(self.client.latency * 1000)}`ms")
 
     @commands.command(ame="invite")
     async def invite(self, ctx):
         """Command for inviting the bot."""
-        if INSTANCE == "secondary":
-            await se_warn(ctx)
-            return
         embed = discord.Embed(title="Invite the bot",
                               description="Invite the bot using the button below and help us by voting on top.gg",
                               color=discord.Colour.purple())

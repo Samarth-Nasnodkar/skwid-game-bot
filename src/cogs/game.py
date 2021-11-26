@@ -1,10 +1,6 @@
 import discord
 from discord.ext import commands
 import asyncio
-import random
-import time
-import datetime
-from src.constants.scramble_words import words
 from discord_components import *
 from src.constants.timeouts import *
 from src.cogs.marbles import marbles_collected
@@ -14,44 +10,52 @@ from src.cogs.honeycomb import honey_collected
 from src.cogs.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
-from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
-from src.cogs.se_warn import se_warn
+from src.constants.vars import INSTANCE, MONGO_CLIENT
+from src.cogs.stikk_blast import stikk
+
+
+def default_stats():
+    db = MONGO_CLIENT["discord_bot"]
+    collection = db["realTimeStats"]
+    collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
+
+
+def game_started():
+    db = MONGO_CLIENT["discord_bot"]
+    collection = db["realTimeStats"]
+    stats = collection.find_one({"_id": 0})
+    ongoing = stats["ongoing"]
+    totalGames = stats["totalGames"]
+    ongoing = ongoing if ongoing > 0 else 0
+    collection.update_one(
+        {"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
+
+
+def game_over():
+    db = MONGO_CLIENT["discord_bot"]
+    collection = db["realTimeStats"]
+    stats = collection.find_one({"_id": 0})
+    ongoing = stats["ongoing"]
+    ongoing = ongoing - 1 if ongoing > 0 else 0
+    collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing}})
 
 
 class Game(commands.Cog):
-    def game_over(self):
-        db = MONGO_CLIENT["discord_bot"]
-        collection = db["realTimeStats"]
-        stats = collection.find_one({"_id": 0})
-        ongoing = stats["ongoing"]
-        ongoing = ongoing - 1 if ongoing > 0 else 0
-        collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing}})
-
-    def game_started(self):
-        db = MONGO_CLIENT["discord_bot"]
-        collection = db["realTimeStats"]
-        stats = collection.find_one({"_id": 0})
-        ongoing = stats["ongoing"]
-        totalGames = stats["totalGames"]
-        ongoing = ongoing if ongoing > 0 else 0
-        collection.update_one(
-            {"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
-
-    def default_stats(self):
-        db = MONGO_CLIENT["discord_bot"]
-        collection = db["realTimeStats"]
-        collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
 
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.default_stats()
+        default_stats()
         DiscordComponents(self.client)
+
+    @commands.command(name="stikk")
+    async def stikk_launcher(self, ctx):
+        if ctx.author.id not in owners:
+            return
+        users = await self.player_join(ctx)
+        await stikk(ctx, self.client, users)
 
     @commands.command(name="play")
     async def play_single_game(self, ctx):
-        if INSTANCE == "secondary":
-            await se_warn(ctx)
-            return
         supportServer = self.client.get_guild(900056168716701696)
         rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
         marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
@@ -80,23 +84,36 @@ class Game(commands.Cog):
             Button(emoji=teamEmoji,
                    style=ButtonStyle.green, custom_id="tug"),
             Button(emoji=glassEmoji,
-                   style=ButtonStyle.green, custom_id="glass")
+                   style=ButtonStyle.green, custom_id="glass"),
+            Button(label="Cancel", style=ButtonStyle.red,
+                   custom_id="cancel")
         ]
-        await ctx.send(
+        msg = await ctx.send(
             embed=embed,
-            components=ActionRow(buttons)
+            components=[ActionRow(*buttons[:5]), ActionRow(*buttons[5:])]
         )
-        custom_ids = ["rlgl", "marbles", "honeycomb", "glass", "tug"]
+        custom_ids = ["rlgl", "marbles", "honeycomb", "glass", "tug", "cancel"]
         try:
             _interaction = await self.client.wait_for('button_click', timeout=30,
                                                       check=lambda x: x.custom_id in custom_ids and
-                                                                      x.user.id == ctx.author.id)
+                                                                      x.user.id == ctx.author.id and
+                                                                      x.channel.id == ctx.channel.id)
         except asyncio.TimeoutError:
+            for i in range(len(buttons)):
+                buttons[i].disabled = True
+            await msg.edit(embed=embed, components=[ActionRow(*buttons[:5]),
+                                                    ActionRow(*buttons[5:])])
             await ctx.send("You took too long to respond. Try again later.")
         else:
             for i in range(len(buttons)):
                 buttons[i].disabled = True
-            await _interaction.respond(type=7, embed=embed, components=ActionRow(buttons))
+            await _interaction.respond(type=7, embed=embed, components=[ActionRow(*buttons[:5]),
+                                                                        ActionRow(*buttons[5:])])
+
+            if _interaction.custom_id == "cancel":
+                await ctx.send("Game cancelled.")
+                return
+
             users = await self.player_join(ctx)
             if not users:
                 await ctx.send("No one joined, game ended.")
@@ -125,19 +142,16 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {', '.join([x.mention for x in users])} on winning game!")
 
     @commands.command(name="start")
-    async def game_launcher(self, ctx, skip_to=0):
-        if INSTANCE == "secondary":
-            await se_warn(ctx)
-            return
-        self.game_started()
+    async def game_launcher(self, ctx: commands.Context, skip_to=0) -> None:
+        game_started()
         try:
             await self.game(ctx, skip_to)
         except Exception as e:
             print(e)
         finally:
-            self.game_over()
+            game_over()
 
-    async def game(self, ctx, skip_to=0):
+    async def game(self, ctx, skip_to=0) -> None:
         if ctx.author.id not in owners:
             skip_to = 0
 
@@ -219,34 +233,38 @@ class Game(commands.Cog):
             await ctx.send("None managed to cross the glass bridge. Game Ended.")
 
     async def player_join(self, ctx):
+        host = ctx.author
         embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
                               description=f"Those who want to join the game click the Join button below")
         embed.add_field(name="You have : ",
                         value=f"`{reaction_timeout}` s")
         embed.set_thumbnail(url=bot_icon)
+        embed.set_footer(text="Host should click the start button to start the game!")
         buttons = [
             Button(label="Join", style=ButtonStyle.blue, emoji="🪤"),
-            Button(label="Leave", style=ButtonStyle.red)
+            Button(label="Leave", style=ButtonStyle.red),
+            Button(label="Start", style=ButtonStyle.green)
         ]
         msg = await ctx.send(embed=embed, components=ActionRow(buttons))
-        labels = ["Join", "Leave"]
+        labels = ["Join", "Leave", "Start"]
         users = []
 
         def usr_check(_i):
             return _i.component.label in labels and _i.channel.id == ctx.channel.id
 
-        def get_players_embed():
-            return discord.Embed(title="Join the game",
+        def get_players_embed(_started=False):
+            title = "Game Started" if _started else "Join the game"
+            return discord.Embed(title=title,
                                  description=f"**Players joined** : `{len(users)}`\n\n"
                                              f"{' '.join([u.mention for u in users])}",
                                  colour=discord.Colour.blue())
 
-        start = time.time()
-        while time.time() - start < reaction_timeout:
-            time_delta = time.time() - start
+        started = False
+
+        while not started:
             try:
                 interation = await self.client.wait_for('button_click', check=usr_check,
-                                                        timeout=reaction_timeout - time_delta)
+                                                        timeout=30)
             except asyncio.TimeoutError:
                 pass
             else:
@@ -263,6 +281,16 @@ class Game(commands.Cog):
                         await interation.respond(type=7,
                                                  embed=get_players_embed(),
                                                  components=ActionRow(buttons))
+                    elif interation.component.label == "Start":
+                        if interation.user == host:
+                            started = True
+                            for i in range(len(buttons)):
+                                buttons[i].disabled = True
+                            await interation.respond(type=7,
+                                                     embed=get_players_embed(_started=True),
+                                                     components=ActionRow(buttons))
+                        else:
+                            await interation.respond(content="Please wait for the host to start the game")
                 except discord.NotFound:
                     pass
 
@@ -272,17 +300,8 @@ class Game(commands.Cog):
                 res.append(usr)
 
         users = res
-        for i in range(len(buttons)):
-            buttons[i].disabled = True
 
-        if len(users) >= 1:
-            await msg.edit(embed=discord.Embed(
-                title="Game Started!",
-                description=f"`{len(users)}` Joined",
-                color=discord.Colour.blue()
-            ),
-                components=ActionRow(buttons))
-        else:
+        if len(users) == 0:
             await msg.edit(embed=discord.Embed(
                 title="Game Ended!",
                 description=f"No One joined :(",

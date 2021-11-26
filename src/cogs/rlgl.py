@@ -31,7 +31,8 @@ def get_timeouts(length: int) -> list:
     return timeouts
 
 
-async def rlgl(ctx: commands.Context, client: commands.Bot, user: discord.User, timeout: int = 0, red_light=False,
+async def rlgl(ctx, client: commands.Bot, user: discord.User, timeout: int = 0,
+               red_light=False,
                score=0):
     start = time.time()
     time_delta = time.time() - start
@@ -78,11 +79,13 @@ async def rlgl_collected(ctx: commands.Context, client: commands.Bot, users: lis
     red_light = False
     finalists = [{'user': user, 'score': 0} for user in users]
     winners = []
+
     while time.time() - start < rlgl_timeout:
         await ctx.send(embed=embeds[int(red_light)])
         timeout = timeouts[i]
         _finalists = await asyncio.gather(
-            *[rlgl(ctx, client, fin['user'], timeout, red_light, fin['score']) for fin in finalists])
+            *[rlgl(ctx, client, fin['user'],
+                   timeout, red_light, fin['score']) for fin in finalists])
         red_light = not red_light
         i = (i + 1) % 4
         finalists = []

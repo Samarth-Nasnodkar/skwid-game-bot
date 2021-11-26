@@ -18,46 +18,87 @@ STIKKD_BUTTONS = [
 ]
 
 
-async def ind_stikk(client: commands.Bot, user: discord.User, timeout: int) -> dict:
-    await user.create_dm()
-    msg = await user.dm_channel.send(embed=STIKKD_EMBED, components=STIKKD_BUTTONS)
+async def stikk(ctx, client: commands.Bot, users: list[discord.User]):
+    stikkholders = users[:len(users) // 2]
+    rest = users[len(users) // 2:]
+    timeout = random.randint(30, 60)
+    stikks = [{"user": user, "at": time.time()} for user in stikkholders]
+    eliminated = []
+    print(f"{timeout=}")
+    await ctx.send("**Round** : `STIKK BLAST`")
+    # msgs = []
+    scorecard = await ctx.send(embed=discord.Embed(
+        title="Scoreboard : ",
+        description="```{}```".format('\n'.join(f"{u.display_name} : 0" for u in users)),
+        color=discord.Colour.blue()
+    ))
+    scores = {user: 0 for user in users}
+    for user in stikkholders:
+        await user.create_dm()
+        msg = await user.dm_channel.send(embed=STIKKD_EMBED, components=STIKKD_BUTTONS)
+        # msgs.append({
+        #     "msg": msg,
+        #     "to": user
+        # })
+
     start = time.time()
-    try:
-        await client.wait_for('button_click', timeout=timeout,
-                              check=lambda x: x.user == user and x.custom_id == "pass")
-    except asyncio.TimeoutError:
-        return {
-            "user": user,
-            "result": False,
-            "time": 0
-        }
-    else:
-        btns = STIKKD_BUTTONS
-        for i in range(len(btns)):
-            btns[i].disabled = True
-        await msg.edit(embed=STIKKD_EMBED, components=btns)
-        return {
-            "user": user,
-            "result": True,
-            "time": time.time() - start
-        }
+    time_delta = time.time() - start
 
+    def emj(user: discord.User):
+        if user in stikkholders:
+            return '⭐'
+        elif user in eliminated:
+            return '💥'
+        else:
+            return ' '
+    while time_delta < timeout:
+        try:
+            _i = await client.wait_for("button_click", timeout=timeout - time_delta,
+                                       check=lambda x: x.user in stikkholders and x.custom_id == "pass")
+        except asyncio.TimeoutError:
+            for stikk in stikks:
+                await stikk["user"].dm_channel.send("The stikk exploded!! You're eliminated.")
+                eliminated.append(stikk["user"])
+                stikkholders.remove(stikk["user"])
 
-async def stikk_blast_collected(ctx, client: commands.Bot, users: list):
-    users_length = len(users)
-    players = users
-    split_index = users_length // 2
-    stikk_holders = users[:split_index]
-    stikk_timeouts = []
-    for user in stikk_holders:
-        stikk_timeouts.append({
-            "user": user,
-            "timeout": random.randint(5, 30)
-        })
-    rest = users[split_index:]
-    for stikk_holder in stikk_holders:
-        res = await asyncio.gather(*[ind_stikk(client, stikk_holder, timeout=10) for stikk_holder in stikk_holders])
-        for r in res:
-            if not r["result"]:
-                players.remove(r["user"])
+            # for msg in msgs:
+            #     if msg["to"] not in stikkholders:
+            #         await msg["msg"].delete()
+            #         msgs.remove(msg)
+        else:
+            new_stikkholder = random.choice(rest)
+            await _i.respond(type=7, embed=discord.Embed(
+                description=f"{new_stikkholder.name} Has been STIKK'D",
+                color=discord.Colour.red()
+            ),
+                             components=[])
+            stikkholders.remove(_i.user)
+            rest.append(_i.user)
+            rest.remove(new_stikkholder)
+            stikkholders.append(new_stikkholder)
+            for stikk in stikks:
+                if stikk["user"] == _i.user:
+                    stikk["user"] = new_stikkholder
+                    break
+            # for msg in msgs:
+            #     if msg["to"] not in stikkholders:
+            #         await msg["msg"].delete()
+            #         msgs.remove(msg)
+            await new_stikkholder.create_dm()
+            await new_stikkholder.dm_channel.send(embed=STIKKD_EMBED, components=STIKKD_BUTTONS)
+        finally:
+            for stikk in stikks:
+                scores[stikk["user"]] += int(time.time() - stikk["at"])
+                stikk["at"] = time.time()
 
+            await scorecard.edit(embed=discord.Embed(
+                title="Scoreboard : ",
+                description="```{}```".format('\n'.join(f"{u.display_name} : {scores[u]}"
+                                                        f" {emj(u)}"for u in users)),
+                colour=discord.Colour.blue()
+            ))
+            time_delta = time.time() - start
+
+    # for msg in msgs:
+    #     await msg["msg"].delete()
+    await ctx.send(f"Users who made it to next round -> {' '.join([_u.mention for _u in rest])}")

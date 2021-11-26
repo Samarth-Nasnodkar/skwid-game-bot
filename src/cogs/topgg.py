@@ -20,7 +20,7 @@ class TopGG(commands.Cog):
     async def update_stats(self):
         """This function runs every 30 minutes to automatically update your server count."""
         await self.bot.wait_until_ready()
-        if INSTANCE == "secondary":
+        if INSTANCE != "primary":
             return
         try:
             server_count = len(self.bot.guilds)
