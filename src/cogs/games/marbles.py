@@ -2,9 +2,10 @@ import asyncio
 import discord
 from discord.ext import commands
 from src.constants.timeouts import marbles_total_time
+from src.constants.urls import bot_icon
 import time
 
-rules_msg = "Welcome to the game of Marbles. Each one of you has been given 10 marbles. This game will last a maximum" \
+rules_msg = "Each one of you has been given 10 marbles. This game will last a maximum" \
             "of 3 minutes. If within 3 minutes, you're able to win all 10 of your opponent's marbles, you WIN. If not" \
             "then the user with more marbles after the end of the round wins.\n The game is as follows:\nYou have " \
             "to wage a particular number of marbles(> 0) less than or equal to the marbles left with you and so " \
@@ -28,6 +29,11 @@ guess_msg = "**It is now your turn to guess** whether the number of marbles your
 
 guess_waiting_msg = "Waiting for your opponent to do the odd/even guess."
 
+rules_embed = discord.Embed(title="Welcome to the Game of Marbles",
+                            description=rules_msg,
+                            colour=discord.Colour.purple()).set_footer(text="Game will begin in 30s") \
+    .set_thumbnail(url=bot_icon)
+
 
 async def game_of_marbles(
         client: commands.Bot,
@@ -46,7 +52,7 @@ async def game_of_marbles(
     ]
     for _u in users:
         await _u["user"].create_dm()
-        await _u["user"].dm_channel.send(rules_msg)
+        await _u["user"].dm_channel.send(embed=rules_embed)
 
     await asyncio.sleep(30)
     start = time.time()
@@ -113,6 +119,7 @@ async def game_of_marbles(
         got_right = False
         while not got_right:
             try:
+                await wager["user"].dm_channel.send("**Waiting for your opponent to guess.**")
                 oe_guess_msg = await client.wait_for('message', check=guess_check, timeout=20)
             except asyncio.TimeoutError:
                 await guesser["user"].send("Failed to respond in time, you're eliminated.")
@@ -203,13 +210,8 @@ async def marbles_collected(
     if bye:
         _winners.append(bye)
 
-    w_str = ""
     for _w in winners:
         if _w:
             _winners.append(_w)
-            w_str += f"{_w.mention} "
-
-    if _winners:
-        await txt_channel.send(f"The participants who have made it to the next round are : {w_str}.")
 
     return _winners

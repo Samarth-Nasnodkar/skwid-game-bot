@@ -12,6 +12,7 @@ from src.constants.urls import bot_icon
 from src.constants.owners import owners
 from src.constants.vars import MONGO_CLIENT
 from src.cogs.games.stikk_blast import stikk
+from time import time
 
 
 def default_stats():
@@ -38,6 +39,15 @@ def game_over():
     ongoing = stats["ongoing"]
     ongoing = ongoing - 1 if ongoing > 0 else 0
     collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing}})
+
+
+def log_game(data):
+    db = MONGO_CLIENT["discord_bot"]
+    collection = db["logs"]
+    logs = collection.find_one({"_id": 0})
+    logs["games"].append(data)
+    logs['length'] += 1
+    collection.update_one({'_id': 0}, {'$set': {'games': logs['games'], 'length': logs['length']}})
 
 
 class Game(commands.Cog):
@@ -144,20 +154,27 @@ class Game(commands.Cog):
     @commands.command(name="start")
     async def game_launcher(self, ctx: commands.Context, skip_to=0) -> None:
         game_started()
+        data = {'start': time()}
         try:
-            await self.game(ctx, skip_to)
+            data = await self.game(ctx, skip_to)
         except Exception as e:
             print(e)
         finally:
+            data['duration'] = time() - data['start']
+            log_game(data)
             game_over()
 
-    async def game(self, ctx, skip_to=0) -> None:
+    async def game(self, ctx, skip_to=0) -> dict:
+        data = {"start": time(), "server": ctx.guild.id}
         if ctx.author.id not in owners:
             skip_to = 0
 
         users = await self.player_join(ctx)
         if len(users) == 0:
-            return await ctx.send("No one joined. Game ended :(")
+            await ctx.send("No one joined. Game ended :(")
+            return {}
+
+        data["players"] = len(users)
 
         initial_players = len(users)
         if skip_to == 0:
@@ -165,7 +182,8 @@ class Game(commands.Cog):
 
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
-            return
+            data['winners'] = len(users)
+            return data
 
         congts_str = "Congratulations "
         for usr in users:
@@ -176,7 +194,9 @@ class Game(commands.Cog):
             # users = await self.honeycomb(ctx, users)
             users = await honey_collected(self.client, ctx, users)
         if not users:
-            return await ctx.send("None made it to the next round. Sed :(")
+            await ctx.send("None made it to the next round. Sed :(")
+            data['winners'] = len(users)
+            return data
 
         if len(users) == 1:
             if initial_players != 1:
@@ -185,7 +205,9 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
                                f"*DEFINITELY Not because the other games needed more than one player and you don't"
                                f" have friends for that* ...")
-            return
+
+            data['winners'] = len(users)
+            return data
 
         congts_str = "Congratulations "
         for usr in users:
@@ -198,7 +220,8 @@ class Game(commands.Cog):
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
-            return
+            data['winners'] = len(users)
+            return data
 
         if len(users) == 1:
             if initial_players != 1:
@@ -207,14 +230,23 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
                                f"*DEFINITELY Not because the other games needed more than one player and you don't"
                                f" have friends for that* ...")
-            return
+
+            data['winners'] = len(users)
+            return data
+        else:
+            congts_str = "Congratulations "
+            for usr in users:
+                congts_str += f"{usr.mention} "
+
+            await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         if skip_to <= 3:
             users = await marbles_collected(self.client, ctx.channel, users)
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
-            return
+            data['winners'] = len(users)
+            return data
 
         if len(users) == 1:
             if initial_players != 1:
@@ -223,7 +255,15 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
                                f"*DEFINITELY Not because the other games needed more than one player and you don't"
                                f" have friends for that* ...")
-            return
+
+            data['winners'] = len(users)
+            return data
+        else:
+            congts_str = "Congratulations "
+            for usr in users:
+                congts_str += f"{usr.mention} "
+
+            await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         users = await glass_game(self.client, ctx.channel, users)
 
@@ -231,6 +271,9 @@ class Game(commands.Cog):
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
         else:
             await ctx.send("None managed to cross the glass bridge. Game Ended.")
+
+        data['winners'] = len(users)
+        return data
 
     async def player_join(self, ctx):
         host = ctx.author

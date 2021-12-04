@@ -35,6 +35,8 @@ async def rlgl(ctx, client: commands.Bot, user: discord.User, timeout: int = 0,
                red_light=False,
                score=0):
     start = time.time()
+    if red_light:
+        await asyncio.sleep(0.5)
     time_delta = time.time() - start
     count = score
 
