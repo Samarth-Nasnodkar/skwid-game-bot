@@ -163,7 +163,6 @@ class Game(commands.Cog):
         else:
             data['duration'] = time() - data['start']
             log_game(data)
-            print(data)
             game_over()
 
     async def game(self, ctx, skip_to=0) -> dict:
