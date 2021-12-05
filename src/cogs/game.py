@@ -44,10 +44,11 @@ def game_over():
 def log_game(data):
     db = MONGO_CLIENT["discord_bot"]
     collection = db["logs"]
-    logs = collection.find_one({"_id": 0})
-    logs["games"].append(data)
-    logs['length'] += 1
-    collection.update_one({'_id': 0}, {'$set': {'games': logs['games'], 'length': logs['length']}})
+    # logs = collection.find_one({"_id": 0})
+    # logs["games"].append(data)
+    # logs['length'] += 1
+    collection.find_one_and_update({'_id': 0}, {'$push': {'games': data}, '$inc': {'length': 1}})
+    # collection.update_one({'_id': 0}, {'$set': {'games': logs['games'], 'length': logs['length']}})
 
 
 class Game(commands.Cog):
@@ -154,14 +155,15 @@ class Game(commands.Cog):
     @commands.command(name="start")
     async def game_launcher(self, ctx: commands.Context, skip_to=0) -> None:
         game_started()
-        data = {'start': time()}
         try:
             data = await self.game(ctx, skip_to)
         except Exception as e:
             print(e)
-        finally:
+            game_over()
+        else:
             data['duration'] = time() - data['start']
             log_game(data)
+            print(data)
             game_over()
 
     async def game(self, ctx, skip_to=0) -> dict:
