@@ -10,9 +10,10 @@ from src.cogs.games.honeycomb import honey_collected
 from src.cogs.games.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
-from src.constants.vars import MONGO_CLIENT
+from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN
 from src.cogs.games.stikk_blast import stikk
 from time import time
+import topgg
 
 
 def default_stats():
@@ -51,12 +52,37 @@ def log_game(data):
     # collection.update_one({'_id': 0}, {'$set': {'games': logs['games'], 'length': logs['length']}})
 
 
-class Game(commands.Cog):
+async def update_vote(topgg_client, user_id: int):
+    db = MONGO_CLIENT["discord_bot"]
+    collection = db["votes"]
+    _vote = await topgg_client.get_user_vote(user_id)
+    # if _vote:
 
+
+class Game(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
+        self.topgg_client = topgg.DBLClient(self.client, TOPGG_TOKEN)
         default_stats()
         DiscordComponents(self.client)
+
+    async def skip_game(self, game: str, ctx, host: discord.User) -> bool:
+        buttons = [Button(label="Skip", custom_id="skip", style=ButtonStyle.blue)]
+        embed = discord.Embed(description=f"Next game : **{game}**",
+                              color=discord.Colour.blue()).set_footer(
+            text="The Host can skip this game by clicking the button below. You have 10s.")
+
+        def check(_i):
+            return _i.user == host and _i.channel.id == ctx.channel.id
+
+        await ctx.send(embed=embed, components=buttons)
+        try:
+            _i = await self.client.wait_for('button_click', check=check, timeout=10)
+        except asyncio.TimeoutError:
+            return False
+        else:
+            await _i.respond(content=f"{game} has been skipped")
+            return True
 
     @commands.command(name="stikk")
     async def stikk_launcher(self, ctx):
@@ -179,7 +205,9 @@ class Game(commands.Cog):
 
         initial_players = len(users)
         if skip_to == 0:
-            users = await rlgl_collected(ctx, self.client, users)
+            skipped = await self.skip_game("Red Light Green Light", ctx, host=ctx.author)
+            if not skipped:
+                users = await rlgl_collected(ctx, self.client, users)
 
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
@@ -193,7 +221,9 @@ class Game(commands.Cog):
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
         if skip_to <= 1:
             # users = await self.honeycomb(ctx, users)
-            users = await honey_collected(self.client, ctx, users)
+            skipped = await self.skip_game("HoneyComb", ctx, host=ctx.author)
+            if not skipped:
+                users = await honey_collected(self.client, ctx, users)
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
             data['winners'] = len(users)
@@ -217,7 +247,9 @@ class Game(commands.Cog):
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         if skip_to <= 2:
-            users = await tug_collected(self.client, ctx, users)
+            skipped = await self.skip_game("Tug Of War", ctx, host=ctx.author)
+            if not skipped:
+                users = await tug_collected(self.client, ctx, users)
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
@@ -242,7 +274,9 @@ class Game(commands.Cog):
             await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         if skip_to <= 3:
-            users = await marbles_collected(self.client, ctx.channel, users)
+            skipped = await self.skip_game("Marbles", ctx, host=ctx.author)
+            if not skipped:
+                users = await marbles_collected(self.client, ctx.channel, users)
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
@@ -266,7 +300,9 @@ class Game(commands.Cog):
 
             await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
-        users = await glass_game(self.client, ctx.channel, users)
+        skipped = await self.skip_game("Red Light Green Light", ctx, host=ctx.author)
+        if not skipped:
+            users = await glass_game(self.client, ctx.channel, users)
 
         if users:
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
@@ -308,9 +344,9 @@ class Game(commands.Cog):
         while not started:
             try:
                 interation = await self.client.wait_for('button_click', check=usr_check,
-                                                        timeout=15)
+                                                        timeout=30)
             except asyncio.TimeoutError:
-                pass
+                started = True
             else:
                 try:
                     if interation.component.label == "Join":
