@@ -185,11 +185,11 @@ class Game(commands.Cog):
             data = await self.game(ctx, skip_to)
         except Exception as e:
             print(e)
-            game_over()
         else:
             data['duration'] = time() - data['start']
             log_game(data)
-            game_over()
+
+        game_over()
 
     async def game(self, ctx, skip_to=0) -> dict:
         data = {"start": time(), "server": ctx.guild.id}
@@ -315,7 +315,6 @@ class Game(commands.Cog):
         #     skipped = await self.skip_game("Glass Walk", ctx, host=ctx.author)
         # if not skipped:
         users = await glass_game(self.client, ctx.channel, users)
-
 
         if users:
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
