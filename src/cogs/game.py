@@ -10,7 +10,7 @@ from src.cogs.games.honeycomb import honey_collected
 from src.cogs.games.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
-from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN
+from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN, INSTANCE
 from src.cogs.games.stikk_blast import stikk
 from time import time
 import topgg
@@ -86,7 +86,7 @@ class Game(commands.Cog):
 
     @commands.command(name="stikk")
     async def stikk_launcher(self, ctx):
-        if ctx.author.id not in owners:
+        if ctx.author.id not in owners and INSTANCE == "primary":
             return
         users = await self.player_join(ctx)
         await stikk(ctx, self.client, users)
@@ -193,6 +193,7 @@ class Game(commands.Cog):
 
     async def game(self, ctx, skip_to=0) -> dict:
         data = {"start": time(), "server": ctx.guild.id}
+        skipped = False
         if ctx.author.id not in owners:
             skip_to = 0
 
@@ -205,9 +206,12 @@ class Game(commands.Cog):
 
         initial_players = len(users)
         if skip_to == 0:
-            skipped = await self.skip_game("Red Light Green Light", ctx, host=ctx.author)
+            if len(users) > 10:
+                skipped = await self.skip_game("Red Light Green Light", ctx, host=ctx.author)
             if not skipped:
                 users = await rlgl_collected(ctx, self.client, users)
+
+            skipped = False
 
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
@@ -221,9 +225,12 @@ class Game(commands.Cog):
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
         if skip_to <= 1:
             # users = await self.honeycomb(ctx, users)
-            skipped = await self.skip_game("HoneyComb", ctx, host=ctx.author)
+            if len(users) > 10:
+                skipped = await self.skip_game("HoneyComb", ctx, host=ctx.author)
             if not skipped:
                 users = await honey_collected(self.client, ctx, users)
+
+            skipped = False
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
             data['winners'] = len(users)
@@ -247,9 +254,11 @@ class Game(commands.Cog):
         await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         if skip_to <= 2:
-            skipped = await self.skip_game("Tug Of War", ctx, host=ctx.author)
+            if len(users) > 10:
+                skipped = await self.skip_game("Tug Of War", ctx, host=ctx.author)
             if not skipped:
                 users = await tug_collected(self.client, ctx, users)
+            skipped = False
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
@@ -274,9 +283,12 @@ class Game(commands.Cog):
             await ctx.send(f"{congts_str}\nYou have made it to the next round.")
 
         if skip_to <= 3:
-            skipped = await self.skip_game("Marbles", ctx, host=ctx.author)
+            if len(users) > 10:
+                skipped = await self.skip_game("Marbles", ctx, host=ctx.author)
             if not skipped:
                 users = await marbles_collected(self.client, ctx.channel, users)
+
+            skipped = False
 
         if not users:
             await ctx.send("None made it to the next round. Game Ended.")
@@ -299,10 +311,11 @@ class Game(commands.Cog):
                 congts_str += f"{usr.mention} "
 
             await ctx.send(f"{congts_str}\nYou have made it to the next round.")
+        # if len(users) > 10:
+        #     skipped = await self.skip_game("Glass Walk", ctx, host=ctx.author)
+        # if not skipped:
+        users = await glass_game(self.client, ctx.channel, users)
 
-        skipped = await self.skip_game("Red Light Green Light", ctx, host=ctx.author)
-        if not skipped:
-            users = await glass_game(self.client, ctx.channel, users)
 
         if users:
             await ctx.send(f"Congratulations {', '.join([usr.mention for usr in users])} on Winning the SKWID GAME.")
