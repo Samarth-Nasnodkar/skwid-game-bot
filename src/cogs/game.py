@@ -32,7 +32,7 @@ def game_started():
 def game_over():
     db = MONGO_CLIENT["discord_bot"]
     collection = db["realTimeStats"]
-    collection.find_one_and_update({"_id": 0}, {"inc": {"ongoing": -1}})
+    collection.find_one_and_update({"_id": 0}, {"$inc": {"ongoing": -1}})
 
 
 def log_game(data):
