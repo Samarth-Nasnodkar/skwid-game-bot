@@ -60,32 +60,18 @@ async def on_ready():
     print("Bot online.")
 
 
-@client.event
-async def on_message(message: discord.Message):
-    _p = get_prefix(client, message)
-    prfx = _p[-1].lower()
-    if message.content.lower().startswith(prfx):
-        t = 0
-        if message.content[len(prfx)] == " ":
-            t = 1
-
-        message.content = message.content[:len(prfx)].lower() + message.content[len(prfx) + t:]
-
-    await client.process_commands(message)
-
-
 # @client.event
-# async def on_guild_join(guild: discord.Guild):
-#     supportServer = client.get_guild(900056168716701696)
-#     logs_channel = supportServer.get_channel(904637131736121375)
-#     await logs_channel.send(f"Joined {bold(guild.name)} (`{len(client.guilds)}` Servers.)")
+# async def on_message(message: discord.Message):
+#     _p = get_prefix(client, message)
+#     prfx = _p[-1].lower()
+#     if message.content.lower().startswith(prfx):
+#         t = 0
+#         if message.content[len(prfx)] == " ":
+#             t = 1
 #
+#         message.content = message.content[:len(prfx)].lower() + message.content[len(prfx) + t:]
 #
-# @client.event
-# async def on_guild_remove(guild: discord.Guild):
-#     supportServer = client.get_guild(900056168716701696)
-#     logs_channel = supportServer.get_channel(904637131736121375)
-#     await logs_channel.send(f"Left {bold(guild.name)} (`{len(client.guilds)}` Servers.)")
+#     await client.process_commands(message)
 
 
 @client.command(name="prefix", pass_context=True)
