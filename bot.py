@@ -62,7 +62,8 @@ async def on_ready():
 
 @client.event
 async def on_message(message: discord.Message):
-    prfx = get_prefix(client, message).lower()
+    _p = get_prefix(client, message)
+    prfx = _p[-1].lower()
     if message.content.lower().startswith(prfx):
         t = 0
         if message.content[len(prfx)] == " ":
