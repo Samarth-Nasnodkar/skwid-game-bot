@@ -25,21 +25,14 @@ def default_stats():
 def game_started():
     db = MONGO_CLIENT["discord_bot"]
     collection = db["realTimeStats"]
-    stats = collection.find_one({"_id": 0})
-    ongoing = stats["ongoing"]
-    totalGames = stats["totalGames"]
-    ongoing = ongoing if ongoing > 0 else 0
-    collection.update_one(
-        {"_id": 0}, {"$set": {"ongoing": ongoing + 1, "totalGames": totalGames + 1}})
+    collection.find_one_and_update(
+        {"_id": 0}, {"$inc": {"ongoing": 1, "totalGames": 1}})
 
 
 def game_over():
     db = MONGO_CLIENT["discord_bot"]
     collection = db["realTimeStats"]
-    stats = collection.find_one({"_id": 0})
-    ongoing = stats["ongoing"]
-    ongoing = ongoing - 1 if ongoing > 0 else 0
-    collection.update_one({"_id": 0}, {"$set": {"ongoing": ongoing}})
+    collection.find_one_and_update({"_id": 0}, {"inc": {"ongoing": -1}})
 
 
 def log_game(data):
