@@ -15,6 +15,9 @@ from src.utils.fetchEmojis import fetchEmojis
 
 
 def get_prefix(message):
+    if INSTANCE == 'beta':
+        return "t!"
+
     try:
         db = MONGO_CLIENT["discord_bot"]
         collection = db["prefixes"]
