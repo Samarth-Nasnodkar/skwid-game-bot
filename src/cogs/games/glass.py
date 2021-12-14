@@ -6,12 +6,11 @@ import asyncio
 from src.utils.textStyles import *
 import random
 from src.constants.urls import bot_icon, falling_gif_url, thumbs_up_gif_url
+from src.constants.ids import EMOJI_IDS, SUPPORT_SERVER_ID
 
 glass_steps = 16
 game_time = 180
 wait_time = 5
-support_server_id = 900056168716701696
-glass_emoji_id = 903272838822240268
 
 intro_message = f"Welcome participants to this game of {bold('Glass Walk')}, You will be assigned a random serial " \
                 f"number, You will be called in order and will be presented with two glass panels. One will be " \
@@ -27,8 +26,8 @@ async def glass_game(
         channel,
         users: list
 ) -> list:
-    support_server: discord.Guild = client.get_guild(support_server_id)
-    glass_emoji = await support_server.fetch_emoji(glass_emoji_id)
+    support_server: discord.Guild = client.get_guild(SUPPORT_SERVER_ID)
+    glass_emoji = await support_server.fetch_emoji(EMOJI_IDS["GLASS"])
     # await channel.send(intro_message)
     embed = discord.Embed(title="Welcome Glass walk",
                           color=discord.Colour.purple(), description=intro_message)

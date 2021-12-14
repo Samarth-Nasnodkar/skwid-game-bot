@@ -11,6 +11,7 @@ from src.cogs.games.tugofwar import tug_collected
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
 from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN, INSTANCE
+from src.constants.ids import SUPPORT_SERVER_ID
 from src.cogs.games.stikk_blast import stikk
 from time import time
 import topgg
@@ -86,34 +87,30 @@ class Game(commands.Cog):
 
     @commands.command(name="play")
     async def play_single_game(self, ctx):
-        supportServer = self.client.get_guild(900056168716701696)
-        rlglEmoji = await supportServer.fetch_emoji(904782170499981322)
-        marblesEmoji = await supportServer.fetch_emoji(904783089996279884)
-        honeycombEmoji = await supportServer.fetch_emoji(904782927060148224)
-        glassEmoji = await supportServer.fetch_emoji(903272838822240268)
-        teamEmoji = await supportServer.fetch_emoji(906440335893356544)
+        supportServer = self.client.get_guild(SUPPORT_SERVER_ID)
+        EMOJIS = await fetchEmojis(supportServer)
 
         embed = discord.Embed(
             title="Choose the Game",
             description=f"Click a button below to choose that game\n"
-                        f"{rlglEmoji} - Red Light Green Light\n"
-                        f"{marblesEmoji} - Marbles\n"
-                        f"{honeycombEmoji} - Honeycomb\n"
-                        f"{teamEmoji} - Tug Of War\n"
-                        f"{glassEmoji} - Glass",
+                        f"{EMOJIS['RLGL']} - Red Light Green Light\n"
+                        f"{EMOJIS['MARBLES']} - Marbles\n"
+                        f"{EMOJIS['HONEYCOMB']} - Honeycomb\n"
+                        f"{EMOJIS['TEAM']} - Tug Of War\n"
+                        f"{EMOJIS['GLASS']} - Glass",
             colour=discord.Colour.purple()
         )
         embed.set_footer(text="Click a button below to choose the game")
         buttons = [
-            Button(emoji=rlglEmoji,
+            Button(emoji=EMOJIS['RLGL'],
                    style=ButtonStyle.green, custom_id="rlgl"),
-            Button(emoji=marblesEmoji,
+            Button(emoji=EMOJIS['MARBLES'],
                    style=ButtonStyle.green, custom_id="marbles"),
-            Button(emoji=honeycombEmoji,
+            Button(emoji=EMOJIS['HONEYCOMB'],
                    style=ButtonStyle.green, custom_id="honeycomb"),
-            Button(emoji=teamEmoji,
+            Button(emoji=EMOJIS['TEAMS'],
                    style=ButtonStyle.green, custom_id="tug"),
-            Button(emoji=glassEmoji,
+            Button(emoji=EMOJIS['GLASS'],
                    style=ButtonStyle.green, custom_id="glass"),
             Button(label="Cancel", style=ButtonStyle.red,
                    custom_id="cancel")
