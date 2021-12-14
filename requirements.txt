@@ -4,3 +4,4 @@ topggpy
 pymongo
 dnspython
 flask
+python-dotenv
