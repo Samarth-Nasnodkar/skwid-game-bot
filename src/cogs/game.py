@@ -16,6 +16,8 @@ from src.cogs.games.stikk_blast import stikk
 from time import time
 import topgg
 
+from src.utils.fetchEmojis import fetchEmojis
+
 
 def default_stats():
     db = MONGO_CLIENT["discord_bot"]
@@ -108,7 +110,7 @@ class Game(commands.Cog):
                    style=ButtonStyle.green, custom_id="marbles"),
             Button(emoji=EMOJIS['HONEYCOMB'],
                    style=ButtonStyle.green, custom_id="honeycomb"),
-            Button(emoji=EMOJIS['TEAMS'],
+            Button(emoji=EMOJIS['TEAM'],
                    style=ButtonStyle.green, custom_id="tug"),
             Button(emoji=EMOJIS['GLASS'],
                    style=ButtonStyle.green, custom_id="glass"),
