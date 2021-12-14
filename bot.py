@@ -5,9 +5,12 @@ from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
 from src.constants.vars import TOKEN, MONGO_URL, INSTANCE, DEFAULT_PREFIX, MONGO_CLIENT
+from src.constants.ids import SUPPORT_SERVER_ID
 from src.constants.urls import bot_icon
 from src.constants.urls import invite_url
 from discord_components import *
+
+from src.utils.fetchEmojis import fetchEmojis
 
 
 def get_prefix(bot: commands.Bot, message):
@@ -57,7 +60,11 @@ COGS = [
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening,
                                                            name="s!help"))
+
     print("Bot online.")
+
+    support_server = await client.fetch_guild(SUPPORT_SERVER_ID)
+    await fetchEmojis(support_server)
 
 
 # @client.event
