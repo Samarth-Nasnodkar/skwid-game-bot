@@ -8,6 +8,8 @@ import random
 from src.constants.urls import bot_icon, falling_gif_url, thumbs_up_gif_url
 from src.constants.ids import EMOJI_IDS, SUPPORT_SERVER_ID
 
+from src.utils.fetchEmojis import fetchEmojis
+
 glass_steps = 16
 game_time = 180
 wait_time = 5
@@ -27,7 +29,7 @@ async def glass_game(
         users: list
 ) -> list:
     support_server: discord.Guild = client.get_guild(SUPPORT_SERVER_ID)
-    glass_emoji = await support_server.fetch_emoji(EMOJI_IDS["GLASS"])
+    glass_emoji = (await fetchEmojis(support_server))["GLASS"]
     # await channel.send(intro_message)
     embed = discord.Embed(title="Welcome Glass walk",
                           color=discord.Colour.purple(), description=intro_message)
