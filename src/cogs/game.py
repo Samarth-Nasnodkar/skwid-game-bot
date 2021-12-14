@@ -180,7 +180,7 @@ class Game(commands.Cog):
             print(e)
         else:
             data['duration'] = time() - data['start']
-            log_game(data)
+            # log_game(data)
 
         game_over()
 
