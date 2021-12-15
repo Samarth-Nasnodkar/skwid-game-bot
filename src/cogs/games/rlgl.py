@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 from src.constants.timeouts import rlgl_min_score, rlgl_timeout
+from src.constants.games import games
 import time
 import random
 
@@ -63,34 +64,43 @@ async def rlgl(ctx, client: commands.Bot, user: discord.User, timeout: int = 0,
 
 
 async def rlgl_collected(ctx: commands.Context, client: commands.Bot, users: list):
-    red_green_intro = f"All Participants, get ready. The first game is `Red Light, Green Light`\n" \
-                      f"Each participant has to send {rlgl_min_score} messages in the next `{rlgl_timeout}s`" \
-                      f"\nYou can send the message when the I say **__Green Light__**. If you send a message after" \
-                      f" I say **__Red Light__** you are eliminated.\nThe participants who are not able to send" \
-                      f"the {rlgl_min_score} messages in the given time are eliminated too. Good luck!"
+    red_green_intro = games['rlgl']['desc']
 
-    red_green = discord.Embed(title="Welcome to Red Light, Green Light",
-                              description=red_green_intro, color=discord.Colour.purple())
+    red_green = discord.Embed(
+        title="Welcome to Red Light, Green Light",
+        description=red_green_intro,
+        color=discord.Colour.purple()
+    )
 
     await ctx.send(embed=red_green)
     timeouts = get_timeouts(4)
+
     print(timeouts)
     await asyncio.sleep(5)
+
     i = 0
     start = time.time()
     red_light = False
+
     finalists = [{'user': user, 'score': 0} for user in users]
     winners = []
 
     while time.time() - start < rlgl_timeout:
         await ctx.send(embed=embeds[int(red_light)])
+
         timeout = timeouts[i]
+
         _finalists = await asyncio.gather(
-            *[rlgl(ctx, client, fin['user'],
-                   timeout, red_light, fin['score']) for fin in finalists])
+            *[
+                rlgl(ctx, client, fin['user'], timeout, red_light, fin['score'])
+                for fin in finalists
+            ]
+        )
+
         red_light = not red_light
         i = (i + 1) % 4
         finalists = []
+
         for f in _finalists:
             if f is not None:
                 if f['score'] >= rlgl_min_score:

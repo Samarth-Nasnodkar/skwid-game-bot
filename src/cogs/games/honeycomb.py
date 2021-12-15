@@ -5,12 +5,14 @@ from src.constants.timeouts import honeycomb_reply_timeout
 from src.constants.scramble_words import words
 from src.constants.urls import bot_icon
 import random
-
+from src.constants.games import games
 
 def scramble(word) -> str:
     """Scrambles a word"""
+
     scrambled_word = ""
     word = list(word)
+
     while word:
         random_index = random.randint(0, len(word) - 1)
         scrambled_word += word[random_index]
@@ -39,12 +41,12 @@ async def honey_solo(client: commands.Bot, ctx: commands.Context, word: str, use
 
 
 async def honey_collected(client: commands.Bot, ctx: commands.Context, users: list):
-    honeycomb_intro = f"All participants get ready. The second game is called HoneyComb. You will be DMed a " \
-                      f"scrambled word. You have to un-scramble it and send it within " \
-                      f"`{honeycomb_reply_timeout}s`.\nThe participants who fail to send the correct answer vis " \
-                      f"DMs within the given time will be eliminated. Good Luck!"
-    embed = discord.Embed(title="Welcome to the Honeycomb game.", description=honeycomb_intro,
-                          color=discord.Colour.purple())
+    embed = discord.Embed(
+        title="Welcome to the Honeycomb game.",
+        description=games['honeycomb']['desc'],
+        color=discord.Colour.purple()
+    )
+
     embed.set_thumbnail(url=bot_icon)
     embed.set_footer(text="Game will begin in 10 seconds.")
     await ctx.send(embed=embed)
