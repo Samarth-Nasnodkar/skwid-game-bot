@@ -64,9 +64,11 @@ class Game(commands.Cog):
 
     async def skip_game(self, game: str, ctx, host: discord.User) -> bool:
         buttons = [Button(label="Skip", custom_id="skip", style=ButtonStyle.blue)]
-        embed = discord.Embed(description=f"Next game : **{game}**",
-                              color=discord.Colour.blue()).set_footer(
-            text="The Host can skip this game by clicking the button below. You have 10s.")
+
+        embed = discord.Embed(
+            description=f"Next game : **{game}**",
+            color=discord.Colour.blue()
+        ).set_footer(text="The Host can skip this game by clicking the button below. You have 10s.")
 
         def check(_i):
             return _i.user == host and _i.channel.id == ctx.channel.id
@@ -102,42 +104,55 @@ class Game(commands.Cog):
                         f"{EMOJIS['GLASS']} - Glass",
             colour=discord.Colour.purple()
         )
+
         embed.set_footer(text="Click a button below to choose the game")
+
         buttons = [
-            Button(emoji=EMOJIS['RLGL'],
-                   style=ButtonStyle.green, custom_id="rlgl"),
-            Button(emoji=EMOJIS['MARBLES'],
-                   style=ButtonStyle.green, custom_id="marbles"),
-            Button(emoji=EMOJIS['HONEYCOMB'],
-                   style=ButtonStyle.green, custom_id="honeycomb"),
-            Button(emoji=EMOJIS['TEAM'],
-                   style=ButtonStyle.green, custom_id="tug"),
-            Button(emoji=EMOJIS['GLASS'],
-                   style=ButtonStyle.green, custom_id="glass"),
-            Button(label="Cancel", style=ButtonStyle.red,
-                   custom_id="cancel")
+            Button(emoji=EMOJIS['RLGL'], style=ButtonStyle.green, custom_id="rlgl"),
+            Button(emoji=EMOJIS['MARBLES'], style=ButtonStyle.green, custom_id="marbles"),
+            Button(emoji=EMOJIS['HONEYCOMB'], style=ButtonStyle.green, custom_id="honeycomb"),
+            Button(emoji=EMOJIS['TEAM'], style=ButtonStyle.green, custom_id="tug"),
+            Button(emoji=EMOJIS['GLASS'], style=ButtonStyle.green, custom_id="glass"),
+            Button(label="Cancel", style=ButtonStyle.red, custom_id="cancel")
         ]
         msg = await ctx.send(
             embed=embed,
             components=[ActionRow(*buttons[:5]), ActionRow(*buttons[5:])]
         )
+
         custom_ids = ["rlgl", "marbles", "honeycomb", "glass", "tug", "cancel"]
         try:
-            _interaction = await self.client.wait_for('button_click', timeout=30,
-                                                      check=lambda x: x.custom_id in custom_ids and
-                                                                      x.user.id == ctx.author.id and
-                                                                      x.channel.id == ctx.channel.id)
+            _interaction = await self.client.wait_for(
+                'button_click',
+                timeout=30,
+                check=lambda x: x.custom_id in custom_ids and
+                                x.user.id == ctx.author.id and
+                                x.channel.id == ctx.channel.id
+                )
+
         except asyncio.TimeoutError:
             for i in range(len(buttons)):
                 buttons[i].disabled = True
-            await msg.edit(embed=embed, components=[ActionRow(*buttons[:5]),
-                                                    ActionRow(*buttons[5:])])
+
+            await msg.edit(
+                embed=embed,
+                components=[
+                    ActionRow(*buttons[:5]), ActionRow(*buttons[5:])
+                ]
+            )
+
             await ctx.send("You took too long to respond. Try again later.")
         else:
             for i in range(len(buttons)):
                 buttons[i].disabled = True
-            await _interaction.respond(type=7, embed=embed, components=[ActionRow(*buttons[:5]),
-                                                                        ActionRow(*buttons[5:])])
+
+            await _interaction.respond(
+                type=7,
+                embed=embed,
+                components=[
+                    ActionRow(*buttons[:5]), ActionRow(*buttons[5:])
+                ]
+            )
 
             if _interaction.custom_id == "cancel":
                 await ctx.send("Game cancelled.")
@@ -150,11 +165,13 @@ class Game(commands.Cog):
 
             if _interaction.custom_id == "rlgl":
                 users = await rlgl_collected(ctx, self.client, users)
+
             elif _interaction.custom_id == "marbles":
                 if len(users) == 1:
                     await ctx.send("You need at least 2 players to play this game.")
                     return
                 users = await marbles_collected(self.client, ctx.channel, users)
+
             elif _interaction.custom_id == "honeycomb":
                 # users = await self.honeycomb(ctx, users)
                 users = await honey_collected(self.client, ctx, users)
@@ -173,6 +190,7 @@ class Game(commands.Cog):
     @commands.command(name="start")
     async def game_launcher(self, ctx: commands.Context, skip_to=0) -> None:
         game_started()
+
         try:
             data = await self.game(ctx, skip_to)
         except Exception as e:
@@ -186,6 +204,7 @@ class Game(commands.Cog):
     async def game(self, ctx, skip_to=0) -> dict:
         data = {"start": time(), "server": ctx.guild.id}
         skipped = False
+
         if ctx.author.id not in owners:
             skip_to = 0
 
@@ -223,6 +242,7 @@ class Game(commands.Cog):
                 users = await honey_collected(self.client, ctx, users)
 
             skipped = False
+
         if not users:
             await ctx.send("None made it to the next round. Sed :(")
             data['winners'] = len(users)
@@ -232,9 +252,11 @@ class Game(commands.Cog):
             if initial_players != 1:
                 await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
             else:
-                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
-                               f"*DEFINITELY Not because the other games needed more than one player and you don't"
-                               f" have friends for that* ...")
+                await ctx.send(
+                    f"Congratulations {users[0].mention} You have won the SKWID game.\n"
+                    f"*DEFINITELY Not because the other games needed more than one player and you don't"
+                    f" have friends for that* ..."
+                )
 
             data['winners'] = len(users)
             return data
@@ -261,9 +283,11 @@ class Game(commands.Cog):
             if initial_players != 1:
                 await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
             else:
-                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
-                               f"*DEFINITELY Not because the other games needed more than one player and you don't"
-                               f" have friends for that* ...")
+                await ctx.send(
+                    f"Congratulations {users[0].mention} You have won the SKWID game.\n"
+                    f"*DEFINITELY Not because the other games needed more than one player and you don't"
+                    f" have friends for that* ..."
+                )
 
             data['winners'] = len(users)
             return data
@@ -291,9 +315,11 @@ class Game(commands.Cog):
             if initial_players != 1:
                 await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.")
             else:
-                await ctx.send(f"Congratulations {users[0].mention} You have won the SKWID game.\n"
-                               f"*DEFINITELY Not because the other games needed more than one player and you don't"
-                               f" have friends for that* ...")
+                await ctx.send(
+                    f"Congratulations {users[0].mention} You have won the SKWID game.\n"
+                    f"*DEFINITELY Not because the other games needed more than one player and you don't"
+                    f" have friends for that* ..."
+                )
 
             data['winners'] = len(users)
             return data
@@ -318,17 +344,25 @@ class Game(commands.Cog):
 
     async def player_join(self, ctx):
         host = ctx.author
-        embed = discord.Embed(title="Join the game", color=discord.Colour.blue(),
-                              description=f"Those who want to join the game click the Join button below")
-        embed.add_field(name="You have : ",
-                        value=f"`{reaction_timeout}` s")
+        embed = discord.Embed(
+            title="Join the game",
+            color=discord.Colour.blue(),
+            description=f"Those who want to join the game click the Join button below"
+        )
+
+        embed.add_field(
+            name="You have : ",
+            value=f"`{reaction_timeout}` s"
+        )
         embed.set_thumbnail(url=bot_icon)
         embed.set_footer(text="Host should click the start button to start the game!")
+
         buttons = [
             Button(label="Join", style=ButtonStyle.blue, emoji="🪤"),
             Button(label="Leave", style=ButtonStyle.red),
             Button(label="Start", style=ButtonStyle.green)
         ]
+
         msg = await ctx.send(embed=embed, components=ActionRow(buttons))
         labels = ["Join", "Leave", "Start"]
         users = []
@@ -338,17 +372,23 @@ class Game(commands.Cog):
 
         def get_players_embed(_started=False):
             title = "Game Started" if _started else "Join the game"
-            return discord.Embed(title=title,
-                                 description=f"**Players joined** : `{len(users)}`\n\n"
-                                             f"{' '.join([u.mention for u in users])}",
-                                 colour=discord.Colour.blue())
+            return discord.Embed(
+                title=title,
+                description=f"**Players joined** : `{len(users)}`\n\n"
+                            f"{' '.join([u.mention for u in users])}",
+                colour=discord.Colour.blue()
+            )
 
         started = False
 
         while not started:
             try:
-                interation = await self.client.wait_for('button_click', check=usr_check,
-                                                        timeout=30)
+                interation = await self.client.wait_for(
+                    'button_click',
+                    check=usr_check,
+                    timeout=30
+                )
+
             except asyncio.TimeoutError:
                 started = True
             else:
@@ -356,23 +396,32 @@ class Game(commands.Cog):
                     if interation.component.label == "Join":
                         if interation.user not in users:
                             users.append(interation.user)
-                        await interation.respond(type=7,
-                                                 embed=get_players_embed(),
-                                                 components=ActionRow(buttons))
+                        await interation.respond(
+                            type=7,
+                            embed=get_players_embed(),
+                            components=ActionRow(buttons)
+                        )
+
                     elif interation.component.label == "Leave":
                         if interation.user in users:
                             users.remove(interation.user)
-                        await interation.respond(type=7,
-                                                 embed=get_players_embed(),
-                                                 components=ActionRow(buttons))
+                        await interation.respond(
+                            type=7,
+                            embed=get_players_embed(),
+                            components=ActionRow(buttons)
+                        )
+
                     elif interation.component.label == "Start":
                         if interation.user == host:
                             started = True
                             for i in range(len(buttons)):
                                 buttons[i].disabled = True
-                            await interation.respond(type=7,
-                                                     embed=get_players_embed(_started=True),
-                                                     components=ActionRow(buttons))
+                            await interation.respond(
+                                type=7,
+                                embed=get_players_embed(_started=True),
+                                components=ActionRow(buttons)
+                            )
+
                         else:
                             await interation.respond(content="Please wait for the host to start the game")
                 except discord.NotFound:
@@ -386,12 +435,14 @@ class Game(commands.Cog):
         users = res
 
         if len(users) == 0:
-            await msg.edit(embed=discord.Embed(
-                title="Game Ended!",
-                description=f"No One joined :(",
-                color=discord.Colour.blue()
-            ),
-                components=ActionRow(buttons))
+            await msg.edit(
+                embed=discord.Embed(
+                    title="Game Ended!",
+                    description=f"No One joined :(",
+                    color=discord.Colour.blue()
+                ),
+                components=ActionRow(buttons)
+            )
             return []
 
         return users
