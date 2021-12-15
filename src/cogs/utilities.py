@@ -64,41 +64,41 @@ class Utilities(commands.Cog):
             ])
         )
 
-    @commands.command(name="stats")
-    async def stats(self, ctx):
-        """
-        Get some stats about the bot.
-        """
-        if ctx.author.id not in owners:
-            return
-
-        db = MONGO_CLIENT["discord_bot"]
-        collection = db["realTimeStats"]
-
-        stats = collection.find_one({'_id': 0})
-
-        total_games = stats['totalGames']
-        ongoing = stats['ongoing']
-
-        guilds = len(self.client.guilds)
-        users = 0
-
-        for guild in self.client.guilds:
-            users += guild.member_count
-
-        embed = discord.Embed(
-            title="Bot Stats",
-            description=f"{bold('Stats as given below')}",
-            color=discord.Color.purple()
-        )
-
-        embed.set_thumbnail(url=bot_icon)
-        embed.add_field(name=f"{bold('Servers')}", value=f"`{guilds}`", inline=True)
-        embed.add_field(name=f"{bold('Users')}  ", value=f"`{users}`", inline=True)
-        embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=True)
-        embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=True)
-
-        await ctx.send(embed=embed)
+    # @commands.command(name="stats")
+    # async def stats(self, ctx):
+    #     """
+    #     Get some stats about the bot.
+    #     """
+    #     if ctx.author.id not in owners:
+    #         return
+    #
+    #     db = MONGO_CLIENT["discord_bot"]
+    #     collection = db["realTimeStats"]
+    #
+    #     stats = collection.find_one({'_id': 0})
+    #
+    #     total_games = stats['totalGames']
+    #     ongoing = stats['ongoing']
+    #
+    #     guilds = len(self.client.guilds)
+    #     users = 0
+    #
+    #     for guild in self.client.guilds:
+    #         users += guild.member_count
+    #
+    #     embed = discord.Embed(
+    #         title="Bot Stats",
+    #         description=f"{bold('Stats as given below')}",
+    #         color=discord.Color.purple()
+    #     )
+    #
+    #     embed.set_thumbnail(url=bot_icon)
+    #     embed.add_field(name=f"{bold('Servers')}", value=f"`{guilds}`", inline=True)
+    #     embed.add_field(name=f"{bold('Users')}  ", value=f"`{users}`", inline=True)
+    #     embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=True)
+    #     embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=True)
+    #
+    #     await ctx.send(embed=embed)
 
 
 def setup(client):

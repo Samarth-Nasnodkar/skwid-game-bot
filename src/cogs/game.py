@@ -12,11 +12,17 @@ from src.constants.urls import bot_icon
 from src.constants.owners import owners
 from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN, INSTANCE
 from src.constants.ids import SUPPORT_SERVER_ID
+from src.utils.textStyles import *
 from src.cogs.games.stikk_blast import stikk
 from time import time
 import topgg
 
 from src.utils.fetchEmojis import fetchEmojis
+
+ongoing_games = {
+    "ongoing": 0,
+    "games": []
+}
 
 
 def default_stats():
@@ -25,17 +31,28 @@ def default_stats():
     collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
 
 
-def game_started():
+def game_started(start_time, server_id):
+    global ongoing_games
     db = MONGO_CLIENT["discord_bot"]
     collection = db["realTimeStats"]
-    collection.find_one_and_update(
-        {"_id": 0}, {"$inc": {"ongoing": 1, "totalGames": 1}})
+    collection.find_one_and_update({"_id": 0}, {"$inc": {"totalGames": 1}})
+    ongoing_games["ongoing"] += 1
+    ongoing_games["games"].append({
+        "start_time": start_time,
+        "server_id": server_id
+    })
 
 
-def game_over():
-    db = MONGO_CLIENT["discord_bot"]
-    collection = db["realTimeStats"]
-    collection.find_one_and_update({"_id": 0}, {"$inc": {"ongoing": -1}})
+def game_over(start_time, server_id):
+    global ongoing_games
+    # db = MONGO_CLIENT["discord_bot"]
+    # collection = db["realTimeStats"]
+    # collection.find_one_and_update({"_id": 0}, {"$inc": {"ongoing": -1}})
+    ongoing_games["ongoing"] -= 1
+    ongoing_games["games"].remove({
+        "start_time": start_time,
+        "server_id": server_id
+    })
 
 
 def log_game(data):
@@ -128,7 +145,7 @@ class Game(commands.Cog):
                 check=lambda x: x.custom_id in custom_ids and
                                 x.user.id == ctx.author.id and
                                 x.channel.id == ctx.channel.id
-                )
+            )
 
         except asyncio.TimeoutError:
             for i in range(len(buttons)):
@@ -189,17 +206,70 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def game_launcher(self, ctx: commands.Context, skip_to=0) -> None:
-        game_started()
+        time_started = time()
+        game_started(time_started, ctx.guild.id)
 
         try:
             data = await self.game(ctx, skip_to)
         except Exception as e:
             print(e)
         else:
-            data['duration'] = time() - data['start']
+            pass
+            # data['duration'] = time() - data['start']
             # log_game(data)
 
-        game_over()
+        game_over(time_started, ctx.guild.id)
+
+    @commands.command(name="ongoing")
+    async def ongoing_games(self, ctx: commands.Context) -> None:
+        if ctx.author.id not in owners:
+            return
+        global ongoing_games
+        games = ongoing_games["games"]
+        embed = discord.Embed(title="Ongoing Games", colour=discord.Colour.blue())
+        for game in games:
+            embed.add_field(name=f'Server ID: {game["server_id"]}',
+                            value=f"`{time() - game['start_time']}`s", inline=True)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name="stats")
+    async def stats(self, ctx):
+        """
+        Get some stats about the bot.
+        """
+        if ctx.author.id not in owners:
+            return
+
+        global ongoing_games
+
+        db = MONGO_CLIENT["discord_bot"]
+        collection = db["realTimeStats"]
+
+        stats = collection.find_one({'_id': 0})
+
+        total_games = stats['totalGames']
+        ongoing = ongoing_games["ongoing"]
+
+        guilds = len(self.client.guilds)
+        users = 0
+
+        for guild in self.client.guilds:
+            users += guild.member_count
+
+        embed = discord.Embed(
+            title="Bot Stats",
+            description=f"{bold('Stats as given below')}",
+            color=discord.Color.purple()
+        )
+
+        embed.set_thumbnail(url=bot_icon)
+        embed.add_field(name=f"{bold('Servers')}", value=f"`{guilds}`", inline=True)
+        embed.add_field(name=f"{bold('Users')}  ", value=f"`{users}`", inline=True)
+        embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=True)
+        embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=True)
+
+        await ctx.send(embed=embed)
 
     async def game(self, ctx, skip_to=0) -> dict:
         data = {"start": time(), "server": ctx.guild.id}
