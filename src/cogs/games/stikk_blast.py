@@ -30,9 +30,12 @@ async def stikk(ctx, client: commands.Bot, users: list[discord.User]):
     timeout = random.randint(10, 15)
     stikks = [{"user": user, "at": time.time()} for user in stikkholders]
     eliminated = []
+
     print(f"{timeout=}")
+
     await ctx.send(STIKKD_INTRO)
     scores = {user: {'score': 0, 'time': 0} for user in users}
+
     for user in stikkholders:
         await user.create_dm()
         msg = await user.dm_channel.send(embed=STIKKD_EMBED, components=STIKKD_BUTTONS)
@@ -57,15 +60,22 @@ async def stikk(ctx, client: commands.Bot, users: list[discord.User]):
         else:
             new_stikkholder = random.choice(rest)
             _score = int(time.time() - start - scores[_i.user]['time'])
-            await _i.respond(type=7, embed=discord.Embed(
-                description=f"{new_stikkholder.name} Has been STIKK'D",
-                color=discord.Colour.red()
-            ),
-                             components=[])
+
+            await _i.respond(
+                type=7,
+                embed=discord.Embed(
+                    description=f"{new_stikkholder.name} Has been STIKK'D",
+                    color=discord.Colour.red()
+                ),
+                components=[]
+
+            )
+
             stikkholders.remove(_i.user)
             rest.append(_i.user)
             rest.remove(new_stikkholder)
             stikkholders.append(new_stikkholder)
+
             for stikk in stikks:
                 if stikk["user"] == _i.user:
                     stikk["user"] = new_stikkholder

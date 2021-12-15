@@ -1,5 +1,5 @@
 from src.utils.textStyles import *
-from src.cogs.games.glass import glass_steps, game_time
+from src.cogs.games.glass import intro_message as glass_desc
 from src.constants.timeouts import rlgl_min_score, rlgl_timeout, honeycomb_reply_timeout
 
 games = {
@@ -32,13 +32,7 @@ games = {
     },
     'glass': {
         'name': 'Glass Walk',
-        'desc': f"This is the game of {bold('Glass Walk')}, You will be assigned a random serial " \
-                f"number, You will be called in order and will be presented with two glass panels. One will be " \
-                f"{highlight('Tempered Glass')} and will be prone to breaking, while the other will be " \
-                f"{highlight('Durable Glass')} and will be able to carry your weight. If you choose the tempered " \
-                f"glass, you're Eliminated. But if you choose the Durable glass, you survive and are presented with " \
-                f"another pair of glass. There will be {glass_steps} rounds. The participants who cross the bridge " \
-                f"before the timer ends({game_time} s) will be the winners, and rest will be Eliminated."
+        'desc': glass_desc
     },
     'tug': {
         'name': 'Tug of War',
