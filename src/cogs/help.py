@@ -13,7 +13,6 @@ from src.constants.ids import SUPPORT_SERVER_ID
 
 from src.utils.fetchEmojis import fetchEmojis
 
-
 def get_prefix(message):
     try:
         db = MONGO_CLIENT["discord_bot"]
@@ -47,7 +46,7 @@ class Help(commands.Cog):
                         f"{EMOJIS['GLASS']} **➜** Rules of Glass Walk\n"
                         f"{EMOJIS['CMDS']} **➜** Bot Commands\n"
                         f"{EMOJIS['MENU']} **➜** Shows this Menu\n",
-            color=discord.Color.purple(),
+            color=discord.Color.purple()
         )
         embeds["menu"] = {
             "embed": menu_embed,
@@ -59,38 +58,34 @@ class Help(commands.Cog):
         }
 
         button_list_1 = [
-            Button(emoji=EMOJIS["RLGL"], custom_id="rlgl",
-                   style=ButtonStyle.blue),
-            Button(emoji=EMOJIS["HONEYCOMB"],
-                   custom_id="honeycomb", style=ButtonStyle.blue),
-            Button(emoji=EMOJIS["TEAM"],
-                   custom_id="tug", style=ButtonStyle.blue),
-            Button(emoji=EMOJIS["MARBLES"],
-                   custom_id="marbles", style=ButtonStyle.blue),
-            Button(emoji=EMOJIS["GLASS"],
-                   custom_id="glass", style=ButtonStyle.blue),
+            Button(emoji=EMOJIS["RLGL"], custom_id="rlgl", style=ButtonStyle.blue),
+            Button(emoji=EMOJIS["HONEYCOMB"], custom_id="honeycomb", style=ButtonStyle.blue),
+            Button(emoji=EMOJIS["TEAM"], custom_id="tug", style=ButtonStyle.blue),
+            Button(emoji=EMOJIS["MARBLES"], custom_id="marbles", style=ButtonStyle.blue),
+            Button(emoji=EMOJIS["GLASS"], custom_id="glass", style=ButtonStyle.blue),
         ]
 
         button_list_2 = [
-            Button(emoji=EMOJIS["MENU"], custom_id="menu",
-                   style=ButtonStyle.green),
-            Button(emoji=EMOJIS["CMDS"],
-                   style=ButtonStyle.green, custom_id="cmds"),
-            Button(label="Vote", style=ButtonStyle.URL,
-                   url=bot_vote_url, custom_id="vote"),
-            Button(label="Join the support server", style=ButtonStyle.URL,
-                   custom_id="invite", url=support_server_invite)
+            Button(emoji=EMOJIS["MENU"], custom_id="menu", style=ButtonStyle.green),
+            Button(emoji=EMOJIS["CMDS"], style=ButtonStyle.green, custom_id="cmds"),
+
+            Button(label="Vote", style=ButtonStyle.URL, url=bot_vote_url, custom_id="vote"),
+            Button(label="Join the support server", style=ButtonStyle.URL, custom_id="invite", url=support_server_invite)
         ]
 
         current_embed = menu_embed
+
         menu_embed.set_thumbnail(url=bot_icon)
         menu_embed.set_footer(text="Click a button to get more info on games.")
+
         msg = await ctx.send(
             embed=current_embed,
             components=[
                 ActionRow(*button_list_1),
                 ActionRow(*button_list_2)
-            ])
+            ]
+        )
+
         while True:
             try:
                 i = await self.client.wait_for("button_click", timeout=60, check=lambda x: x.message.id == msg.id)
@@ -112,11 +107,15 @@ class Help(commands.Cog):
                 if i.custom_id != "vote" and i.custom_id != "invite":
                     current_embed = embeds[i.component.custom_id]["embed"]
 
-                await i.respond(type=7, ephemeral=False, embed=current_embed,
-                                components=[
-                                    ActionRow(*button_list_1),
-                                    ActionRow(*button_list_2)
-                                ])
+                await i.respond(
+                    type=7,
+                    ephemeral=False,
+                    embed=current_embed,
+                    components=[
+                        ActionRow(*button_list_1),
+                        ActionRow(*button_list_2)
+                    ]
+                )
 
 
 def setup(client):
