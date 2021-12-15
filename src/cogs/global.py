@@ -15,15 +15,16 @@ class Global(commands.Cog):
             Button(label="🎯", custom_id="join", style=ButtonStyle.green),
             Button(label="🚀", custom_id="host", style=ButtonStyle.green),
         ]
-        await ctx.send(embed=discord.Embed(
-            title="Welcome to Global matchmaking!",
-            description="Press the following buttons to join/host a game\n"
-                        f"\🎯 **➜** Join Game\n"
-                        f"\🚀 **➜** Host Game\n",
-            colour=discord.Colour.blue()
-        ).set_thumbnail(url=bot_icon),
-                       components=ActionRow(buttons)
-                       )
+        await ctx.send(
+            embed=discord.Embed(
+                title="Welcome to Global matchmaking!",
+                description="Press the following buttons to join/host a game\n"
+                            f"\🎯 **➜** Join Game\n"
+                            f"\🚀 **➜** Host Game\n",
+                colour=discord.Colour.blue()
+            ).set_thumbnail(url=bot_icon),
+            components=ActionRow(buttons)
+        )
 
 
 def setup(client):

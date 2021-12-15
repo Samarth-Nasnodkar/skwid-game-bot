@@ -6,7 +6,6 @@ from src.constants.urls import bot_icon, invite_url, support_server_invite
 from src.constants.owners import owners
 from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
 
-
 class Utilities(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
@@ -37,23 +36,33 @@ class Utilities(commands.Cog):
         """
         await ctx.send(f"Bot ping : `{round(self.client.latency * 1000)}`ms")
 
-    @commands.command(ame="invite")
+    @commands.command(name="invite")
     async def invite(self, ctx):
         """Command for inviting the bot."""
-        embed = discord.Embed(title="Invite the bot",
-                              description="Invite the bot using the button below and help us by voting on top.gg",
-                              color=discord.Colour.purple())
+        embed = discord.Embed(
+            title="Invite the bot",
+            description="Invite the bot using the button below and help us by voting on top.gg",
+            color=discord.Colour.purple()
+        )
         embed.set_thumbnail(url=bot_icon)
 
-        await ctx.send(embed=embed, components=ActionRow([
-            Button(label="Invite Me",
-                   style=ButtonStyle.URL,
-                   custom_id="invite",
-                   url=invite_url),
-            Button(label="Join Support Server",
-                   style=ButtonStyle.URL,
-                   custom_id="server",
-                   url=support_server_invite)]))
+        await ctx.send(
+            embed=embed,
+            components=ActionRow([
+                Button(
+                    label="Invite Me",
+                    style=ButtonStyle.URL,
+                    custom_id="invite",
+                    url=invite_url
+                ),
+                Button(
+                    label="Join Support Server",
+                    style=ButtonStyle.URL,
+                    custom_id="server",
+                    url=support_server_invite
+                )
+            ])
+        )
 
     @commands.command(name="stats")
     async def stats(self, ctx):
@@ -62,13 +71,18 @@ class Utilities(commands.Cog):
         """
         if ctx.author.id not in owners:
             return
+
         db = MONGO_CLIENT["discord_bot"]
         collection = db["realTimeStats"]
+
         stats = collection.find_one({'_id': 0})
+
         total_games = stats['totalGames']
         ongoing = stats['ongoing']
+
         guilds = len(self.client.guilds)
         users = 0
+
         for guild in self.client.guilds:
             users += guild.member_count
 
@@ -83,6 +97,7 @@ class Utilities(commands.Cog):
         embed.add_field(name=f"{bold('Users')}  ", value=f"`{users}`", inline=True)
         embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=True)
         embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=True)
+
         await ctx.send(embed=embed)
 
 
