@@ -207,7 +207,7 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {', '.join([x.mention for x in users])} on winning game!")
 
     @commands.command(name="start")
-    async def game_launcher(self, ctx: commands.Context, skip_: str) -> None:
+    async def game_launcher(self, ctx: commands.Context, skip_: str = "0") -> None:
         time_started = time()
         game_started(time_started, ctx.guild.id)
 
