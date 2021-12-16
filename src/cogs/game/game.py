@@ -1,23 +1,38 @@
 from typing import Union
+import asyncio
+from time import time
 
+import topgg
 import discord
 from discord.ext import commands
-import asyncio
+
 from discord_components import *
 from src.constants.timeouts import *
+
 from src.cogs.games.marbles import marbles_collected
 from src.cogs.games.rlgl import rlgl_collected
 from src.cogs.games.glass import glass_game
 from src.cogs.games.honeycomb import honey_collected
 from src.cogs.games.tugofwar import tug_collected
+from src.cogs.games.stikk_blast import stikk
+
 from src.constants.urls import bot_icon
 from src.constants.owners import owners
 from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN, INSTANCE
 from src.constants.ids import SUPPORT_SERVER_ID
+
 from src.utils.textStyles import *
-from src.cogs.games.stikk_blast import stikk
-from time import time
-import topgg
+
+from src.cogs.game.db import (
+    default_stats,
+    game_started as db_game_started,
+    game_over as db_game_over,
+    log_game,
+    update_vote
+)
+from src.cogs.game.commands.stats import stats
+from src.cogs.game.commands.ongoing import ongoing
+
 
 from src.utils.fetchEmojis import fetchEmojis
 
@@ -26,18 +41,11 @@ ongoing_games = {
     "games": []
 }
 
-
-def default_stats():
-    db = MONGO_CLIENT["discord_bot"]
-    collection = db["realTimeStats"]
-    collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
-
-
 def game_started(start_time, server_id):
     global ongoing_games
-    db = MONGO_CLIENT["discord_bot"]
-    collection = db["realTimeStats"]
-    collection.find_one_and_update({"_id": 0}, {"$inc": {"totalGames": 1}})
+
+    db_game_started(start_time, server_id)
+
     ongoing_games["ongoing"] += 1
     ongoing_games["games"].append({
         "start_time": start_time,
@@ -47,9 +55,9 @@ def game_started(start_time, server_id):
 
 def game_over(start_time, server_id):
     global ongoing_games
-    # db = MONGO_CLIENT["discord_bot"]
-    # collection = db["realTimeStats"]
-    # collection.find_one_and_update({"_id": 0}, {"$inc": {"ongoing": -1}})
+
+    db_game_over(start_time, server_id)
+
     ongoing_games["ongoing"] -= 1
     ongoing_games["games"].remove({
         "start_time": start_time,
@@ -57,27 +65,11 @@ def game_over(start_time, server_id):
     })
 
 
-def log_game(data):
-    db = MONGO_CLIENT["discord_bot"]
-    collection = db["logs"]
-    # logs = collection.find_one({"_id": 0})
-    # logs["games"].append(data)
-    # logs['length'] += 1
-    collection.find_one_and_update({'_id': 0}, {'$push': {'games': data}, '$inc': {'length': 1}})
-    # collection.update_one({'_id': 0}, {'$set': {'games': logs['games'], 'length': logs['length']}})
-
-
-async def update_vote(topgg_client, user_id: int):
-    db = MONGO_CLIENT["discord_bot"]
-    collection = db["votes"]
-    _vote = await topgg_client.get_user_vote(user_id)
-    # if _vote:
-
-
 class Game(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
         self.topgg_client = topgg.DBLClient(self.client, TOPGG_TOKEN)
+
         default_stats()
         DiscordComponents(self.client)
 
@@ -230,55 +222,17 @@ class Game(commands.Cog):
         game_over(time_started, ctx.guild.id)
 
     @commands.command(name="ongoing")
-    async def ongoing_games(self, ctx: commands.Context) -> None:
-        if ctx.author.id not in owners:
-            return
-        global ongoing_games
-        games = ongoing_games["games"]
-        embed = discord.Embed(title="Ongoing Games", colour=discord.Colour.blue())
-        for game in games:
-            embed.add_field(name=f'Server ID: {game["server_id"]}',
-                            value=f"`{time() - game['start_time']}`s", inline=True)
-
-        await ctx.send(embed=embed)
+    async def ongoing(self, ctx: commands.Context) -> None:
+        await ongoing(ctx, ongoing_games)
 
     @commands.command(name="stats")
-    async def stats(self, ctx):
+    async def stats(self, ctx: commands.Context):
         """
         Get some stats about the bot.
         """
-        if ctx.author.id not in owners:
-            return
-
         global ongoing_games
 
-        db = MONGO_CLIENT["discord_bot"]
-        collection = db["realTimeStats"]
-
-        stats = collection.find_one({'_id': 0})
-
-        total_games = stats['totalGames']
-        ongoing = ongoing_games["ongoing"]
-
-        guilds = len(self.client.guilds)
-        users = 0
-
-        for guild in self.client.guilds:
-            users += guild.member_count
-
-        embed = discord.Embed(
-            title="Bot Stats",
-            description=f"{bold('Stats as given below')}",
-            color=discord.Color.purple()
-        )
-
-        embed.set_thumbnail(url=bot_icon)
-        embed.add_field(name=f"{bold('Servers')}", value=f"`{guilds}`", inline=True)
-        embed.add_field(name=f"{bold('Users')}  ", value=f"`{users}`", inline=True)
-        embed.add_field(name=f"{bold('Total games')}", value=f"`{total_games}`", inline=True)
-        embed.add_field(name=f"{bold('Ongoing')}", value=f"`{ongoing}`", inline=True)
-
-        await ctx.send(embed=embed)
+        await stats(self.client, ctx, ongoing_games)
 
     async def game(self, ctx, skip_to=0, override: bool = False) -> dict:
         data = {"start": time(), "server": ctx.guild.id}

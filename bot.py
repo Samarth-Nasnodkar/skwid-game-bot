@@ -48,7 +48,7 @@ client = commands.Bot(command_prefix=get_prefix,
 DiscordComponents(client)
 client.remove_command("help")
 COGS = [
-    "game",
+    "game.game",
     "topgg",
     "help",
     "global",
