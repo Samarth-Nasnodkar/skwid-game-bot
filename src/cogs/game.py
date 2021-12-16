@@ -1,3 +1,5 @@
+from typing import Union
+
 import discord
 from discord.ext import commands
 import asyncio
@@ -205,12 +207,19 @@ class Game(commands.Cog):
                 await ctx.send(f"Congratulations {', '.join([x.mention for x in users])} on winning game!")
 
     @commands.command(name="start")
-    async def game_launcher(self, ctx: commands.Context, skip_to=0) -> None:
+    async def game_launcher(self, ctx: commands.Context, skip_: str) -> None:
         time_started = time()
         game_started(time_started, ctx.guild.id)
 
         try:
-            data = await self.game(ctx, skip_to)
+            skip_to = 0
+            override = False
+            if skip_.lower() == "skip-1":
+                skip_to = 1
+                override = True
+            elif skip_.isnumeric():
+                skip_to = int(skip_)
+            data = await self.game(ctx, skip_to, override)
         except Exception as e:
             print(e)
         else:
@@ -271,11 +280,11 @@ class Game(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    async def game(self, ctx, skip_to=0) -> dict:
+    async def game(self, ctx, skip_to=0, override: bool = False) -> dict:
         data = {"start": time(), "server": ctx.guild.id}
         skipped = False
 
-        if ctx.author.id not in owners:
+        if ctx.author.id not in owners and not override:
             skip_to = 0
 
         users = await self.player_join(ctx)
