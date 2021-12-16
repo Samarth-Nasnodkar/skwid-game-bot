@@ -30,3 +30,14 @@ words = [
     "Migration",
     "Temprature"
 ]
+
+easy_words = [
+   "food",
+   "eat",
+   "apple",
+   "banana",
+   "orange",
+   "reply",
+   "riot",
+   "disney"
+]

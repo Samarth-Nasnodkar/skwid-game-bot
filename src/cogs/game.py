@@ -442,12 +442,20 @@ class Game(commands.Cog):
 
         def get_players_embed(_started=False):
             title = "Game Started" if _started else "Join the game"
-            return discord.Embed(
-                title=title,
-                description=f"**Players joined** : `{len(users)}`\n\n"
-                            f"{' '.join([u.mention for u in users])}",
-                colour=discord.Colour.blue()
-            )
+            if len(users) <= 15:
+                return discord.Embed(
+                    title=title,
+                    description=f"**Players joined** : `{len(users)}`\n\n"
+                                f"{' '.join([u.mention for u in users])}",
+                    colour=discord.Colour.blue()
+                )
+            else:
+                return discord.Embed(
+                    title=title,
+                    description=f"**Players joined** : `{len(users)}`\n\n"
+                                f"{' '.join([u.mention for u in users[:15]])}...and `{len(users) - 15}` more",
+                    colour=discord.Colour.blue()
+                )
 
         started = False
 
