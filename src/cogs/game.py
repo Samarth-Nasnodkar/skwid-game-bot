@@ -41,6 +41,7 @@ class Game(commands.Cog):
         self.client: commands.Bot = client
         DiscordComponents(self.client)
 
+<<<<<<< Updated upstream
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.DMChannel):
@@ -54,6 +55,12 @@ class Game(commands.Cog):
                         self.honeycomb_replied[str(message.author.id)] = True
                         await message.author.dm_channel.send(f"That is correct! You made it to the next round.")
                         print(f"{message.author.id} Took {time_delta.seconds}s")
+=======
+    @commands.command(name="test_start")
+    async def game_launcher(self, ctx: commands.Context, skip_: str = "0") -> None:
+        time_started = time()
+        game_started(time_started, ctx.guild.id)
+>>>>>>> Stashed changes
 
         try:
             if str(message.guild.id) in self.red_lights:
