@@ -10,5 +10,5 @@ def index():
 
 
 print("Running bot.py")
-processbot = subprocess.Popen(['python3', 'bot.py'])
+processbot = subprocess.Popen(['python', 'bot.py'])
 app.run()
