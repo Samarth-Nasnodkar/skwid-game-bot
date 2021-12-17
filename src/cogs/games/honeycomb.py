@@ -7,6 +7,7 @@ from src.constants.urls import bot_icon
 import random
 from src.constants.games import games
 
+
 def scramble(word) -> str:
     """Scrambles a word"""
 

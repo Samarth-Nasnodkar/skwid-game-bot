@@ -10,11 +10,16 @@ class TopGG(commands.Cog):
         self.bot = bot
         # set this to your DBL token
         self.token = TOPGG_TOKEN
-        self.topgg_client = topgg.DBLClient(self.bot, self.token)
+        self.topgg_client = topgg.DBLClient(self.bot, self.token, webhook_path="/vote", webhook_auth="password",
+                                            webhook_port=8080)
         self.update_stats.start()
 
     def cog_unload(self):
         self.update_stats.cancel()
+
+    @commands.Cog.listener()
+    async def on_dbl_vote(self, data):
+        print("Received a vote : ", data)
 
     @tasks.loop(minutes=30)
     async def update_stats(self):
