@@ -10,9 +10,7 @@ class TopGG(commands.Cog):
         self.bot = bot
         # set this to your DBL token
         self.token = TOPGG_TOKEN
-        self.topgg_client = topgg.DBLClient(self.bot, self.token, webhook_path="/vote", webhook_auth="password",
-                                            webhook_port=8080)
-        # self.topgg_webhook.run(8080)
+        self.topgg_client = topgg.DBLClient(self.bot, self.token)
         self.update_stats.start()
 
     def cog_unload(self):

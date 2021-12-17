@@ -1,5 +1,5 @@
 import subprocess
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -7,6 +7,12 @@ app = Flask(__name__)
 @app.route("/", methods=["GET"])
 def index():
     return "On"
+
+
+@app.route("/vote", methods=["POST"])
+def bot_vote():
+    data = request.get_json()
+    print("Vote received: ", data)
 
 
 print("Running bot.py")
