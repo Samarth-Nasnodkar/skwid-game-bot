@@ -44,7 +44,8 @@ intents.dm_messages = True
 intents.members = True
 intents.emojis = True
 client = commands.Bot(command_prefix=get_prefix,
-                      case_insensitive=True, intents=intents)
+                      case_insensitive=True, intents=intents, max_messages=None,
+                      member_cache_flags=discord.MemberCacheFlags.none())
 DiscordComponents(client)
 client.remove_command("help")
 COGS = [
