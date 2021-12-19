@@ -35,13 +35,17 @@ def remove_user_from_db(user_id: int) -> None:
     db.find_one_and_update({"_id": 0}, {"$pull": {"voters": user_id}})
 
 
-async def honey_solo(client: commands.Bot, ctx: commands.Context, word: str, user: discord.User):
+async def honey_solo(client: commands.Bot, ctx: commands.Context, word: str, user: discord.User, count_vote=True):
     scrambled_word = scramble(word)
     vote_button = Button(label="Vote", url=bot_vote_url, style=ButtonStyle.URL)
     await user.create_dm()
-    await user.dm_channel.send(f"**Your word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`**.\n"
-                               f"*Click the button below to vote the bot to get an easier word. Once voted DM `voted`*",
-                               components=[vote_button])
+    if count_vote:
+        await user.dm_channel.send(f"**Your word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`**.\n"
+                                   f"*Click the button below to vote the bot to get an easier word. Once voted DM "
+                                   f"`voted`*",
+                                   components=[vote_button])
+    else:
+        await user.dm_channel.send(f"**Your new word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`**")
     while True:
         try:
             msg = await client.wait_for('message', timeout=honeycomb_reply_timeout,
@@ -50,15 +54,16 @@ async def honey_solo(client: commands.Bot, ctx: commands.Context, word: str, use
             await ctx.send(f"{user.mention} Took too long to respond. Player Eliminated!")
             return None
         else:
-            if msg.content.lower() == "voted":
+            if msg.content.lower() == "voted" and count_vote:
                 voted = get_user_vote(user.id)
                 if voted:
                     remove_user_from_db(user.id)
-                    return await honey_solo(client, ctx, random.choice(easy_words), user)
+                    return await honey_solo(client, ctx, random.choice(easy_words), user, count_vote=False)
                 else:
                     await user.dm_channel.send(f"Looks like you didn't vote or might have voted already in the past 12 "
                                                f"hours. Un-scramble this word. You have `{honeycomb_reply_timeout}s`.")
                     continue
+
             if msg.content.lower() == word.lower():
                 await user.dm_channel.send("That is correct!")
                 return user
