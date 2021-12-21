@@ -39,13 +39,18 @@ async def honey_solo(client: commands.Bot, ctx: commands.Context, word: str, use
     scrambled_word = scramble(word)
     vote_button = Button(label="Vote", url=bot_vote_url, style=ButtonStyle.URL)
     await user.create_dm()
-    if count_vote:
-        await user.dm_channel.send(f"**Your word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`**.\n"
-                                   f"*Click the button below to vote the bot to get an easier word. Once voted DM "
-                                   f"`voted`*",
-                                   components=[vote_button])
-    else:
-        await user.dm_channel.send(f"**Your new word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`**")
+    try:
+        if count_vote:
+            await user.dm_channel.send(f"**Your word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`**.\n"
+                                       f"*Click the button below to vote the bot to get an easier word. Once voted DM "
+                                       f"`voted`*",
+                                       components=[vote_button])
+        else:
+            await user.dm_channel.send(f"**Your new word is `{scrambled_word}`. You have `{honeycomb_reply_timeout}s`"
+                                       f"**")
+    except discord.Forbidden:
+        await ctx.send(f"{user.mention} is not accepting DMs. Excluding them from the game.")
+        return None
     while True:
         try:
             msg = await client.wait_for('message', timeout=honeycomb_reply_timeout,
