@@ -14,10 +14,12 @@ from src.constants.urls import bot_icon
 from src.constants.owners import owners
 from src.constants.vars import MONGO_CLIENT, TOPGG_TOKEN, INSTANCE
 from src.constants.ids import SUPPORT_SERVER_ID
+from src.constants.player_join_options import JoinOptions
 from src.utils.textStyles import *
 from src.cogs.games.stikk_blast import stikk
 from time import time
 import topgg
+from typing import Tuple, List
 
 from src.utils.fetchEmojis import fetchEmojis
 
@@ -33,7 +35,7 @@ def default_stats():
     collection.update_one({"_id": 0}, {"$set": {"ongoing": 0}})
 
 
-def game_started(start_time, server_id):
+def game_started(start_time, server_id, channel_id):
     global ongoing_games
     db = MONGO_CLIENT["discord_bot"]
     collection = db["realTimeStats"]
@@ -41,11 +43,12 @@ def game_started(start_time, server_id):
     ongoing_games["ongoing"] += 1
     ongoing_games["games"].append({
         "start_time": start_time,
+        "channel_id": channel_id,
         "server_id": server_id
     })
 
 
-def game_over(start_time, server_id):
+def game_over(start_time, server_id, channel_id):
     global ongoing_games
     # db = MONGO_CLIENT["discord_bot"]
     # collection = db["realTimeStats"]
@@ -53,6 +56,7 @@ def game_over(start_time, server_id):
     ongoing_games["ongoing"] -= 1
     ongoing_games["games"].remove({
         "start_time": start_time,
+        "channel_id": channel_id,
         "server_id": server_id
     })
 
@@ -105,7 +109,7 @@ class Game(commands.Cog):
     async def stikk_launcher(self, ctx):
         if ctx.author.id not in owners and INSTANCE == "primary":
             return
-        users = await self.player_join(ctx)
+        users, err = await self.player_join(ctx)
         await stikk(ctx, self.client, users)
 
     @commands.command(name="play")
@@ -177,9 +181,12 @@ class Game(commands.Cog):
                 await ctx.send("Game cancelled.")
                 return
 
-            users = await self.player_join(ctx)
+            users, err = await self.player_join(ctx)
             if not users:
-                await ctx.send("No one joined, game ended.")
+                if err == JoinOptions.NO_ERROR:
+                    await ctx.send("No one joined, game ended.")
+                elif err == JoinOptions.ENDED_BY_HOST:
+                    await ctx.send("Game ended by host.")
                 return
 
             if _interaction.custom_id == "rlgl":
@@ -208,8 +215,15 @@ class Game(commands.Cog):
 
     @commands.command(name="start")
     async def game_launcher(self, ctx: commands.Context, skip_: str = "0") -> None:
+        global ongoing_games
+
+        for game in ongoing_games["games"]:
+            if game["channel_id"] == ctx.channel.id:
+                await ctx.send("There is already a game running in this channel.")
+                return
+
         time_started = time()
-        game_started(time_started, ctx.guild.id)
+        game_started(time_started, ctx.guild.id, ctx.channel.id)
 
         try:
             skip_to = 0
@@ -227,7 +241,7 @@ class Game(commands.Cog):
             # data['duration'] = time() - data['start']
             # log_game(data)
 
-        game_over(time_started, ctx.guild.id)
+        game_over(time_started, ctx.guild.id, ctx.channel.id)
 
     @commands.command(name="ongoing")
     async def ongoing_games(self, ctx: commands.Context) -> None:
@@ -287,9 +301,12 @@ class Game(commands.Cog):
         if ctx.author.id not in owners and not override:
             skip_to = 0
 
-        users = await self.player_join(ctx)
+        users, err = await self.player_join(ctx)
         if len(users) == 0:
-            await ctx.send("No one joined. Game ended :(")
+            if err == JoinOptions.NO_ERROR:
+                await ctx.send("No one joined. Game ended :(")
+            elif err == JoinOptions.ENDED_BY_HOST:
+                await ctx.send("Game ended by host.")
             return {}
 
         data["players"] = len(users)
@@ -421,7 +438,8 @@ class Game(commands.Cog):
         data['winners'] = len(users)
         return data
 
-    async def player_join(self, ctx):
+    async def player_join(self, ctx) -> Tuple[List[discord.Member], JoinOptions]:
+        err = JoinOptions.UNKNOWN_EXCEPTION
         host = ctx.author
         embed = discord.Embed(
             title="Join the game",
@@ -438,12 +456,13 @@ class Game(commands.Cog):
 
         buttons = [
             Button(label="Join", style=ButtonStyle.blue, emoji="🪤"),
-            Button(label="Leave", style=ButtonStyle.red),
-            Button(label="Start", style=ButtonStyle.green)
+            Button(label="Leave", style=ButtonStyle.blue),
+            Button(label="Start", style=ButtonStyle.green),
+            Button(label="End", style=ButtonStyle.red)
         ]
 
-        msg = await ctx.send(embed=embed, components=ActionRow(buttons))
-        labels = ["Join", "Leave", "Start"]
+        msg = await ctx.send(embed=embed, components=[ActionRow(*buttons[:2]), ActionRow(*buttons[2:])])
+        labels = ["Join", "Leave", "Start", "End"]
         users = []
 
         def usr_check(_i):
@@ -486,7 +505,7 @@ class Game(commands.Cog):
                         await interation.respond(
                             type=7,
                             embed=get_players_embed(),
-                            components=ActionRow(buttons)
+                            components=[ActionRow(*buttons[:2]), ActionRow(*buttons[2:])]
                         )
 
                     elif interation.component.label == "Leave":
@@ -495,7 +514,7 @@ class Game(commands.Cog):
                         await interation.respond(
                             type=7,
                             embed=get_players_embed(),
-                            components=ActionRow(buttons)
+                            components=[ActionRow(*buttons[:2]), ActionRow(*buttons[2:])]
                         )
 
                     elif interation.component.label == "Start":
@@ -506,11 +525,24 @@ class Game(commands.Cog):
                             await interation.respond(
                                 type=7,
                                 embed=get_players_embed(_started=True),
-                                components=ActionRow(buttons)
+                                components=[ActionRow(*buttons[:2]), ActionRow(*buttons[2:])]
                             )
 
                         else:
                             await interation.respond(content="Please wait for the host to start the game")
+                    elif interation.component.label == "End":
+                        if interation.user == host:
+                            started = True
+                            for i in range(len(buttons)):
+                                buttons[i].disabled = True
+                            await interation.respond(
+                                type=7,
+                                embed=get_players_embed(),
+                                components=[ActionRow(*buttons[:2]), ActionRow(*buttons[2:])]
+                            )
+                            err = JoinOptions.ENDED_BY_HOST
+                        else:
+                            await interation.respond(content="Please ask the host to end the game")
                 except discord.NotFound:
                     pass
 
@@ -528,11 +560,12 @@ class Game(commands.Cog):
                     description=f"No One joined :(",
                     color=discord.Colour.blue()
                 ),
-                components=ActionRow(buttons)
+                components=[ActionRow(*buttons[:2]), ActionRow(*buttons[2:])]
             )
-            return []
+            err = JoinOptions.NO_ERROR
+            return [], err
 
-        return users
+        return users, err
 
 
 def setup(client):

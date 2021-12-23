@@ -54,7 +54,8 @@ COGS = [
     "topgg",
     "help",
     "global",
-    "utilities"
+    "utilities",
+    "debugging"
 ]
 
 

@@ -24,7 +24,7 @@ STIKKD_BUTTONS = [
 ]
 
 
-async def stikk(ctx, client: commands.Bot, users: list[discord.User]):
+async def stikk(ctx, client: commands.Bot, users: list[discord.Member]):
     stikkholders = users[:len(users) // 2]
     rest = users[len(users) // 2:]
     timeout = random.randint(10, 15)
