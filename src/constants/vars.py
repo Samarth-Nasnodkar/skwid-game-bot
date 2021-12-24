@@ -1,8 +1,5 @@
 import os
 from pymongo import MongoClient
-from dotenv import load_dotenv
-
-load_dotenv()
 
 DEFAULT_PREFIX = "s!"
 MONGO_URL = os.environ.get("mongo_db_auth")
