@@ -5,6 +5,7 @@ from src.constants.vars import MONGO_CLIENT
 import random
 import time
 import asyncio
+from typing import List
 
 STIKKD_INTRO = "This game is called STIKK'D. Half of you will be given a stikk which you can hold or pass. Each stikk" \
                " has a 50/50 chance of either exploding and eliminating you or dropping `150` points. However, you " \
@@ -24,7 +25,7 @@ STIKKD_BUTTONS = [
 ]
 
 
-async def stikk(ctx, client: commands.Bot, users: list[discord.Member]):
+async def stikk(ctx, client: commands.Bot, users: List[discord.Member]):
     stikkholders = users[:len(users) // 2]
     rest = users[len(users) // 2:]
     timeout = random.randint(10, 15)
