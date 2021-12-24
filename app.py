@@ -17,4 +17,4 @@ def bot_vote():
 
 print("Running bot.py")
 processbot = subprocess.Popen(['python', 'bot.py'])
-app.run()
+app.run("0.0.0.0", 8080)
