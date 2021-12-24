@@ -1,7 +1,0 @@
-py-cord
-discord_components
-topggpy
-pymongo
-dnspython
-flask
-python-dotenv
