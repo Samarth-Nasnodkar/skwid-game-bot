@@ -76,6 +76,10 @@ class Help(commands.Cog):
             Button(label="Join the support server", style=ButtonStyle.URL, custom_id="invite", url=support_server_invite)
         ]
 
+        button_list_3 = [
+            Button(label="Support Us!", style=ButtonStyle.URL, url=donate_url, custom_id="donate"),
+        ]
+
         current_embed = menu_embed
 
         menu_embed.set_thumbnail(url=bot_icon)
@@ -85,7 +89,8 @@ class Help(commands.Cog):
             embed=current_embed,
             components=[
                 ActionRow(*button_list_1),
-                ActionRow(*button_list_2)
+                ActionRow(*button_list_2),
+                ActionRow(*button_list_3)
             ]
         )
 
@@ -101,7 +106,8 @@ class Help(commands.Cog):
                     embed=current_embed,
                     components=[
                         ActionRow(*button_list_1),
-                        ActionRow(*button_list_2)
+                        ActionRow(*button_list_2),
+                        ActionRow(*button_list_3)
                     ])
                 return
             except Exception as e:
@@ -116,7 +122,8 @@ class Help(commands.Cog):
                     embed=current_embed,
                     components=[
                         ActionRow(*button_list_1),
-                        ActionRow(*button_list_2)
+                        ActionRow(*button_list_2),
+                        ActionRow(*button_list_3)
                     ]
                 )
 

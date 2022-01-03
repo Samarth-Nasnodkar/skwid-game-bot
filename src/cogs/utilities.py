@@ -2,9 +2,10 @@ import discord
 from discord.ext import commands
 from discord_components import *
 from src.utils.textStyles import *
-from src.constants.urls import bot_icon, invite_url, support_server_invite
+from src.constants.urls import bot_icon, invite_url, support_server_invite, donate_url
 from src.constants.owners import owners
 from src.constants.vars import MONGO_URL, INSTANCE, MONGO_CLIENT
+
 
 class Utilities(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -28,6 +29,12 @@ class Utilities(commands.Cog):
                 await msg.delete(delay=5)
             except discord.HTTPException:
                 pass
+
+    @commands.command(name="support")
+    async def _support(self, ctx):
+        await ctx.send("**Support us and get a VIP role in the support server!**",
+                       components=[Button(label="Support Us!", style=ButtonStyle.URL, url=donate_url)]
+                       )
 
     @commands.command(name="ping")
     async def ping(self, ctx):
