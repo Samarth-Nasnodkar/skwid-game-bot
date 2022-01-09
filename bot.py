@@ -44,9 +44,9 @@ intents.dm_messages = True
 intents.members = True
 intents.emojis = True
 # to stop caching. :)
-client = commands.Bot(command_prefix=get_prefix,
-                      case_insensitive=True, intents=intents, max_messages=None,
-                      member_cache_flags=discord.MemberCacheFlags.none())
+client = commands.AutoShardedBot(command_prefix=get_prefix,
+                                 case_insensitive=True, intents=intents, max_messages=None,
+                                 member_cache_flags=discord.MemberCacheFlags.none())
 DiscordComponents(client)
 client.remove_command("help")
 COGS = [
